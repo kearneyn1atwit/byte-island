@@ -21,11 +21,14 @@ export default {
     methods: {
       login() {
         if(this.username === 'user' && this.password === 'password') {
-            this.$router.push('/test-page');
+            this.$router.push('/home');
         }
         else {
             alert("Invalid user credentials.");
         }
+      },
+      wip() {
+        alert("Feature not yet implemented.");
       }
     },
     components: {

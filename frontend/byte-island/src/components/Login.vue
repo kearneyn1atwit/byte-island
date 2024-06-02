@@ -1,5 +1,5 @@
 <template>
-  <v-container class="bg">
+  <v-container>
     <v-responsive
       class=" mx-auto"
     >
@@ -16,7 +16,7 @@
             <v-text-field v-model="username" variant="outlined" :rules="[rules.required]" placeholder="Username" class="ital-input mb-2"></v-text-field>
             <v-text-field :type="show ? 'text' : 'password'" :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show = !show" v-model="password" variant="outlined" :rules="[rules.required]" placeholder="Password" class="ital-input mb-2"></v-text-field>
             <v-row align="center" justify="center" class="mt-5">
-              <v-btn size="large" variant="outlined" class="form-btn mr-10">Sign up</v-btn>
+              <v-btn size="large" variant="outlined" class="form-btn mr-10" @click="wip()">Sign up</v-btn>
               <v-btn size="large" :disabled="!(username && password)" variant="outlined" class="form-btn" @click="login()">Login</v-btn>
             </v-row>
           </v-form>
@@ -29,11 +29,6 @@
   </v-container>
 </template>
 <style>
-.bg {
-  max-width: 100vw !important;
-  height: 100% !important;
-  background-image: linear-gradient(black 0%, rgb(89,153,80) 100%);
-}
 .login-form {
   max-width: 700px !important;
   margin: auto !important;

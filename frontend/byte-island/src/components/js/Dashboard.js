@@ -1,25 +1,26 @@
 export default {
     data() {
       return {
-        testVal: 0
+        rPoints: 0,
+        gPoints: 0,
+        bPoints: 0,
+        notifCount: 2,
+        drawer: null
       };
     },
     async created() {
-      this.testVal += 1;
+      
     },
     computed: {
       
     },
     mounted() {
-        this.testVal += 1;
+        
     },
     methods: {
-      getVal() {
-        return this.testVal;
-      },
-      valInc() {
-        this.testVal += 1;
-      }
+        wip() {
+            alert("Feature not yet implemented.");
+        }
     },
     components: {
       
