@@ -2,8 +2,8 @@ export default {
     data() {
       return {
         rPoints: 0,
-        gPoints: 0,
-        bPoints: 0,
+        gPoints: 12,
+        bPoints: 6,
         notifCount: 2,
         drawer: null
       };
