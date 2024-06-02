@@ -1,5 +1,5 @@
 <template>
-<v-card>
+<v-card v-if="loaded">
     <v-layout>
       <v-navigation-drawer
         v-model="drawer"

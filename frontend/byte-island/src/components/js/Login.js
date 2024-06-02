@@ -1,3 +1,5 @@
+import CryptoJS from "crypto-js";
+
 export default {
     data() {
       return {
@@ -21,7 +23,8 @@ export default {
     methods: {
       login() {
         if(this.username === 'user' && this.password === 'password') {
-            this.$router.push('/home');
+            this.$router.push({ name: 'Home', params: { id: CryptoJS.AES.encrypt(this.password,'123456').toString()
+             }});
         }
         else {
             alert("Invalid user credentials.");

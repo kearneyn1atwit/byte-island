@@ -13,6 +13,9 @@ const router = createRouter({
   routes: []
 })
 
-router.addRoute('', { path: '/home', component: () => import("../components/Dashboard.vue") });
+router.addRoute('', { path: '/', name: 'Login', component: () => import("../components/Login.vue") });
+router.addRoute('', { path: '/home/:id', name: 'Home', component: () => import("../components/Dashboard.vue") });
+router.addRoute('', { path: '/unauthorized', name: 'Unauth', component: () => import("../components/Unauth.vue") });
+router.addRoute('', { path: '/:catchAll(.*)', name: 'NotFound', component: () => import("../components/NotFound.vue") });
 
 export default router
