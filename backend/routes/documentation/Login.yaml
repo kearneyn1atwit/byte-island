@@ -1,0 +1,35 @@
+swagger: '2.0'
+info:
+  title: Login API
+  description: API for user authentication
+  version: 1.0.0
+basePath: /auth
+paths:
+  /login:
+    post:
+      summary: Login for Users
+      description: Authenticate user credentials and then generate a JWT (JSON Web Token) token and return it
+      parameters:
+        - name: username
+          description: Username that user is attempting to login with
+          required: true
+        - name: password
+          description: Password of the user that should be entered
+          required: true
+      responses:
+        '200':
+          description: Login Successful
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: JWT token for authentication
+        '401':
+          description: Unauthorized Login / Login Failed
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating login failure
