@@ -1,5 +1,5 @@
 <template>
-<v-card v-if="loaded">
+<v-app v-if="loaded">
     <v-layout>
       <VResizeDrawer
         v-model="drawer"
@@ -13,32 +13,44 @@
         :width-snap-back="false"
         :temporary="true"
       >
-        <v-list-item>
-            <v-badge color="green" :content="notifCount" class="ml-auto ma-5 mt-4">
+        <div style="position: sticky; top:0; left: 5px; width:calc(100% - 5px); z-index: 1; background-color: rgb(33,33,33);">
+          <v-list-item v-if="widget === 'dashboard'">
+            <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
                 <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
             </v-badge>
         </v-list-item>
 
-        <v-divider></v-divider>
+        <v-list-item v-else>
+          <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
+            <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
+          </v-badge>
+        </v-list-item>
+          <v-divider></v-divider>
+        </div>
 
         <v-list density="compact" nav class="custom-nav">
-          <v-list-item title="Notifications" value="notifications" @click="wip()"></v-list-item>   
-          <v-badge color="green" :content="notifCount" style="position: absolute; top: 30px; left: 175px;"></v-badge> 
-          <v-list-item title="My Projects" value="projects" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
-          <v-list-item title="Search" value="search" @click="wip()"></v-list-item>
-          <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
-          <v-list-item title="Networks" value="networks" @click="wip()"></v-list-item>
-          <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
-          <v-list-item title="Island Shop" value="shop" @click="wip()"></v-list-item>
-          <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
-          <v-list-item to="/" title="Sign Out" value="signout"></v-list-item>
+          <div v-if="widget === 'dashboard'">
+            <v-list-item title="Notifications" value="notifications" @click="toWidget('notifications')"></v-list-item>   
+            <v-badge color="rgb(89,153,80)" class="badge-lg" :content="notifCount" style="position: absolute; top: 30px; left: 175px;"></v-badge> 
+            <v-list-item title="My Projects" value="projects" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
+            <v-list-item title="Search" value="search" @click="wip()"></v-list-item>
+            <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
+            <v-list-item title="Networks" value="networks" @click="wip()"></v-list-item>
+            <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
+            <v-list-item title="Island Shop" value="shop" @click="wip()"></v-list-item>
+            <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
+            <v-list-item to="/" title="Sign Out" value="signout"></v-list-item>
+          </div>  
+          <Notifications :notifCount="notifCount" @remove-notif-event="notifCount--" v-if="widget === 'notifications'">
+
+          </Notifications>  
         </v-list>
       </VResizeDrawer>
-        <v-main style="height: 100vh; background-image: linear-gradient(black 0%, rgb(89,153,80) 100%);">
-    <div class="h-100" style="background-image: linear-gradient(black 0%, rgb(89,153,80) 100%);">
+        <v-main>
+    <div class="h-100">
         <v-row>
         <h1 class="mt-5 mb-0 ml-7">Points</h1>
-        <v-badge color="green" :content="notifCount" class="ml-auto ma-5 mt-8 mr-8">
+        <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
             <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
         </v-badge>
             <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;">
@@ -56,7 +68,7 @@
     </div>    
   </v-main>
     </v-layout>
-  </v-card>
+  </v-app>
     
     
     
@@ -75,6 +87,13 @@ li {
     font-size: 1.5rem;
     line-height: 2.5rem;
     text-decoration: underline;
+}
+</style>
+<style>
+.badge-lg .v-badge__badge {
+  font-size: 1.25rem;
+  border-radius: 20px;
+  height: 1.5rem;
 }
 </style>
 <script src="./js/Dashboard.js">

@@ -1,4 +1,5 @@
 import CryptoJS from "crypto-js";
+import Notifications from "./Notifications";
 
 export default {
     data() {
@@ -6,10 +7,10 @@ export default {
         rPoints: 0,
         gPoints: 12,
         bPoints: 6,
-        notifCount: 2,
+        notifCount: 0,
         drawer: false,
-        drawerWidth: 400,
-        loaded: false
+        loaded: false,
+        widget: "dashboard"
       };
     },
     async created() {
@@ -25,14 +26,21 @@ export default {
       
     },
     mounted() {
-      
+      this.getNotifications();
     },
     methods: {
+        getNotifications() {
+          // api call to get notif count
+          this.notifCount = 20;
+        },
+        toWidget(widget) {
+          this.widget = widget;
+        },
         wip() {
             alert("Feature not yet implemented.");
         }
     },
     components: {
-      
+      Notifications
     },
   };
