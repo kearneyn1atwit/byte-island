@@ -7,7 +7,8 @@ export default {
         gPoints: 12,
         bPoints: 6,
         notifCount: 2,
-        drawer: null,
+        drawer: false,
+        drawerWidth: 400,
         loaded: false
       };
     },
@@ -24,7 +25,7 @@ export default {
       
     },
     mounted() {
-
+      
     },
     methods: {
         wip() {

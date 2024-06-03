@@ -1,11 +1,17 @@
 <template>
 <v-card v-if="loaded">
     <v-layout>
-      <v-navigation-drawer
+      <VResizeDrawer
         v-model="drawer"
-        temporary
         location="right"
-        :width="400"
+        handle-color="grey"
+        handle-border-width="5"
+        handle-position="border"
+        :save-width="false"
+        width="500"
+        min-width="200"
+        :width-snap-back="false"
+        :temporary="true"
       >
         <v-list-item>
             <v-badge color="green" :content="notifCount" class="ml-auto ma-5 mt-4">
@@ -27,7 +33,7 @@
           <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
           <v-list-item to="/" title="Sign Out" value="signout"></v-list-item>
         </v-list>
-      </v-navigation-drawer>
+      </VResizeDrawer>
         <v-main style="height: 100vh; background-image: linear-gradient(black 0%, rgb(89,153,80) 100%);">
     <div class="h-100" style="background-image: linear-gradient(black 0%, rgb(89,153,80) 100%);">
         <v-row>
