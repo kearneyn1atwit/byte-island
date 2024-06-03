@@ -14,7 +14,7 @@
         <v-col cols="12">
           <v-form @submit.prevent>
             <v-text-field v-model="username" variant="outlined" :rules="[rules.required]" placeholder="Username" class="ital-input mb-2"></v-text-field>
-            <v-text-field :type="show ? 'text' : 'password'" :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show = !show" v-model="password" variant="outlined" :rules="[rules.required]" placeholder="Password" class="ital-input mb-2"></v-text-field>
+            <v-text-field :type="show ? 'text' : 'password'" :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show = !show" v-model="password" variant="outlined" :rules="[rules.required]" placeholder="Password" class="ital-input mb-2" @keydown.enter="login()"></v-text-field>
             <v-row align="center" justify="center" class="mt-5">
               <v-btn size="large" variant="outlined" class="form-btn mr-10" @click="wip()">Sign up</v-btn>
               <v-btn size="large" :disabled="!(username && password)" variant="outlined" class="form-btn" @click="login()">Login</v-btn>
