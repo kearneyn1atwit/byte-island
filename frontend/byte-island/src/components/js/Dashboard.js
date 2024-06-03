@@ -1,5 +1,6 @@
 import CryptoJS from "crypto-js";
 import Notifications from "./Notifications";
+import Projects from "./Projects";
 
 export default {
     data() {
@@ -10,7 +11,8 @@ export default {
         notifCount: 0,
         drawer: false,
         loaded: false,
-        widget: "dashboard"
+        widget: "dashboard",
+        showSignOut: false
       };
     },
     async created() {
@@ -30,8 +32,12 @@ export default {
     },
     methods: {
         getNotifications() {
-          // api call to get notif count
+          // api call to get notif count, add timeout every x seconds/minutes to refresh?
           this.notifCount = 20;
+        },
+        signOut() {
+          // expire token
+          this.$router.push({name: 'Login'});
         },
         toWidget(widget) {
           this.widget = widget;
@@ -41,6 +47,7 @@ export default {
         }
     },
     components: {
-      Notifications
+      Notifications,
+      Projects
     },
   };

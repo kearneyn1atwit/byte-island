@@ -20,6 +20,7 @@ export default {
             for(let i=0;i<this.notifCount;i++) {
                 this.notifications.push({
                     id: i,
+                    type: "network",
                     messageBody: ("User "+i+" wants to join your <network "+(i+1)+"> network"),
                     time: "11:52 PM"
                 });

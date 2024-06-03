@@ -21,9 +21,14 @@
         </v-list-item>
 
         <v-list-item v-else>
-          <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
-            <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
-          </v-badge>
+          <div v-if="widget !== 'notifications'">
+            <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
+              <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
+            </v-badge>
+          </div>
+          <div v-else>
+            <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4 badge-lg" @click.stop="toWidget('dashboard')"></v-icon>
+          </div>
         </v-list-item>
           <v-divider></v-divider>
         </div>
@@ -32,18 +37,21 @@
           <div v-if="widget === 'dashboard'">
             <v-list-item title="Notifications" value="notifications" @click="toWidget('notifications')"></v-list-item>   
             <v-badge color="rgb(89,153,80)" class="badge-lg" :content="notifCount" style="position: absolute; top: 30px; left: 175px;"></v-badge> 
-            <v-list-item title="My Projects" value="projects" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
+            <v-list-item title="My Projects" value="projects" style="color: rgb(152,255,134);" @click="toWidget('projects')"></v-list-item>
             <v-list-item title="Search" value="search" @click="wip()"></v-list-item>
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Networks" value="networks" @click="wip()"></v-list-item>
             <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Island Shop" value="shop" @click="wip()"></v-list-item>
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
-            <v-list-item to="/" title="Sign Out" value="signout"></v-list-item>
+            <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
           <Notifications :notifCount="notifCount" @remove-notif-event="notifCount--" v-if="widget === 'notifications'">
 
-          </Notifications>  
+          </Notifications>
+          <Projects v-if="widget === 'projects'">
+            
+          </Projects>    
         </v-list>
       </VResizeDrawer>
         <v-main>
@@ -69,6 +77,35 @@
   </v-main>
     </v-layout>
   </v-app>
+
+
+  <v-dialog v-model="showSignOut" max-width="500">
+  <template v-slot:default="{}">
+    <v-card title="Sign Out">
+      <v-card-text>
+        Are you sure you want to sign out?
+      </v-card-text>
+
+      <v-card-actions class="mb-3 mx-3">
+        <v-spacer></v-spacer>
+
+        <v-btn
+          text="No"
+          class="mr-3"
+          variant="outlined"
+          color="red"
+          @click="showSignOut = false"
+        ></v-btn>
+        <v-btn
+          text="Yes"
+          variant="outlined"
+          color="primary"
+          @click="signOut()"
+        ></v-btn>
+      </v-card-actions>
+    </v-card>
+  </template>
+</v-dialog>
     
     
     
