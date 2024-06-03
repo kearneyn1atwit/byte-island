@@ -1,8 +1,12 @@
 {
+  "scripts": {
+    "dev": "node index.js"
+  },
   "dependencies": {
     "express": "^4.19.2",
     "neo4j-driver": "^5.20.0",
     "node": "^22.2.0",
+    "pg": "^8.11.5",
     "postgres": "^3.4.4",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui": "^5.17.10",

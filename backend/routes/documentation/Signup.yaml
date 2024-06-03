@@ -1,0 +1,46 @@
+swagger: '2.0'
+info:
+  title: Signup API
+  description: API for user creation and registration
+  version: 1.0.0
+basePath: /auth
+paths:
+  /signup:
+    post:
+      summary: Register New Users
+      description: Authenticate user credentials do not exist and then create a new user account
+      parameters:
+        - name: username
+          description: Unique username to be registered
+          required: true
+        - name: email
+          description: Unique email that user account will be associated with
+          required: true
+        - name: password
+          description: Password of the user to protect the account
+          required: true
+      responses:
+        '200':
+          description: Signup Successful
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Success Message
+        '409': 
+          description: Database Conflict 
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error Message 
+        '500':
+          description: Internal Server Error 
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Server Error
