@@ -1,14 +1,19 @@
 export default {
     data() {
       return {
-        projects: []
+        projects: [],
+        projectSearch: ''
       };
     },
     async created() {
       
     },
     computed: {
-      
+      filteredProjects() {
+        return this.projects.filter(project => {
+            return project.title.toLowerCase().includes(this.projectSearch.toLowerCase()) 
+        });
+      }
     },
     mounted() {
         this.getProjects();
@@ -27,7 +32,7 @@ export default {
                             id: 3*i+0,
                             name: 'First update',
                             date: '3/1/24',
-                            desc: 'This is update 1.'
+                            desc: 'This is update '+(3*i+1)+'.'
                         },
                         {
                             id: 3*i+1,
