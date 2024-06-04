@@ -2,286 +2,353 @@
     "users": {
         "create": { 
             "query": "INSERT INTO Users (Username, Email, PasswordHash, ProfileImageId) VALUES (':username',':email',':hash',:image);",
+            "params": "username,email,hash,image",
             "desc": "Create user with username, email, password & profile image id. Autofill the rest. NEEDS A CYPHER COUNTERPART."
         },
         "updateUsername": { 
             "query": "UPDATE Users SET Username = ':newname' WHERE UserId = :id;",
+            "params": "id,username",
             "desc": "Updates the user's name by id"
         },
         "updateEmail": { 
             "query": "UPDATE Users SET Email = ':email' WHERE UserId = :id;",
+            "params": "id,email",
             "desc": "Updates the user's email by id"
         },
         "updatePassword": { 
             "query": "UPDATE Users SET PasswordHash = ':password' WHERE UserId = :id;",
+            "params": "id,password",
             "desc": "Updates the user's password by id"
         },
         "updateImage": { 
             "query": "UPDATE Users SET ProfileImageId = ':image' WHERE UserId = :id;",
+            "params": "id,image",
             "desc": "Updates the user's image by id"
         },
         "updatePoints": { 
-            "query": "UPDATE Users SET SocialPoints = SocialPoints + :social, CareerPoints = CareerPoints + :career, PersonalPoints = PersonalPoints + :personal WHERE UserId = 1 AND Deleted != True;",
+            "query": "UPDATE Users SET SocialPoints = SocialPoints + :social, CareerPoints = CareerPoints + :career, PersonalPoints = PersonalPoints + :personal WHERE UserId = :id AND Deleted != True;",
+            "params": "id,social,career,personal",
             "desc": "Add the user's points values by id"
         },
         "private": { 
             "query": "UPDATE Users SET PrivateAccount = :private WHERE UserId = :id;",
+            "params": "id,private",
             "desc": "Mark/unmark user as private from their id"
         },
         "restrict": { 
             "query": "UPDATE Users SET Restricted = :restrict WHERE UserId = :id;",
+            "params": "id,restrict",
             "desc": "Mark/unmark user as restricted from their id"
         },
         "delete": { 
             "query": "UPDATE Users SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE UserId = :id;",
+            "params": "id",
             "desc": "Mark user as deleted from their id. NEEDS A CYPHER COUNTERPART."
         },
         "selectAll": { 
             "query": "SELECT UserId, Username FROM Users WHERE Deleted != True;",
+            "params": "",
             "desc": "Select all users in the table"
         },
         "selectSome": { 
             "query": "SELECT UserId FROM Users WHERE Username LIKE '%:name%' AND Deleted != True;",
+            "params": "name",
             "desc": "Select users based off matching names"
         },
         "select": { 
             "query": "SELECT UserId FROM Users WHERE Username LIKE ':name' AND Deleted != True;",
+            "params": "name",
             "desc": "Select one user off its username"
         },
         "getCredentials": { 
             "query": "SELECT Username, Email, PasswordHash FROM Users WHERE UserId = :id AND Deleted != True;",
+            "params": "id",
             "desc": "Get username, email & password from the id"
         },
         "getStatus": { 
             "query": "SELECT PrivateAccount, Restricted, Deleted FROM Users WHERE UserId = :id;",
+            "params": "id",
             "desc": "Return user's private, restricted and deleted status | WORTHLESS QUERY?"
         },
         "getPoints": { 
             "query": "SELECT SocialPoints, CareerPoints, PersonalPoints FROM Users WHERE UserId = :id AND Deleted != True;",
+            "params": "id",
             "desc": "Get all types of points for user from their id"
         },
         "getProfileInformation": { 
             "query": "SELECT Username, ProfileImageId, SocialPoints, CareerPoints, PersonalPoints FROM Users WHERE UserId = :id AND Deleted != True;",
+            "params": "id",
             "desc": "Grab all columns needed to display user profile from table (JOIN WITH ISLAND DATA?)"
         },
         "getMiniProfile": { 
             "query": "SELECT Username, ProfileImageId FROM Users WHERE UserId = :id AND Deleted != True;",
+            "params": "id",
             "desc": "Get username and image id to display a user (not on their profile page) | MAKE THIS TAKE ANY NUMBER OF INPUTS"
         }
     },
     "posts": {
         "create": { 
             "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId) VALUES (:userid,:networkid,':text',:imageid);",
+            "params": "userid,networkid,text,imageid",
             "desc": "Create posts with all post data. NEEDS A CYPHER COUNTERPART"
         },
         "reply": { 
             "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId, ParentId) VALUES (:userid,:networkid,':text',:imageid,:replyid);",
+            "params": "userid,networkid,text,imageid,replyid",
             "desc": "Same as create except it includes parent Id and any relevant checks | CYPHER COUNTERPART"
         },
         "like": { 
             "query": "UPDATE Posts SET Likes = Likes + 1 WHERE PostId = :id AND Deleted != True;",
+            "params": "id",
             "desc": "Need to keep track of this somehow, might be moved to CYPHER / ADD CYPHER QUERY"
         },
         "unlike": { 
             "query": "UPDATE Posts SET Likes = Likes - 1 WHERE PostId = :id AND Deleted != True;",
+            "params": "id",
             "desc": "Need to keep track of this somehow, might be moved to CYPHER / ADD CYPHER QUERY"
         },
         "editText": { 
             "query": "UPDATE Posts SET TextContent = ':text' WHERE PostId = :id AND Deleted != True;",
+            "params": "id,text",
             "desc": "Updates the post's text by id. | CYPHER?"
         },
         "editImage": { 
             "query": "UPDATE Posts SET ImageId = :image WHERE PostId = :id AND Deleted != True;",
+            "params": "id,image",
             "desc": "Updates the post's image by id. | CYPHER?"
         },
         "delete": { 
             "query": "UPDATE Posts SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE PostId = :id;",
+            "params": "id",
             "desc": "Mark post as deleted from their id. NEEDS A CYPHER COUNTERPART"
         },
         "getByUser": { 
             "query": "SELECT PostId, UserId, NetworkId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE UserId = :id AND Deleted != True ORDER BY PostId;",
+            "params": "id",
             "desc": "Grabs all posts from a user"
         },
         "getByNetwork": { 
             "query": "SELECT PostId, UserId, NetworkId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE NetworkId = :id AND Deleted != True ORDER BY PostId;",
+            "params": "id",
             "desc": "Grabs all posts in a network (maybe remove NetworkId)"
         },
         "SEARCHING": { 
             "query": "",
+            "params": "",
             "desc": "Other post grabbing techniques might be necessary???"
         }
     },
     "resources": {
         "selectAll": { 
             "query": "SELECT * FROM Resources",
+            "params": "",
             "desc": "Get entire table / switch to shop details"
         },
         "selectCategory": { 
             "query": "SELECT ResourceId FROM Resources WHERE Category = :category;",
+            "params": "category",
             "desc": "Get resources that fall into a certain category"
         },
         "selectShape": { 
-            "query": "SELECT ResourceId FROM Resources WHERE Shape = :category;",
+            "query": "SELECT ResourceId FROM Resources WHERE Shape = :shape;",
+            "params": "shape",
             "desc": "Get resources that have a certain shape"
         },
         "select": { 
             "query": "SELECT * FROM Resources WHERE ResourceId = :id;",
+            "params": "id",
             "desc": "Select one resource from table based on the id"
         }
     },
     "networks": {
         "create": { 
             "query": "INSERT INTO Networks (NetworkName, PrivateNetwork) VALUES (:name,:private);",
+            "params": "name,private",
             "desc": "Create network with network name. NEEDS A CYPHER COUNTERPART"
         },
         "updateName": { 
             "query": "UPDATE Networks SET NetworkName = ':name' WHERE NetworkId = :id AND Deleted != True;",
+            "params": "id,name",
             "desc": "Updates the network name by id"
         },
         "private": { 
             "query": "UPDATE Networks SET PrivateNetwork = :private WHERE NetworkId = :id AND Deleted != True;",
+            "params": "id,private",
             "desc": "Mark/unmark network as private from their id"
         },
         "delete": { 
             "query": "UPDATE Networks SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE NetworkId = :id;",
+            "params": "id",
             "desc": "Mark network as deleted from their id. NEEDS A CYPHER COUNTERPART"
         },
         "selectAll": { 
             "query": "SELECT * FROM Networks;",
+            "params": "",
             "desc": "Select all networks in the table"
         },
         "selectSome": { 
             "query": "SELECT * FROM Networks WHERE NetworkName '%:name%' AND Deleted != True;",
+            "params": "name",
             "desc": "Select networks based off matching names"
         },
         "select": { 
             "query": "SELECT * FROM Networks WHERE NetworkName ':name' AND Deleted != True;",
+            "params": "name",
             "desc": "Select one network off its name"
         }
     },
     "tags": {
         "create": { 
             "query": "INSERT INTO Tags (TagName) VALUES (':name');",
+            "params": "name",
             "desc": "Create tag with tag name. NEEDS A CYPHER COUNTERPART"
         },
         "delete": { 
             "query": "UPDATE Tags SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE TagId = :id;",
+            "params": "id",
             "desc": "Mark tag as deleted from their id. NEEDS A CYPHER COUNTERPART"
         },
         "selectAll": { 
             "query": "SELECT * FROM Tags",
+            "params": "",
             "desc": "Select all tags in the table"
         },
         "selectSome": { 
             "query": "SELECT * FROM Tags WHERE TagName '%:name%' AND Deleted != True;",
+            "params": "name",
             "desc": "Select tags based off matching names"
         },
         "select": { 
             "query": "SELECT * FROM Tags WHERE TagName ':name' AND Deleted != True;",
+            "params": "name",
             "desc": "Select one tag off its name"
         }
     },
     "image": {
         "create": { 
-            "query": "INSERT INTO Tags (TagName) VALUES (':name');",
-            "desc": "Create tag with tag name."
+            "query": "INSERT INTO Images (ImagePath) VALUES (':path');",
+            "params": "path",
+            "desc": "Create image with image path."
         },
         "update": { 
             "query": "UPDATE Images SET ImagePath = ':path' WHERE ImageId = :id;",
+            "params": "id,path",
             "desc": "Updates the image path by id"
         },
         "delete": { 
             "query": "UPDATE Images SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE ImageId = :id;",
+            "params": "id",
             "desc": "Mark tag as deleted from their id."
         },
         "selectAll": { 
             "query": "SELECT * FROM Images;",
+            "params": "",
             "desc": "Select all images in the table"
         },
         "selectSome": {
             "query": "SELECT * FROM Images WHERE ImageId IN (:idlist) AND Deleted != True;",
+            "params": "idlist",
             "desc": "Select multiple images based off matching ids"
         },
         "select": { 
             "query": "SELECT * FROM Images WHERE ImageId = AND Deleted != True;",
+            "params": "",
             "desc": "Select one image off its id"
         }
     },
     "island": {
         "create": { 
             "query": "INSERT INTO IslandData (UserId, DataPath) VALUES (:id, ':path');",
+            "params": "id,path",
             "desc": "Create island with user id."
         },
         "updatePeople": { 
             "query": "UPDATE IslandData SET NumberOfPeople = NumberOfPeople + :people WHERE UserId = :id;",
+            "params": "id",
             "desc": "Updates the number of people encoding by the userid"
         },
         "updateData": { 
             "query": "UPDATE IslandData SET DataPath = DataPath + :people WHERE UserId = :id;",
+            "params": "id,people",
             "desc": "Updates the number of islandData encoding by the userid"
         },
         "select": { 
             "query": "SELECT * From IslandData WHERE UserId = :id;",
+            "params": "id",
             "desc": "Select one island with userid"
         }
     },
     "requests": {
         "requestFriend": { 
             "query": "INSERT INTO Requests (SenderId, TargetUserId) VALUES (:senderid, :userid);",
+            "params": "senderid,userid",
             "desc": "Create a Friend Request w/ all needed values"
         },
         "requestNetwork": { 
             "query": "INSERT INTO Requests (SenderId, TargetNetworkId) VALUES (:senderid, :networkid);",
+            "params": "senderid,networkid",
             "desc": "Create a Network Join Request w/ all needed values"
         },
         "resolve": { 
             "query": "UPDATE Requests SET Resolved = TRUE WHERE Request = :id;",
+            "params": "id",
             "desc": "Mark query as resolved between user and target with request id"
         },
         "delete": { 
             "query": "UPDATE Requests SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE RequestId = :id;",
+            "params": "id",
             "desc": "Delete request on cancellation"
         },
         "selectOpenFriendRequests": { 
             "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetUserId != NULL AND Resolved != True AND Deleted != True;",
+            "params": "senderid",
             "desc": "Get friend requests being waited on by sender user Id"
         },
         "selectOpenNetworkRequests": { 
             "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetNetworkId != NULL AND Resolved != True AND Deleted != True;",
+            "params": "senderid",
             "desc": "Get network requests being waited on by sender user Id"
         },
         "selectPendingFriendRequests": { 
             "query": "SELECT * FROM Requests WHERE TargetUserID = :userid AND TargetUserId != NULL AND Resolved != True AND Deleted != True;",
+            "params": "userid",
             "desc": "Get friend requests needing replies by target user id"
         },
         "selectPendingNetworkRequests": { 
             "query": "SELECT * FROM Requests WHERE TargetNetworkId = :networkid AND TargetUserId != NULL AND Resolved != True AND Deleted != True;",
+            "params": "networkid",
             "desc": "Get network requests needing replies by target user id"
         }
     },
     "projects": {
         "create": { 
             "query": "INSERT INTO Projects (UserId, ProjectName, ProjectDescription, SocialPoints, CareerPoints, PersonalPoints, DueDate) VALUES (:userid, :name, :desc, :social, :career, :personal, :duedate);",
+            "params": "userid,name,desc,social,career,personal,duedate",
             "desc": "Create project with user, name, desc, points and due date"
         },
         "modify": { 
             "query": "UPDATE Projects SET ProjectDescription = ':desc', SocialPoints = SocialPoints + :social, CareerPoints = CareerPoints + :career, PersonalPoints = PersonalPoints + :personal WHERE ProjectId = :id;",
+            "params": "id,desc,social,career,personal",
             "desc": "Modify project description and points values from id"
         },
         "finish": { 
             "query": "UPDATE Projects SET OnTime = :ontime WHERE ProjectId = :id;",
+            "params": "id,ontime",
             "desc": "Mark down project as on time / not on time | MAKE THE CHECK HERE?"
         },
         "delete": { 
             "query": "UPDATE Projects SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE ProjectId = :id;",
+            "params": "id",
             "desc": "Delete a project (and apply appropriate consequences if needed)"
         },
         "select": { 
             "query": "SELECT * FROM Projects WHERE ProjectId = :id;",
+            "params": "id",
             "desc": "Get a specific project details by projectId"
         },
         "selectByUser": { 
             "query": "SELECT * FROM Projects WHERE UserId = :id;",
+            "params": "id",
             "desc": "Get all projects for a given user"
         }
     }

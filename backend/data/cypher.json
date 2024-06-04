@@ -2,102 +2,125 @@
     "create": { 
         "user": { 
             "query": "CREATE (n:User { Id: <IDVAR>, Deleted: false }) RETURN (n);",
+            "params": "IDVAR",
             "desc": "Creates a user node with the user id stored"
         },
         "network": { 
             "query": "CREATE (n:Network { Id: <IDVAR>, Deleted: false })) RETURN (n);",
+            "params": "IDVAR",
             "desc": "Creates a network node with the network id stored"
         },
         "tag": { 
             "query": "CREATE (n:Tag { Id: <IDVAR>, Deleted: false })) RETURN (n);",
+            "params": "IDVAR",
             "desc": "Creates a tag node with the tag id stored"
         },
         "post": { 
             "query": "CREATE (n:Post { Id: <IDVAR>, Deleted: false })) RETURN (n);",
+            "params": "IDVAR",
             "desc": "Creates a post node with the post id stored"
         }
     },
     "add": {
         "usersAsFriends": { 
             "query": "MATCH (u1:User),(u2:User) WHERE u1.Id = <IDVAR1> AND u2.Id = <IDVAR2> CREATE (u1)-[r:FRIENDS]-(u2) RETURN u1,u2,r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Match two users based on their ids"
         },
         "userToNetwork": { 
             "query": "MATCH (u:User),(n:Network) WHERE u.Id = <IDVAR1> AND n.Id = <IDVAR2> CREATE (u)-[r:PART_OF]-(n) RETURN u,n,r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Match user and network with their ids"
         },
         "tagToUser": { 
             "query": "MATCH (t:Tag),(u:User) WHERE t.Id = <IDVAR1> AND u.Id = <IDVAR2> CREATE (t)-[r:INTERESTED_IN]-(u) RETURN t,u,r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Match tag to user with their ids"
         },
         "tagToNetwork": { 
             "query": "MATCH (t:Tag),(n:Network) WHERE t.Id = IDVA<IDVAR1>R1 AND n.Id = <IDVAR2> CREATE (t)-[r:FOCUSED_ON]-(n) RETURN t,n,r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Match tag to network with their ids"
         },
         "tagToPost": { 
             "query": "MATCH (t:Tag),(p:Post) WHERE t.Id = <IDVAR1> AND p.Id = <IDVAR2> CREATE (t)-[r:RELATED_TO]-(p) RETURN t,p,r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Match tag to post with their ids"
         }
     },
     "select": {
         "friendsList": { 
             "query": "MATCH (u:User {Id: <IDVAR> })-[r:FRIENDS]-(f) RETURN f;",
+            "params": "IDVAR",
             "desc": "Get friends of user based on their id | TEST ALL THESE"
         },
         "usersInNetwork": { 
             "query": "MATCH (n:Network {Id: <IDVAR> })-[r:PART_OF]-(u) RETURN u;",
+            "params": "IDVAR",
             "desc": "Get all users in network based on network id"
         },
         "relatedUsers": { 
             "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:INTERESTED_IN]-(u) RETURN u;",
+            "params": "IDVAR",
             "desc": "Get users based on given tags | DEFINE SORTING"
         },
         "relatedNetworks": { 
             "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:FOCUSED_ON]-(n) RETURN n;",
+            "params": "IDVAR",
             "desc": "Get networks based on given tags | DEFINE SORTING"
         },
         "relatedPosts": { 
             "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:RELATED_TO]-(p) RETURN p;",
+            "params": "IDVAR",
             "desc": "Get posts based on given tags | DEFINE SORTING"
         }
     },
     "remove": {
         "usersFromFriends": { 
             "query": "MATCH (u1:User {id: <IDVAR1> })-[r:FRIENDS]-(u2:User {id: <IDVAR2> }) RETURN u1,u2,r DELETE r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch two users based on their ids"
         },
         "userFromNetwork": { 
             "query": "MATCH (u:User {id: <IDVAR1> })-[r:PART_OF]-(n:Network {id: <IDVAR2> }) RETURN u,n,r DELETE r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch user and network with their ids (ADMIN????)"
         },
         "tagFromUser": { 
             "query": "MATCH (t:Tag {id: <IDVAR1> })-[r:INTERESTED_IN]-(u:User {id: <IDVAR2> }) RETURN t,u,r DELETE r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from user with their ids"
         },
         "tagFromNetwork": { 
             "query": "MATCH (t:Tag {id: <IDVAR1> })-[r:FOCUSED_ON]-(u:User {id: <IDVAR2> }) RETURN t,n,r DELETE r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from network with their ids"
         },
         "tagFromPost": { 
             "query": "MATCH (t:Tag {id: <IDVAR1> })-[r:RELATED_TO]-(u:User {id: <IDVAR2> }) RETURN t,p,r DELETE r;",
+            "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from post with their ids"
         }
     },
     "delete": {
         "user": { 
             "query": "MATCH (u {id: <IDVAR> }) SET u:Deleted RETURN u.Id, labels(u) AS labels",
+            "params": "IDVAR",
             "desc": "Deletes user node with corresponding user id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
         },
         "network": { 
             "query": "MATCH (n {id: <IDVAR> }) SET n:Deleted RETURN n.Id, labels(n) AS labels",
+            "params": "IDVAR",
             "desc": "Deletes network node with corresponding network id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
         },
         "tag": { 
             "query": "MATCH (t {id: <IDVAR> }) SET t:Deleted RETURN t.Id, labels(t) AS labels",
+            "params": "IDVAR",
             "desc": "Deletes tag node with corresponding tag id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
         },
         "post": { 
             "query": "MATCH (p {id: <IDVAR> }) SET p:Deleted RETURN p.Id, labels(p) AS labels",
+            "params": "IDVAR",
             "desc": "Deletes post node with corresponding post id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
         }
     }
