@@ -47,11 +47,11 @@
         <div v-else-if="projectView === 'new'">
             <h1 class="header-h1 ml-2 my-5">New Project</h1>
             <h3 class="ml-5">Project title:</h3>
-            <v-text-field v-model="newTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
+            <v-text-field maxlength="30" counter persistent-counter v-model="newTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
 
             </v-text-field>
             <h3 class="ml-5">Describe your new project:</h3>
-            <v-textarea v-model="newDesc" @input="aiFeedback()" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
+            <v-textarea maxlength="500" counter persistent-counter v-model="newDesc" @input="aiFeedback()" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
 
             </v-textarea>
             <pre class="ml-5"><b>AI Feedback</b>: {{aiFeedbackText}}</pre>
