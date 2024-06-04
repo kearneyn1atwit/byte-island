@@ -1,5 +1,9 @@
 <template>
 <v-app v-if="loaded">
+    <v-fade-transition>
+      <v-alert closable @click:close="showSuccessAlert = false" v-if="showSuccessAlert" position="absolute" color="success" icon="$success" elevation="10" :text="successAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
+      <v-alert closable @click:close="showErrorAlert = false" v-if="showErrorAlert" position="absolute" color="red" icon="$error" elevation="10" :text="errorAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
+    </v-fade-transition>  
     <v-layout>
       <VResizeDrawer
         v-model="drawer"
@@ -12,19 +16,30 @@
         min-width="200"
         :width-snap-back="false"
         :temporary="true"
+        persistent
       >
         <div style="position: sticky; top:0; left: 5px; width:calc(100% - 5px); z-index: 1; background-color: rgb(33,33,33);">
           <v-list-item v-if="widget === 'dashboard'">
-            <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
-                <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
-            </v-badge>
+            <div v-if="notifCount > 0">
+              <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
+                  <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
+              </v-badge>
+            </div>
+            <div v-else>
+              <v-icon icon="mdi-menu" class="menu-icon ml-auto ma-5 mt-4" @click.stop="drawer = !drawer"></v-icon>
+            </div>
         </v-list-item>
 
         <v-list-item v-else>
           <div v-if="widget !== 'notifications'">
-            <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
-              <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
-            </v-badge>
+            <div v-if="notifCount > 0">
+              <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-4 badge-lg">
+                <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
+              </v-badge>
+            </div>  
+            <div v-else>
+              <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard')"></v-icon>
+            </div>
           </div>
           <div v-else>
             <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4 badge-lg" @click.stop="toWidget('dashboard')"></v-icon>
@@ -36,7 +51,7 @@
         <v-list density="compact" nav class="custom-nav">
           <div v-if="widget === 'dashboard'">
             <v-list-item title="Notifications" value="notifications" @click="toWidget('notifications')"></v-list-item>   
-            <v-badge color="rgb(89,153,80)" class="badge-lg" :content="notifCount" style="position: absolute; top: 30px; left: 175px;"></v-badge> 
+            <v-badge v-if="notifCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="notifCount" style="position: absolute; top: 30px; left: 175px;"></v-badge> 
             <v-list-item title="My Projects" value="projects" style="color: rgb(152,255,134);" @click="toWidget('projects')"></v-list-item>
             <v-list-item title="Search" value="search" @click="wip()"></v-list-item>
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
@@ -46,10 +61,10 @@
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
-          <Notifications :notifCount="notifCount" @remove-notif-event="notifCount--" v-if="widget === 'notifications'">
+          <Notifications ref="notificationsRef" :notifCount="notifCount" @remove-notif-event="notifCount--" v-if="widget === 'notifications'">
 
           </Notifications>
-          <Projects v-if="widget === 'projects'">
+          <Projects ref="projectsRef" @project-created="showSuccessAlertFunc" @project-error="showErrorAlertFunc" v-if="widget === 'projects'">
             
           </Projects>    
         </v-list>
@@ -58,9 +73,14 @@
     <div class="h-100">
         <v-row>
         <h1 class="mt-5 mb-0 ml-7">Points</h1>
-        <v-badge color="rgb(89,153,80)" :content="notifCount" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
+        <div v-if="notifCount > 0" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
+          <v-badge color="rgb(89,153,80)" :content="notifCount" >
             <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
-        </v-badge>
+          </v-badge>
+        </div>
+        <div class="ml-auto ma-5 mt-8 mr-10 badge-lg" v-else>
+          <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
+        </div>
             <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;">
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{rPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{gPoints}}</li>
@@ -131,6 +151,13 @@ li {
   font-size: 1.25rem;
   border-radius: 20px;
   height: 1.5rem;
+}
+.fade-enter-active {
+  transition: opacity .5s
+}
+.fade-enter,
+.fade-leave-active {
+  opacity: 0
 }
 </style>
 <script src="./js/Dashboard.js">

@@ -13,6 +13,9 @@
         </v-row>
         <hr v-if="index !== notifications.length-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
     </v-list-item>
+    <v-list-item v-if="notifications.length === 0">
+        <h1 class="ml-0"><i>No new notifications</i></h1>
+    </v-list-item>
     </div>
 </template>
 <style scoped>
