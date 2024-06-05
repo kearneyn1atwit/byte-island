@@ -106,6 +106,9 @@ export default {
             this.editProjectUpdateDesc = '';
             this.delProject = null;
         },
+        clearSearch() {
+            this.projectSearch = '';
+        },
         newProject() {
             this.projectView = 'new';
         },
@@ -210,9 +213,6 @@ export default {
             this.showDel = false;
             this.$emit('project-completed',project.title+' has been successfully deleted',0,0,0);    
             this.projects = this.projects.filter((item) => item !== project);
-        },
-        wip() {
-            alert("Feature not yet implemented.");
         }
     },
     components: {

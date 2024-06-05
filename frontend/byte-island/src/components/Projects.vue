@@ -1,7 +1,7 @@
 <template>
     
         <div v-if="projectView === 'all'">
-            <h1 class="header-h1 ml-2 my-5">My Projects</h1>
+            <h1 class="header-h1 ml-2 mb-5">My Projects</h1>
             <v-btn variant="outlined" color="success" class="ml-2 custom-btn mb-5" @click="newProject()"><u>Add New!</u></v-btn>
             <v-text-field
                 v-model="projectSearch"
@@ -10,7 +10,10 @@
                 prepend-inner-icon="mdi-magnify"
                 variant="solo-filled"
                 flat
+                bg-color="white"
                 hide-details
+                clearable
+                @click:clear = "clearSearch()"
                 single-line
                 class="mx-3 mb-3 italic-search"
             ></v-text-field>
@@ -45,7 +48,7 @@
             </v-list-item>
         </div>
         <div v-else-if="projectView === 'new'">
-            <h1 class="header-h1 ml-2 my-5">New Project</h1>
+            <h1 class="header-h1 ml-2 mb-5">New Project</h1>
             <h3 class="ml-5">Project title:</h3>
             <v-text-field maxlength="30" counter persistent-counter v-model="newTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
 
@@ -69,7 +72,7 @@
                 </v-row>
         </div>
         <div v-else-if="projectView === 'edit'">
-            <h1 class="header-h1 ml-2 my-5">Edit Project: <span style="color: white;">{{editProject.title}}</span></h1>
+            <h1 class="header-h1 ml-2 mb-5">Edit Project: <span style="color: white;">{{editProject.title}}</span></h1>
             <h3 class="ml-5">Project title:</h3>
             <v-text-field maxlength="30" counter persistent-counter v-model="editProjectTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
 
@@ -85,7 +88,7 @@
 
             </v-text-field>
             <h3 class="ml-5 mt-3">Provide an update title for this change:</h3>
-            <v-text-field maxlength="30" counter persistent-counter v-model="editProjectUpdateTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Update Title">
+            <v-text-field maxlength="100" counter persistent-counter v-model="editProjectUpdateTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Update Title">
 
             </v-text-field>
             <h3 class="ml-5 mt-3">Provide an update description for this change:</h3>

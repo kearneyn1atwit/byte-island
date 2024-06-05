@@ -1,6 +1,6 @@
 <template>
     <div>
-    <h1 class="header-h1 ml-2 my-5">Notifications</h1>
+    <h1 class="header-h1 ml-2 mb-5">Notifications</h1>
     
     <v-list-item v-for="(notification,index) in notifications" :key="notification.id">
         <pre class="text-muted">{{notification.time}}</pre>
