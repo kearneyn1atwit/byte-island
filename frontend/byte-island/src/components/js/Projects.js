@@ -15,7 +15,15 @@ export default {
         newBPoints: 0,
         newDueDate: 'N/A',
         overrideDueDate: '',
-        todayDate: ''
+        todayDate: '',
+        showDel: false,
+        editProject: null,
+        editProjectTitle: '',
+        editProjectDesc: '',
+        editProjectDueDate: '',
+        editProjectUpdateTitle: '',
+        editProjectUpdateDesc: '',
+        delProject: null
       };
     },
     async created() {
@@ -29,20 +37,24 @@ export default {
       }
     },
     mounted() {
-        let todayArray = new Date().toLocaleDateString().split("/");
-        let year = todayArray[2];
-        let month = todayArray[0];
-        let day = todayArray[1];
-        if(parseInt(month) < 10) {
-            month = '0' + month;
-        }
-        if (parseInt(day) < 10) {
-            day = '0' + day;
-        }
-        this.todayDate = year+'-'+month+'-'+day;
+        this.todayDate = this.convertDate(new Date().toLocaleDateString());
         this.getProjects();
     },
     methods: {
+        // convert date to text field model friendly
+        convertDate(date) {
+            let todayArray = date.split("/");
+            let year = todayArray[2];
+            let month = todayArray[0];
+            let day = todayArray[1];
+            if(parseInt(month) < 10) {
+                month = '0' + month;
+            }
+            if (parseInt(day) < 10) {
+                day = '0' + day;
+            }
+            return year+'-'+month+'-'+day;
+        },
         //api call to get user projects
         getProjects() {
             for(let i=0;i<5;i++) {
@@ -51,22 +63,22 @@ export default {
                     due: "4/1/2025",
                     points: [i,i+12,i+3],
                     title: "Project "+(i+1),
-                    desc: 'Project description for project '+i,
+                    desc: 'Project description for project '+(i+1),
                     updates: [
                         {
-                            id: 3*i+0,
+                            id: i,
                             name: 'First update',
                             date: '3/1/24',
                             desc: 'This is update '+(3*i+1)+'.'
                         },
                         {
-                            id: 3*i+1,
+                            id: i+1,
                             name: 'Update #2',
                             date: '7/17/24',
                             desc: 'Update 2 here. And I have to admit, this is quite a long update description, let\'s see if it looks good on the website?'
                         },
                         {
-                            id: 3*i+2,
+                            id: i+2,
                             name: 'Most recent',
                             date: '2/7/25',
                             desc: 'The final update.'
@@ -86,23 +98,24 @@ export default {
             this.newBPoints = 0;
             this.newDueDate = 'N/A';
             this.overrideDueDate = '';
+            this.editProject = null;
+            this.editProjectTitle = '';
+            this.editProjectDesc = '';
+            this.editProjectDueDate = '';
+            this.editProjectUpdateTitle = '';
+            this.editProjectUpdateDesc = '';
+            this.delProject = null;
         },
         newProject() {
             this.projectView = 'new';
         },
         // handle AI feedback
-        aiFeedback() {
-            if(this.newDesc) {
+        aiFeedback(desc) {
+            if(desc) {
                 this.aiFeedbackText = 'This description is adequate!';
-                if(this.newDesc.length % 6 === 1) {
-                    this.newRPoints++;
-                }
-                else if(this.newDesc.length % 6 === 2) {
-                    this.newGPoints++;
-                }
-                else if(this.newDesc.length % 6 === 3) {
-                    this.newBPoints++;
-                }
+                this.newRPoints = Math.floor(Math.random() * 51);
+                this.newGPoints = Math.floor(Math.random() * 51);
+                this.newBPoints = Math.floor(Math.random() * 51);
                 let d = new Date();
                 d.setDate(d.getDate() + 1);
                 this.newDueDate = d.toLocaleDateString();
@@ -138,20 +151,65 @@ export default {
                 desc: this.newDesc,
                 updates: []
             });
-            this.$emit('project-created',this.newTitle + ' successfully created.');
+            this.$emit('project-success',this.newTitle + ' successfully created.');
             this.resetData();
         },
         // api call to handle done project
         done(project) {
-            this.wip();
+            this.$emit('project-completed',project.title+' has been marked as complete!',project.points[0],project.points[1],project.points[2]);
+            this.projects = this.projects.filter((item) => item !== project);
+        },
+        edit(project) {
+            this.editProject = project;
+            this.editProjectTitle = project.title;
+            this.editProjectDesc = project.desc;
+            this.newRPoints = project.points[0];
+            this.newGPoints = project.points[1];
+            this.newBPoints = project.points[2];
+            this.editProjectDueDate = this.convertDate(project.due);
+            //have AI decide what the description is here
+            this.aiFeedbackText = 'This description is adequate!';
+            this.projectView = 'edit';
         },
         // api call to handle edit project
-        edit(project) {
-            this.wip();
+        confirmEdit(project) {
+            // handle if project name already exists
+            for(let i=0;i<this.projects.length;i++) {
+                if(this.editProjectTitle === this.projects[i].title && this.editProjectTitle !== project.title) {
+                    this.$emit('project-error','Error: A project with name \"'+this.editProjectTitle+'\" already exists.');
+                    return;
+                }
+            }
+            let finalDate = new Date(this.editProjectDueDate);
+            finalDate.setDate(finalDate.getDate() + 1);
+            finalDate = finalDate.toLocaleDateString();
+            // if no updates have actually been made to project fields
+            if(this.editProjectTitle === project.title && this.editProjectDesc === project.desc && finalDate === project.due) {
+                this.$emit('project-warning','Warning: No project details have changed.');
+                return;
+            }
+            project.title = this.editProjectTitle;
+            project.desc = this.editProjectDesc;
+            project.points = [this.newRPoints,this.newGPoints,this.newBPoints];
+            project.due = finalDate;
+            project.updates.push({
+                id: project.updates.length,
+                name: this.editProjectUpdateTitle,
+                date: new Date().toLocaleDateString(),
+                desc: this.editProjectUpdateDesc
+            });
+            this.$emit('project-success',this.editProjectTitle + ' has been successfully updated.');
+            this.resetData();
+        },
+        showDelDialog(project) {
+            this.showDel = true;
+            this.delProject = project;
         },
         // api call to handle delete project
         del (project) {
-            this.wip();
+            this.showDel = false;
+            this.$emit('project-completed',project.title+' has been successfully deleted',0,0,0);    
+            this.projects = this.projects.filter((item) => item !== project);
         },
         wip() {
             alert("Feature not yet implemented.");

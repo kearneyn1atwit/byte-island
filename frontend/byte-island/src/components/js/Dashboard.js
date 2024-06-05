@@ -16,7 +16,9 @@ export default {
         showSuccessAlert: false,
         successAlertText: '',
         showErrorAlert: false,
-        errorAlertText: ''
+        errorAlertText: '',
+        showWarningAlert: false,
+        warningAlertText: ''
       };
     },
     async created() {
@@ -48,7 +50,7 @@ export default {
           // if reference to projects exists (user is in projects view)
           if(this.$refs.projectsRef) {
             // if user is in "new project" view
-            if(this.$refs.projectsRef.projectView === 'new') {
+            if(this.$refs.projectsRef.projectView === 'new' || this.$refs.projectsRef.projectView === 'edit') {
               // when they click back, just go back to "all projects" view and reset new project data
               this.$refs.projectsRef.resetData();
             }
@@ -65,18 +67,31 @@ export default {
         showSuccessAlertFunc(text) {
           this.successAlertText = text;
           this.showSuccessAlert = true;
-          setTimeout(this.hideAlerts,5000);
+          setTimeout(() => this.hideAlerts(),5000);
         },
         showErrorAlertFunc(text) {
           this.errorAlertText = text;
           this.showErrorAlert = true;
-          setTimeout(this.hideAlerts,5000);
+          setTimeout(() => this.hideAlerts(),5000);
+        },
+        showWarningAlertFunc(text) {
+          this.warningAlertText = text;
+          this.showWarningAlert = true;
+          setTimeout(() => this.hideAlerts(),5000);
         },
         hideAlerts() {
           this.showSuccessAlert = false;
           this.successAlertText = '';
           this.showErrorAlert = false;
           this.errorAlertText = '';
+          this.showWarningAlert = false;
+          this.warningAlertText = '';
+        },
+        projectCompleted(text,rPoints,gPoints,bPoints) {
+          this.showSuccessAlertFunc(text);
+          this.rPoints += rPoints;
+          this.gPoints += gPoints;
+          this.bPoints += bPoints;
         },
         wip() {
             alert("Feature not yet implemented.");
