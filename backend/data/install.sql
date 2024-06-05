@@ -116,3 +116,14 @@ CREATE TABLE Projects (
     CHECK (SocialPoints > 0 OR CareerPoints > 0 OR PersonalPoints > 0),
     CHECK (DueDate - CreatedDate > 0)
 );
+
+CREATE TABLE Notifications (
+    NotificationId SERIAL PRIMARY KEY,
+    UserId int NOT NULL,
+    TextContent varchar(70),
+    Viewed boolean NOT NULL DEFAULT FALSE,
+    CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
+    DeletedDate timestamp,
+    Deleted boolean NOT NULL DEFAULT FALSE,
+    FOREIGN KEY(UserId) REFERENCES Users(UserId)
+);
