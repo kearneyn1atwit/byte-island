@@ -351,5 +351,27 @@
             "params": "id",
             "desc": "Get all projects for a given user"
         }
+    },
+    "notifications": {
+        "create": { 
+            "query": "INSERT INTO Notifications (UserId, TextContent) VALUES (:userid, :text);",
+            "params": "userid,text",
+            "desc": "Create notification that corresponds with a user"
+        },
+        "markAsRead": { 
+            "query": "UPDATE Notifications SET Viewed = TRUE WHERE NotificationId = :id;",
+            "params": "id",
+            "desc": "Set notification as read, not deleted"
+        },
+        "selectByUser": { 
+            "query": "SELECT * FROM Notifications WHERE UserId = :id AND Deleted != TRUE;",
+            "params": "id",
+            "desc": "Get all notifications for a given user"
+        },
+        "delete": { 
+            "query": "UPDATE Notifications SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE NotificationId = :id;",
+            "params": "id",
+            "desc": "Delete a notification"
+        }
     }
 }
