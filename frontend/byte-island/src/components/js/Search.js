@@ -6,8 +6,7 @@ export default {
             searchFor: 'user',
             searchBy: 'name',
             search: '',
-            filteredUsers: [],
-            filteredNetworks: []
+            filteredList: []
         }
     },
     async created() {
@@ -22,13 +21,12 @@ export default {
     methods: {
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
-            this.filteredUsers = [];
-            this.filteredNetworks = [];
+            this.filteredList = [];
             if(searchFor === 0) {
                 // user by name
                 if(searchBy === 0) {
                     for(let i=0;i<3;i++) {
-                        this.filteredUsers.push({
+                        this.filteredList.push({
                             name: searchString+' '+(i+1),
                             id: 'A56HlIJ'+i
                         });
@@ -37,7 +35,7 @@ export default {
                 // user by id
                 else {
                     for(let i=0;i<5;i++) {
-                        this.filteredUsers.push({
+                        this.filteredList.push({
                             name: 'Generic_user_'+(i+1),
                             id: searchString+i
                         });
@@ -48,7 +46,7 @@ export default {
                 // network by name
                 if(searchBy === 0) {
                     for(let i=0;i<6;i++) {
-                        this.filteredNetworks.push({
+                        this.filteredList.push({
                             name: searchString+' '+(i+1),
                             id: 'B99LMN1'+i
                         });
@@ -57,7 +55,7 @@ export default {
                 // network by id
                 else {
                     for(let i=0;i<4;i++) {
-                        this.filteredNetworks.push({
+                        this.filteredList.push({
                             name: 'Generic_network_'+(i+1),
                             id: searchString+i
                         });
@@ -67,8 +65,7 @@ export default {
         },
         clearSearch() {
             this.search = '';
-            this.filteredUsers = [];
-            this.filteredNetworks = [];
+            this.filteredList = [];
         },
         updateSearch() {
             if(this.searchTab === 0) {

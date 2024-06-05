@@ -26,29 +26,21 @@
                 @input="getUsersNetworks(searchTab,searchByTab,search)"
         ></v-text-field>
         <h2 v-if="!search" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
-        <div v-if="search && searchTab === 0">
-            <h2 v-if="filteredUsers.length === 0" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
-            <v-list-item v-for="(user,index) in filteredUsers" :key="user.id">
+        <div v-else>
+            <h2 v-if="filteredList.length === 0" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
+            <v-list-item v-for="(userNetwork,index) in filteredList" :key="userNetwork.id">
                 <hr v-if="index > 0" style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
-                <pre class="ml-5 user-network-name">{{user.name}}</pre>
-                <pre class="text-muted ml-5">ID: #{{user.id}}</pre>
-                <v-row class="my-0" justify="space-around">
+                <pre class="ml-5 user-network-name">{{userNetwork.name}}</pre>
+                <pre class="text-muted ml-5">ID: #{{userNetwork.id}}</pre>
+                <v-row v-if="searchTab === 0" class="my-0" justify="space-around">
                     <v-col cols="12">
-                        <v-btn color="#98FF86" class="ml-5" variant="outlined" size="small" @click="friend(user)">Friend</v-btn>
-                        <v-btn color="red" class="ml-3" variant="outlined" size="small" @click="block(user)">Block</v-btn>
+                        <v-btn color="#98FF86" class="ml-5" variant="outlined" size="small" @click="friend(userNetwork)">Friend</v-btn>
+                        <v-btn color="red" class="ml-3" variant="outlined" size="small" @click="block(userNetwork)">Block</v-btn>
                     </v-col>
                 </v-row>
-            </v-list-item>
-        </div>
-        <div v-else-if="search && searchTab === 1">
-            <h2 v-if="filteredNetworks.length === 0" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
-            <v-list-item v-for="(network,index) in filteredNetworks" :key="network.id">
-                <hr v-if="index > 0" style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
-                <pre class="ml-5 user-network-name">{{network.name}}</pre>
-                <pre class="text-muted ml-5">ID: #{{network.id}}</pre>
-                <v-row class="my-0" justify="space-around">
+                <v-row v-else class="my-0" justify="space-around">
                     <v-col cols="12">
-                        <v-btn color="#98FF86" class="ml-5" variant="outlined" size="small" @click="askToJoin(network)">Ask to Join</v-btn>
+                        <v-btn color="#98FF86" class="ml-5" variant="outlined" size="small" @click="askToJoin(userNetwork)">Ask to Join</v-btn>
                     </v-col>
                 </v-row>
             </v-list-item>
