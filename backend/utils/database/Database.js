@@ -1,141 +1,194 @@
 //Import Wrapper Classes
 const psql = require('./PostgresWrapper');
 const neo4j = require('./Neo4jWrapper');
+const { Pool, QueryArrayResult } = require('pg');
 
 //Import data (maybe move it to one file)
 const sql = require('../../data/sql.json');
 const cypher = require('../../data/cypher.json');
 
-//Will have functions that handle all queries to the database. Abstracts away all database specific work. 
-//Will only take params for queries, create connection, query database, then close connection
-//This file deals with knowing whether a query requires either SQL or Cypher queries, and runs them as needed
+function fillSQLParams (data, dict) {
+    var query = data.query;
+    data.params.split(',').forEach((str) => query = query.replaceAll(':'+str,dict[str]));
+    return query;
+}
+function fillCypherParams (data, dict) {
+    var query = data.query;
+    data.params.split(',').forEach((str) => query = query.replaceAll('<'+str+'>',dict[str]));
+    return query;
+}
+
+function processResults(data, errorVal) {
+    try {
+        return data; //grab the select instead of the insert
+    }
+    catch {
+        return errorVal ?? undefined;
+    }
+}
 
 //Functions in here will be imported by folders in routes to be then used in API calls
-//Functions will start with CREATE, GET, SEARCH?, SET, ADD (relations only), REMOVE (relations only), DELETE
 //Workflow is as follows [index.js -> routes -> Database (uses Postgres/Neo4jWrappers & data folder] 
+module.exports = {
+
+    CreateUser: async function (username,email,password,image) {
+        const oldUserRow = await psql.query(fillSQLParams(sql.users.select, {
+            "name": username,
+        }));
+        if(oldUserRow.rowCount !== 0) { //If user exists then return 
+            throw new Error("User already exists");
+        }
+        const newUserInsert = await psql.query(fillSQLParams(sql.users.create, {
+            "username": username,
+            "email": email,
+            "hash": password,
+            "image": image,
+        }));
+        if(newUserInsert === undefined) {
+            throw new Error("Error adding user into SQL database.");
+        }
+        const newUserRow = await psql.query(fillSQLParams(sql.users.select, {
+            "name": username,
+        }));
+        const userId = newUserRow.rows[0]['userid'];
+        console.log("New user is created with id: " + userId);
+        const newUserNode = await neo4j.query(fillCypherParams(cypher.create.user, {
+            "IDVAR": userId
+        })); 
+        if(newUserInsert === undefined) {
+            throw new Error("Error adding user into Cypher database.");
+        }
+        return userId; 
+    },
+
+
+    //Image Functions
+    CreateImage: async function (path) {
+        const newImage = await psql.query(fillSQLParams(sql.image.create, {
+            "path": path
+        }));
+        return processResults(newImage[1].rows[0]['imageid']);
+    }
+ }
 
 //User functions
-export function CreateUser() {
-    sql.users.create.query;
-    cypher.create.user.query;
-}
 
-export function GetUserId() { sql.users.select.query; } //Don't export and use internally?
-export function GetUserCredentials() { sql.users.getCredentials.query; }
-export function GetUserStatus() { sql.users.getStatus.query; }
-export function GetUserPoints() { sql.user.getCredentials.query; }
-export function GetUserProfile() { 
-    sql.users.getMiniProfile.query; 
-    sql.users.getProfileInformation.query; 
-    cypher.select.friendsList.query; //move to separate function???
+function GetUserId() { sql.users.select; } //Don't export and use internally?
+function GetUserCredentials() { sql.users.getCredentials; }
+function GetUserStatus() { sql.users.getStatus; }
+function GetUserPoints() { sql.user.getCredentials; }
+function GetUserProfile() { 
+    sql.users.getMiniProfile; 
+    sql.users.getProfileInformation; 
+    cypher.select.friendsList; //move to separate function???
     //more when add other direction for cypher select queries
 }
-export function GetUserPosts() { sql.posts.getByUser.query; }
+function GetUserPosts() { sql.posts.getByUser; }
 
 //Group these together?
-export function SetUserCredentials() { 
-    sql.users.updateUsername.query; 
-    sql.users.updateEmail.query;
-    sql.users.updatePassword.query;
+function SetUserCredentials() { 
+    sql.users.updateUsername; 
+    sql.users.updateEmail;
+    sql.users.updatePassword;
 }
 
-export function SetUserData() {
-    sql.users.updateImage.query;
-    sql.users.updatePoints.query;
-    sql.users.restrict.query;
-    sql.users.private.query;
+function SetUserData() {
+    sql.users.updateImage;
+    sql.users.updatePoints;
+    sql.users.restrict;
+    sql.users.private;
 }
 
-export function SearchUsers() {//TO BE EXPANDED
-    sql.users.select.query;
-    sql.users.selectSome.query;
+function SearchUsers() {//TO BE EXPANDED
+    sql.users.select;
+    sql.users.selectSome;
     //cypher ???
 } 
 
-export function DeleteUser() { sql.users.delete.query; }
+function DeleteUser() { sql.users.delete; }
 
 //Post Related Functions
-export function CreatePost() { 
-    sql.posts.create.query; 
-    cypher.create.post.query;
+function CreatePost() { 
+    sql.posts.create; 
+    cypher.create.post;
 }
-export function ReplyToPost() {
-    sql.posts.reply.query; 
-    cypher.create.post.query;
+function ReplyToPost() {
+    sql.posts.reply; 
+    cypher.create.post;
 }
-export function EditPost() {
-    sql.posts.editText.query;
-    sql.posts.editImage.query;
+function EditPost() {
+    sql.posts.editText;
+    sql.posts.editImage;
     cypher.add.tagToPost;
     cypher.remove.tagFromPost;
 }
-export function EditPostLikes() {
-    sql.posts.like.query;
-    sql.posts.unlike.query;
+function EditPostLikes() {
+    sql.posts.like;
+    sql.posts.unlike;
     //ADD CYPHER QUERIES TO THIS
 }
-export function DeletePost() {
-    sql.posts.delete.query;
-    cypher.delete.post.query;
+function DeletePost() {
+    sql.posts.delete;
+    cypher.delete.post;
 }
-export function GetUserPosts() { sql.posts.getByUser.query; }
-export function GetNetworkPosts() { sql.posts.getByNetwork.query; }
-export function SearchPosts() { sql.posts.SEARCHING.query; }
+function GetUserPosts() { sql.posts.getByUser; }
+function GetNetworkPosts() { sql.posts.getByNetwork; }
+function SearchPosts() { sql.posts.SEARCHING; }
 
 //Resource Related Functions
 
-export function GetShopDetails() { sql.resources.selectAll.query }
-export function GetResourcesByCategory() { sql.resources.selectCategory }
-export function GetResourcesByShape() { sql.resources.selectShape.query }
-export function GetResourceDetails() { sql.resources.select.query }
+function GetShopDetails() { sql.resources.selectAll.query }
+function GetResourcesByCategory() { sql.resources.selectCategory }
+function GetResourcesByShape() { sql.resources.selectShape.query }
+function GetResourceDetails() { sql.resources.select.query }
 
 //Network Related Functions 
-export function GetNetworkId() { sql.networks.select.query; }
-export function CreateNetwork() { 
-    sql.networks.create.query;
-    cypher.create.network.query;
+function GetNetworkId() { sql.networks.select; }
+function CreateNetwork() { 
+    sql.networks.create;
+    cypher.create.network;
 }
 
-export function SetNetworkName() { sql.networks.updateName.query; }
-export function SetNetworkStatus() { sql.networks.private.query; }
+function SetNetworkName() { sql.networks.updateName; }
+function SetNetworkStatus() { sql.networks.private; }
 
-export function GetNetworkMembers() { cypher.select.usersInNetwork.query; }
-export function AddNetworkMember() { cypher.add.userToNetwork; }
-export function RemoveNetworkMember() { cypher.remove.userFromNetwork; }
+function GetNetworkMembers() { cypher.select.usersInNetwork; }
+function AddNetworkMember() { cypher.add.userToNetwork; }
+function RemoveNetworkMember() { cypher.remove.userFromNetwork; }
 
 //Admin Commands (TBD)
-export function GetNetworkAdmins() {}
-export function AddNetworkAdmin() {}
-export function RemoveNetworkAdmin() {}
+function GetNetworkAdmins() {}
+function AddNetworkAdmin() {}
+function RemoveNetworkAdmin() {}
 
-export function SearchNetworks() {} //tbd
+function SearchNetworks() {} //tbd
 
-export function DeleteNetwork() {
-    sql.networks.delete.query;
-    cypher.delete.network.query;
+function DeleteNetwork() {
+    sql.networks.delete;
+    cypher.delete.network;
 }
 
 //Tag Related Functions
 
 //Image Related Functions
-export function CreateImage() { sql.image.create.query; }
-export function UpdateImage() { sql.image.update.query; }
-export function DeleteImage() { sql.image.delete.query; }
-export function GetImage() { sql.image.select.query; sql.image.selectSome.query; }
+function CreateImage() { sql.image.create; }
+function UpdateImage() { sql.image.update; }
+function DeleteImage() { sql.image.delete; }
+function GetImage() { sql.image.select; sql.image.selectSome; }
 
 //Island Related Functions
-export function CreateIsland() { sql.island.create.query; } //remove export and attach to create user
-export function SetIslandPopulation() { sql.island.updatePeople.query; } 
-export function SetIslandData() { sql.island.updatePeople.query; }
-export function GetIslandData() {sql.island.select.query; }
+function CreateIsland() { sql.island.create; } //remove export and attach to create user
+function SetIslandPopulation() { sql.island.updatePeople; } 
+function SetIslandData() { sql.island.updatePeople; }
+function GetIslandData() {sql.island.select; }
 
 //Request Related Functions
 
 //Project Related Functions
-export function CreateProject() { sql.projects.create.query; }
-export function ModifyProject() { sql.projects.modify.query; }
-export function SetProjectAsDone() { sql.projects.finish.query; }
-export function DeleteProject() { sql.projects.delete.query; }
+function CreateProject() { sql.projects.create; }
+function ModifyProject() { sql.projects.modify; }
+function SetProjectAsDone() { sql.projects.finish; }
+function DeleteProject() { sql.projects.delete; }
 
-export function GetProjectId() { sql.projects.select.query; }
-export function GetUsersProjects() { sql.projects.selectByUser.query; }
+function GetProjectId() { sql.projects.select; }
+function GetUsersProjects() { sql.projects.selectByUser; }
