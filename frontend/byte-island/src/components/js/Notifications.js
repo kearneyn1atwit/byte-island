@@ -43,9 +43,6 @@ export default {
                 }
             }
         },
-        wip() {
-            alert("Feature not yet implemented.");
-        },
         accept(notification) {
             // api call to accept notification
             this.$emit('remove-notif');
@@ -59,7 +56,7 @@ export default {
         },
         ignore(notification) {
             // api call to remove notification
-            this.$emit('remove-notif-event');
+            this.$emit('remove-notif');
             this.notifications = this.notifications.filter((item) => item !== notification);  
         }
     },
