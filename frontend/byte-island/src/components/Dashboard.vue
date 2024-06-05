@@ -12,7 +12,7 @@
         handle-color="grey"
         handle-border-width="5"
         handle-position="border"
-        :save-width="false"
+        :save-width="true"
         width="500"
         min-width="200"
         :width-snap-back="false"
@@ -54,7 +54,7 @@
             <v-list-item title="Notifications" value="notifications" @click="toWidget('notifications')"></v-list-item>   
             <v-badge v-if="notifCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="notifCount" style="position: absolute; top: 30px; left: 175px;"></v-badge> 
             <v-list-item title="My Projects" value="projects" style="color: rgb(152,255,134);" @click="toWidget('projects')"></v-list-item>
-            <v-list-item title="Search" value="search" @click="wip()"></v-list-item>
+            <v-list-item title="Search" value="search" @click="toWidget('search')"></v-list-item>
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Networks" value="networks" @click="wip()"></v-list-item>
             <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
@@ -67,7 +67,10 @@
           </Notifications>
           <Projects ref="projectsRef" @project-success="showSuccessAlertFunc" @project-warning="showWarningAlertFunc" @project-error="showErrorAlertFunc" @project-completed="projectCompleted" v-if="widget === 'projects'">
             
-          </Projects>    
+          </Projects>
+          <Search ref="searchRef" v-if="widget === 'search'">
+
+          </Search>  
         </v-list>
       </VResizeDrawer>
         <v-main>

@@ -1,6 +1,7 @@
 import CryptoJS from "crypto-js";
 import Notifications from "./Notifications";
 import Projects from "./Projects";
+import Search from "./Search";
 
 export default {
     data() {
@@ -99,6 +100,7 @@ export default {
     },
     components: {
       Notifications,
-      Projects
+      Projects,
+      Search
     },
   };
