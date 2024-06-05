@@ -1,22 +1,22 @@
 {
     "create": { 
         "user": { 
-            "query": "CREATE (n:User { Id: <IDVAR>, Deleted: false }) RETURN (n);",
+            "query": "MERGE (u:User { Id: <IDVAR> }) ON CREATE SET u.Deleted = false RETURN (u);",
             "params": "IDVAR",
             "desc": "Creates a user node with the user id stored"
         },
         "network": { 
-            "query": "CREATE (n:Network { Id: <IDVAR>, Deleted: false })) RETURN (n);",
+            "query": "MERGE (n:Network { Id: <IDVAR> }) ON CREATE SET n.Deleted = false RETURN n;",
             "params": "IDVAR",
             "desc": "Creates a network node with the network id stored"
         },
         "tag": { 
-            "query": "CREATE (n:Tag { Id: <IDVAR>, Deleted: false })) RETURN (n);",
+            "query": "MERGE (t:Tag { Id: <IDVAR> }) ON CREATE SET t.Deleted = false RETURN t;",
             "params": "IDVAR",
             "desc": "Creates a tag node with the tag id stored"
         },
         "post": { 
-            "query": "CREATE (n:Post { Id: <IDVAR>, Deleted: false })) RETURN (n);",
+            "query": "MERGE (p:Post { Id: <IDVAR> }) ON CREATE SET p.Deleted = false RETURN p;",
             "params": "IDVAR",
             "desc": "Creates a post node with the post id stored"
         }
