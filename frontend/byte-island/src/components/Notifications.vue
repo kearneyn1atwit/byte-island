@@ -4,7 +4,7 @@
     
     <v-list-item v-for="(notification,index) in notifications" :key="notification.id">
         <pre class="text-muted">{{notification.time}}</pre>
-        {{notification.messageBody}}
+        {{notification.messageBody.message}}
         <v-row class="my-0" justify="space-around">
             <v-col cols="12">
                 <v-btn color="success" class="ml-5" variant="outlined" size="small" @click="accept(notification)">Accept</v-btn>

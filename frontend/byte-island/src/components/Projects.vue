@@ -1,5 +1,5 @@
 <template>
-    <div>
+    
         <div v-if="projectView === 'all'">
             <h1 class="header-h1 ml-2 my-5">My Projects</h1>
             <v-btn variant="outlined" color="success" class="ml-2 custom-btn mb-5" @click="newProject()"><u>Add New!</u></v-btn>
@@ -34,7 +34,7 @@
                     <v-col cols="12">
                         <v-btn color="success" class="ml-3" variant="outlined" size="small" @click="done(project)">Done!</v-btn>
                         <v-btn color="primary" class="ml-3" variant="outlined" size="small" @click="edit(project)">Edit</v-btn>
-                        <v-btn color="red" class="ml-3" variant="outlined" size="small" @click="del(project)">Delete</v-btn>
+                        <v-btn color="red" class="ml-3" variant="outlined" size="small" @click="showDelDialog(project)">Delete</v-btn>
                     </v-col>
                 </v-row>
 
@@ -51,7 +51,7 @@
 
             </v-text-field>
             <h3 class="ml-5">Describe your new project:</h3>
-            <v-textarea maxlength="500" counter persistent-counter v-model="newDesc" @input="aiFeedback()" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
+            <v-textarea maxlength="500" counter persistent-counter v-model="newDesc" @input="aiFeedback(newDesc)" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
 
             </v-textarea>
             <pre class="ml-5"><b>AI Feedback</b>: {{aiFeedbackText}}</pre>
@@ -67,8 +67,64 @@
                         <v-btn color="success" :disabled="!(newTitle && newDesc)" class="custom-btn" variant="outlined" @click="createProject()"><u>All set!</u></v-btn>
                     </v-col>
                 </v-row>
+        </div>
+        <div v-else-if="projectView === 'edit'">
+            <h1 class="header-h1 ml-2 my-5">Edit Project: <span style="color: white;">{{editProject.title}}</span></h1>
+            <h3 class="ml-5">Project title:</h3>
+            <v-text-field maxlength="30" counter persistent-counter v-model="editProjectTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
+
+            </v-text-field>
+            <h3 class="ml-5">Describe the project:</h3>
+            <v-textarea maxlength="500" counter persistent-counter v-model="editProjectDesc" @input="aiFeedback(editProjectDesc)" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
+
+            </v-textarea>
+            <pre class="ml-5"><b>AI Feedback</b>: {{aiFeedbackText}}</pre>
+            <pre class="ml-5 text-muted mt-2">Points you'll gain: <span style="color: rgb(215,0,0);">{{newRPoints}}</span>, <span style="color: rgb(151,255,45);">{{newGPoints}}</span>, <span style="color: rgb(101,135,231);">{{newBPoints}}</span></pre>
+            <h3 class="ml-5 mt-3">Due Date:</h3>
+            <v-text-field :min="todayDate" type="date" v-model="editProjectDueDate" variant="outlined" class="mx-5 mt-3" label="Due Date">
+
+            </v-text-field>
+            <h3 class="ml-5 mt-3">Provide an update title for this change:</h3>
+            <v-text-field maxlength="30" counter persistent-counter v-model="editProjectUpdateTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Update Title">
+
+            </v-text-field>
+            <h3 class="ml-5 mt-3">Provide an update description for this change:</h3>
+            <v-textarea maxlength="500" counter persistent-counter v-model="editProjectUpdateDesc" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Update Description">
+
+            </v-textarea>
+            <v-row class="mt-n3 mb-3 mx-0 text-center" justify="space-around">
+                    <v-col cols="12">
+                        <v-btn color="success" :disabled="!(editProjectTitle && editProjectDesc && editProjectUpdateTitle && editProjectUpdateDesc)" class="custom-btn" variant="outlined" @click="confirmEdit(editProject)"><u>Confirm changes</u></v-btn>
+                    </v-col>
+                </v-row>
         </div>   
-    </div>
+    
+    <v-dialog v-model="showDel" max-width="500">
+        <template v-slot:default="{}">
+            <v-card :title="'Delete Project: ' + delProject.title">
+            <v-card-text>
+                Are you sure you want to delete this project?
+            </v-card-text>
+
+            <v-card-actions class="mb-3 mx-3">
+                <v-spacer></v-spacer>
+                <v-btn
+                text="No"
+                class="mr-3"
+                variant="outlined"
+                color="red"
+                @click="showDel = false"
+                ></v-btn>
+                <v-btn
+                text="Yes"
+                variant="outlined"
+                color="primary"
+                @click="del(delProject)"
+                ></v-btn>
+            </v-card-actions>
+            </v-card>
+        </template>
+    </v-dialog>
 </template>
 <style>
     .header-h1 {

@@ -3,6 +3,7 @@
     <v-fade-transition>
       <v-alert closable @click:close="showSuccessAlert = false" v-if="showSuccessAlert" position="absolute" color="success" icon="$success" elevation="10" :text="successAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
       <v-alert closable @click:close="showErrorAlert = false" v-if="showErrorAlert" position="absolute" color="red" icon="$error" elevation="10" :text="errorAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
+      <v-alert closable @click:close="showWarningAlert = false" v-if="showWarningAlert" position="absolute" color="warning" icon="$warning" elevation="10" :text="warningAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>  
     </v-fade-transition>  
     <v-layout>
       <VResizeDrawer
@@ -61,10 +62,10 @@
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
-          <Notifications ref="notificationsRef" :notifCount="notifCount" @remove-notif-event="notifCount--" v-if="widget === 'notifications'">
+          <Notifications ref="notificationsRef" :notifCount="notifCount" @notification-success="showSuccessAlertFunc" @remove-notif="notifCount--" v-if="widget === 'notifications'">
 
           </Notifications>
-          <Projects ref="projectsRef" @project-created="showSuccessAlertFunc" @project-error="showErrorAlertFunc" v-if="widget === 'projects'">
+          <Projects ref="projectsRef" @project-success="showSuccessAlertFunc" @project-warning="showWarningAlertFunc" @project-error="showErrorAlertFunc" @project-completed="projectCompleted" v-if="widget === 'projects'">
             
           </Projects>    
         </v-list>
@@ -151,13 +152,6 @@ li {
   font-size: 1.25rem;
   border-radius: 20px;
   height: 1.5rem;
-}
-.fade-enter-active {
-  transition: opacity .5s
-}
-.fade-enter,
-.fade-leave-active {
-  opacity: 0
 }
 </style>
 <script src="./js/Dashboard.js">
