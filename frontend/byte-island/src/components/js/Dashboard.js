@@ -68,17 +68,17 @@ export default {
         showSuccessAlertFunc(text) {
           this.successAlertText = text;
           this.showSuccessAlert = true;
-          setTimeout(() => this.hideAlerts(),5000);
+          setTimeout(() => this.hideAlerts(),4000);
         },
         showErrorAlertFunc(text) {
           this.errorAlertText = text;
           this.showErrorAlert = true;
-          setTimeout(() => this.hideAlerts(),5000);
+          setTimeout(() => this.hideAlerts(),4000);
         },
         showWarningAlertFunc(text) {
           this.warningAlertText = text;
           this.showWarningAlert = true;
-          setTimeout(() => this.hideAlerts(),5000);
+          setTimeout(() => this.hideAlerts(),4000);
         },
         hideAlerts() {
           this.showSuccessAlert = false;
