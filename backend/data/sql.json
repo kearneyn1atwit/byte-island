@@ -226,7 +226,7 @@
     },
     "image": {
         "create": { 
-            "query": "INSERT INTO Images (ImagePath) VALUES (':path'); SELECT ImageId FROM Images WHERE ImagePath = ':path';",
+            "query": "INSERT INTO Images (ImagePath) VALUES (':path');",
             "params": "path",
             "desc": "Create image with image path."
         },
