@@ -1,4 +1,4 @@
-const { Pool } = require('pg');
+const { Pool, QueryArrayResult } = require('pg');
 const creds = require('../../data/credentials.json');
 
 const host = creds.postgres.host;
@@ -7,8 +7,15 @@ const user = creds.postgres.username;
 const password = creds.postgres.password;
 const port = creds.postgres.port;
 
+/**
+ * @param {string} query 
+ * @returns {QueryArrayResult}
+ */
 async function query(query) {
   
+  let results;
+  console.log("Executing SQL Query: " + query);
+
   const pool = new Pool({
     host: host,
     database: db,
@@ -17,18 +24,21 @@ async function query(query) {
     port: port
   });
 
-  pool.connect((err, client, release) => {
-    if (err) {
-      return console.error('Error acquiring client', err.stack);
+  try {
+    const client = await pool.connect();
+    try {
+      results = await client.query(query);
+    } catch (err) {
+      console.error('Error executing query', err.stack);
+      results = undefined;
+    } finally {
+      client.release();
     }
-    client.query(query, (err, result) => {
-      release();
-      if (err) {
-        return console.error('Error executing query', err.stack);
-      }
-      console.log(result.rows);
-    });
-  });
+  }  finally {
+    await pool.end();
+  }
+
+  return results;
 }
 
 module.exports = { query };
