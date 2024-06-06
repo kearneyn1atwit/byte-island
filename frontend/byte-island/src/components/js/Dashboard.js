@@ -36,11 +36,13 @@ export default {
     },
     mounted() {
       this.getNotifications();
+      // refresh notification count every minute
+      setInterval(() => this.getNotifications(),60000);
     },
     methods: {
         getNotifications() {
           // api call to get notif count, add timeout every x seconds/minutes to refresh?
-          this.notifCount = 20;
+          this.notifCount = 8;
         },
         signOut() {
           // expire token
