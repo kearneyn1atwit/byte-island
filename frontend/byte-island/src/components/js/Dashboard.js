@@ -6,6 +6,7 @@ import Search from "./Search";
 export default {
     data() {
       return {
+        username: '',
         rPoints: 0,
         gPoints: 12,
         bPoints: 6,
@@ -23,8 +24,9 @@ export default {
       };
     },
     async created() {
-      if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password"){
-        this.$router.push("/unauthorized");
+      // change to real authentication later
+      if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password" || this.$route.params.username !== 'user'){
+        this.$router.push('/not-found');
       }
       else {
         this.loaded = true;
@@ -35,14 +37,31 @@ export default {
       
     },
     mounted() {
+      this.username = this.$route.params.username;
       this.getNotifications();
       // refresh notification count every minute
-      setInterval(() => this.getNotifications(),60000);
+      setInterval(() => this.getNewNotifications(),60000);
     },
     methods: {
         getNotifications() {
-          // api call to get notif count, add timeout every x seconds/minutes to refresh?
+          // api call to get notif count
           this.notifCount = 8;
+          if(this.notifCount > 0) {
+            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.notifCount+' notification(s).');
+          }
+          else {
+            this.showSuccessAlertFunc('Welcome back, '+this.username+'!');
+          }
+          
+        },
+        // different function so "welcome back" text isn't shown every refresh, uses same api call
+        getNewNotifications() {
+          // if new notifications are received, show this alert
+          let newNotifsCount = 0;
+          this.notifCount += newNotifsCount;
+          if(newNotifsCount > 0) {
+            this.showSuccessAlertFunc('You have '+newNotifsCount+' new notification(s)!');
+          }
         },
         signOut() {
           // expire token

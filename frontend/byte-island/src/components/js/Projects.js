@@ -68,19 +68,19 @@ export default {
                         {
                             id: i,
                             name: 'First update',
-                            date: '3/1/24',
+                            date: '3/1/2024',
                             desc: 'This is update '+(3*i+1)+'.'
                         },
                         {
                             id: i+1,
                             name: 'Update #2',
-                            date: '7/17/24',
+                            date: '7/17/2024',
                             desc: 'Update 2 here. And I have to admit, this is quite a long update description, let\'s see if it looks good on the website?'
                         },
                         {
                             id: i+2,
                             name: 'Most recent',
-                            date: '2/7/25',
+                            date: '2/7/2025',
                             desc: 'The final update.'
                         }
                     ]

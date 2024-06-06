@@ -26,7 +26,9 @@ export default {
       //api call for logging in
       login() {
           if(this.username === 'user' && this.password === 'password') {
-            this.$router.push({ name: 'Home', params: { id: CryptoJS.AES.encrypt(this.password,'123456').toString()
+            this.$router.push({ name: 'Home', params: { 
+              id: CryptoJS.AES.encrypt(this.password,'123456').toString(),
+              username: this.username
              }});
           }
           else {

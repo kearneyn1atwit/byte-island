@@ -1,6 +1,9 @@
 <template>
     <div>
-    <h1 class="header-h1 ml-2 mb-5">Notifications</h1>
+    <v-row>
+        <h1 class="header-h1 ml-5 mb-5 mt-3">Notifications</h1>
+        <v-btn variant="outlined" class="refresh-btn mt-4 ml-3" size="small" icon="mdi-refresh" @click="getNotifications()"></v-btn>
+    </v-row>
     
     <v-list-item v-for="(notification,index) in notifications" :key="notification.id">
         <pre class="text-muted">{{notification.time}}</pre>
@@ -25,6 +28,9 @@
     }
     .text-muted {
         color: grey;
+    }
+    .refresh-btn {
+        border-radius: 10px;
     }
 </style>
 <script src="./js/Notifications.js">

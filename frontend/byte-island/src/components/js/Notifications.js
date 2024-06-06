@@ -17,6 +17,7 @@ export default {
     methods: {
         // api call to get user notifications
         getNotifications() {
+            this.notifications = [];
             for(let i=0;i<this.notifCount;i++) {
                 if(i % 2 === 0){
                     this.notifications.push({
