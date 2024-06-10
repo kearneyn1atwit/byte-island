@@ -1,16 +1,22 @@
-const neo4j = require('./Neo4jWrapper');
-const psql = require('./PostgresWrapper');
 const db = require('./Database.js');
-const sql = require('../../data/sql.json');
 
-/*
-db.CreateImage("//sss/").then((response) => {
-    console.log("New image is created with id: " + response);
-});*/
+//Function to allow asyncs/awaits to occur while testing
+async function test() {
 
-db.CreateUser("zzzz", "vfg@gmail.com", "12345", "1").then((response) => {
-    console.log(response);
-});
+    //Clear Database and reset serial counters every time its needed
+    await db.ResetDatabase();
+    
+    //Most tables rely on an image for foreign key checks so make sure at least 1 exists
+    await db.CreateImage("/path/to/image").then((response) => { console.log("New image is created with id: " + response); });
 
-//neo4j.query('RETURN "Hello, Neo4j!" AS message');
-//psql.query('SELECT NOW()');
+    await db.CreateShop();
+
+    await db.CreateUser("testuser1", "abc@gmail.com", "password12345", "1").then((response) => {
+        console.log(response);
+    });
+
+    const x = await db.GetUserStatus(1);
+    console.log("Testing: " + x);
+}
+
+test();
