@@ -52,7 +52,7 @@
         "friendsList": { 
             "query": "MATCH (u:User {Id: <IDVAR> })-[r:FRIENDS]-(f) RETURN f;",
             "params": "IDVAR",
-            "desc": "Get friends of user based on their id | TEST ALL THESE"
+            "desc": "Get friends of user based on their id | TEST ALL THESE / ADD DELETED FILTER"
         },
         "usersInNetwork": { 
             "query": "MATCH (n:Network {Id: <IDVAR> })-[r:PART_OF]-(u) RETURN u;",
@@ -77,51 +77,51 @@
     },
     "remove": {
         "usersFromFriends": { 
-            "query": "MATCH (u1:User {id: <IDVAR1> })-[r:FRIENDS]-(u2:User {id: <IDVAR2> }) RETURN u1,u2,r DELETE r;",
+            "query": "MATCH (u1:User {Id: <IDVAR1> })-[r:FRIENDS]-(u2:User {Id: <IDVAR2> }) RETURN u1,u2,r DELETE r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch two users based on their ids"
         },
         "userFromNetwork": { 
-            "query": "MATCH (u:User {id: <IDVAR1> })-[r:PART_OF]-(n:Network {id: <IDVAR2> }) RETURN u,n,r DELETE r;",
+            "query": "MATCH (u:User {Id: <IDVAR1> })-[r:PART_OF]-(n:Network {Id: <IDVAR2> }) RETURN u,n,r DELETE r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch user and network with their ids (ADMIN????)"
         },
         "tagFromUser": { 
-            "query": "MATCH (t:Tag {id: <IDVAR1> })-[r:INTERESTED_IN]-(u:User {id: <IDVAR2> }) RETURN t,u,r DELETE r;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:INTERESTED_IN]-(u:User {Id: <IDVAR2> }) RETURN t,u,r DELETE r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from user with their ids"
         },
         "tagFromNetwork": { 
-            "query": "MATCH (t:Tag {id: <IDVAR1> })-[r:FOCUSED_ON]-(u:User {id: <IDVAR2> }) RETURN t,n,r DELETE r;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:FOCUSED_ON]-(u:User {Id: <IDVAR2> }) RETURN t,n,r DELETE r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from network with their ids"
         },
         "tagFromPost": { 
-            "query": "MATCH (t:Tag {id: <IDVAR1> })-[r:RELATED_TO]-(u:User {id: <IDVAR2> }) RETURN t,p,r DELETE r;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:RELATED_TO]-(u:User {Id: <IDVAR2> }) RETURN t,p,r DELETE r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from post with their ids"
         }
     },
     "delete": {
         "user": { 
-            "query": "MATCH (u {id: <IDVAR> }) SET u:Deleted RETURN u.Id, labels(u) AS labels",
+            "query": "MATCH (u {Id: <IDVAR> }) SET u.Deleted = True RETURN u.Id, labels(u) AS labels",
             "params": "IDVAR",
-            "desc": "Deletes user node with corresponding user id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
+            "desc": "Deletes user node with corresponding user id"
         },
         "network": { 
-            "query": "MATCH (n {id: <IDVAR> }) SET n:Deleted RETURN n.Id, labels(n) AS labels",
+            "query": "MATCH (n {Id: <IDVAR> }) SET n.Deleted = True RETURN n.Id, labels(n) AS labels",
             "params": "IDVAR",
-            "desc": "Deletes network node with corresponding network id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
+            "desc": "Deletes network node with corresponding network id"
         },
         "tag": { 
-            "query": "MATCH (t {id: <IDVAR> }) SET t:Deleted RETURN t.Id, labels(t) AS labels",
+            "query": "MATCH (t {Id: <IDVAR> }) SET t.Deleted = True RETURN t.Id, labels(t) AS labels",
             "params": "IDVAR",
-            "desc": "Deletes tag node with corresponding tag id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
+            "desc": "Deletes tag node with corresponding tag id"
         },
         "post": { 
-            "query": "MATCH (p {id: <IDVAR> }) SET p:Deleted RETURN p.Id, labels(p) AS labels",
+            "query": "MATCH (p {Id: <IDVAR> }) SET p.Deleted = True RETURN p.Id, labels(p) AS labels",
             "params": "IDVAR",
-            "desc": "Deletes post node with corresponding post id | REQUIRE REWORK BECAUSE OF DELETED ATTRIBUTE"
+            "desc": "Deletes post node with corresponding post id"
         }
     }
 }
