@@ -6,7 +6,7 @@
             "desc": "Create user with username, email, password & profile image id. Autofill the rest. NEEDS A CYPHER COUNTERPART."
         },
         "updateUsername": { 
-            "query": "UPDATE Users SET Username = ':newname' WHERE UserId = :id;",
+            "query": "UPDATE Users SET Username = ':username' WHERE UserId = :id;",
             "params": "id,username",
             "desc": "Updates the user's name by id"
         },
@@ -238,7 +238,7 @@
         "delete": { 
             "query": "UPDATE Images SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE ImageId = :id;",
             "params": "id",
-            "desc": "Mark tag as deleted from their id."
+            "desc": "Mark image as deleted from their id."
         },
         "selectAll": { 
             "query": "SELECT * FROM Images;",
@@ -251,8 +251,8 @@
             "desc": "Select multiple images based off matching ids"
         },
         "select": { 
-            "query": "SELECT * FROM Images WHERE ImageId = AND Deleted != True;",
-            "params": "",
+            "query": "SELECT * FROM Images WHERE ImageId = :id AND Deleted != True;",
+            "params": "id",
             "desc": "Select one image off its id"
         }
     },

@@ -8,11 +8,23 @@ const sql = require('../../data/sql.json');
 const cypher = require('../../data/cypher.json');
 
 //remove params in data files later?
+/**
+ * 
+ * @param {string} data Generic parametrized query
+ * @param {dict} dict Key-Value pairs of parameter names and desired values
+ * @returns {string} Query with all specified parameters filled
+ */
 function fillSQLParams (data, dict) {
     var query = data.query;
     data.params.split(',').forEach((str) => query = query.replaceAll(':'+str,dict[str]));
     return query;
 }
+/**
+ * 
+ * @param {string} data Generic parametrized query
+ * @param {dict} dict Key-Value pairs of parameter names and desired values
+ * @returns {string} Query with all specified parameters filled
+ */
 function fillCypherParams (data, dict) {
     var query = data.query;
     data.params.split(',').forEach((str) => query = query.replaceAll('<'+str+'>',dict[str]));
@@ -48,7 +60,6 @@ function ProcessAndLogRowValues(queryResult, index) {
     return dict;
 }
 function ProcessAndLogTableValues(queryResult) {
-
     let columns = [];
     queryResult.fields.forEach((f) => { 
         columns.push(f.name); 
@@ -145,6 +156,131 @@ module.exports = {
         }));
         return ProcessAndLogRowValues(userData,0);
     },
+    UpdateUserCredentials: async function(id, dict) { 
+        const currentUserData = await psql.query(fillSQLParams(sql.users.getCredentials, {
+            "id": id,
+        }));
+        
+        //Make this more efficient later
+        if(dict.hasOwnProperty('username')) {
+
+            if(dict['username'] === currentUserData.rows[0]['username']) {
+                console.log("Username is already in use.");
+            }
+
+            await psql.query(fillSQLParams(sql.users.updateUsername, {
+                "id": id,
+                "username": dict['username']
+            }));
+        }
+
+        if(dict.hasOwnProperty('email')) {
+
+            if(dict['email'] === currentUserData.rows[0]['email']) {
+                console.log("Email is already in use.");
+            }
+
+            await psql.query(fillSQLParams(sql.users.updateEmail, {
+                "id": id,
+                "email": dict['email']
+            }));
+        }
+        
+        if(dict.hasOwnProperty('password')) {
+
+            if(dict['password'] === currentUserData.rows[0]['password']) {
+                console.log("Password is already being used.");
+            }
+
+            await psql.query(fillSQLParams(sql.users.updatePassword, {
+                "id": id,
+                "password": dict['password']
+            }));
+        }
+
+        const newUserData = await psql.query(fillSQLParams(sql.users.getCredentials, {
+            "id": id,
+        }));
+        return ProcessAndLogRowValues(newUserData,0);
+    },    
+    UpdateUserData: async function(id, dict) {
+
+        //swap this out later so image can also be grabbed
+        const currentUserData = await psql.query(fillSQLParams(sql.users.getStatus, {
+            "id": id,
+        }));
+
+        const userData = ProcessAndLogRowValues(currentUserData,0);
+
+        //Make this more efficient later
+        if(dict.hasOwnProperty('image')) {
+
+            //check image exists and make one if it isn't present
+
+            await psql.query(fillSQLParams(sql.users.updateImage, {
+                "id": id,
+                "image": dict['image']
+            }));
+        } else {
+            dict['image'] = userData['image'];
+        }
+
+        if(dict.hasOwnProperty('private')) {
+            await psql.query(fillSQLParams(sql.users.private, {
+                "id": id,
+                "private": String(dict['private'])
+            }));
+        } else {
+            dict['private'] = currentUserData.rows[0]['privateaccount'];
+        }
+        
+        if(dict.hasOwnProperty('restricted')) {
+            await psql.query(fillSQLParams(sql.users.restrict, {
+                "id": id,
+                "restrict": String(dict['restricted'])
+            }));
+        } else {
+            dict['restricted'] = currentUserData.rows[0]['restricted'];
+        }
+
+        return dict;
+    },
+    DeleteUser: async function(username) { 
+
+        const user = await psql.query(fillSQLParams(sql.users.select, {
+            "name": username,
+        }));
+        const id = ProcessData(user.rows[0]['userid']);
+        
+        if(id === undefined) { //If user doesn't exist then return 
+            throw new Error("User doesn't exist!");
+        }
+
+        //Delete user in Postgres and verify its successfully "deleted" to the database
+        const deleteCmd = await psql.query(fillSQLParams(sql.users.delete, {
+            "id": id
+        }));
+
+        const checkForUser = await psql.query(fillSQLParams(sql.users.select, {
+            "name": username,
+        }));
+        
+        if(deleteCmd.rowCount !== 1 || checkForUser.rowCount !== 0) {
+            throw new Error("Error deleting user in SQL database")
+        }
+        
+        //Use UserId returned back by Postgres to "delete" corresponding Cypher node
+        const deletedNode = await neo4j.query(fillCypherParams(cypher.delete.user, {
+            "IDVAR": id
+        })); 
+  
+        console.log(fillCypherParams(cypher.delete.user, {
+            "IDVAR": id
+        }));
+        console.log(deletedNode);
+
+        return id; 
+    },
 
     //Image Functions
     CreateImage: async function (path) {
@@ -152,6 +288,60 @@ module.exports = {
             "path": path
         }));
         return ProcessData(newImage[1].rows[0]['imageid']);
+    },
+    GetImages: async function (id) { 
+
+        if(id.length) {
+            const images = await psql.query(fillSQLParams(sql.image.selectSome, {
+                "idlist": id
+            }));
+            return ProcessAndLogColumnValues(images,1)
+        } else {
+            const image = await psql.query(fillSQLParams(sql.image.select, {
+                "id": id
+            }));
+            return [image.rows[0]['imagepath']]
+        }
+    },
+    UpdateImage: async function (id, path) { 
+        const image = await psql.query(fillSQLParams(sql.image.update, {
+            "id": id,
+            "path": path
+        }));
+
+        if(image.rowCount !== 1) {
+            throw new Error("Did not update image!");
+        }
+        
+        return id;
+    },
+    DeleteImage: async function (id) { 
+
+        const image = await psql.query(fillSQLParams(sql.image.select, {
+            "id": id,
+        }));
+
+        const exists = ProcessData(image.rows[0]['imageid']);
+        
+        if(exists === undefined) { //If image doesn't exist then return 
+            throw new Error("Image doesn't exist!");
+        }
+
+        //Delete image in postgres
+        const deleteCmd = await psql.query(fillSQLParams(sql.image.delete, {
+            "id": id
+        }));
+
+        //Verify image is deleted
+        const checkForImage = await psql.query(fillSQLParams(sql.image.select, {
+            "id": id,
+        }));
+
+        if(deleteCmd.rowCount !== 1 || checkForImage.rowCount !== 0) {
+            throw new Error("Error deleting user in SQL database")
+        }
+
+        return id;
     },
 
     //Resource Functions
@@ -209,28 +399,13 @@ function GetUserProfile() {
     //more when add other direction for cypher select queries
 }
 function GetUserPosts() { sql.posts.getByUser; }
-
-//Group these together?
-function SetUserCredentials() { 
-    sql.users.updateUsername; 
-    sql.users.updateEmail;
-    sql.users.updatePassword;
-}
-
-function SetUserData() {
-    sql.users.updateImage;
-    sql.users.updatePoints;
-    sql.users.restrict;
-    sql.users.private;
-}
-
+function RemoveUserFromFriendsList() { cypher.remove.usersFromFriends; }
+function RemoveUseFromNetwork() { cypher.remove.userFromNetwork; }
 function SearchUsers() {//TO BE EXPANDED
     sql.users.select;
     sql.users.selectSome;
     //cypher ???
 } 
-
-function DeleteUser() { sql.users.delete; }
 
 //Post Related Functions
 function CreatePost() { 
@@ -288,11 +463,6 @@ function DeleteNetwork() {
 
 //Tag Related Functions
 
-//Image Related Functions
-function UpdateImage() { sql.image.update; }
-function DeleteImage() { sql.image.delete; }
-function GetImage() { sql.image.select; sql.image.selectSome; }
-
 //Island Related Functions
 function CreateIsland() { sql.island.create; } //remove export and attach to create user
 function SetIslandPopulation() { sql.island.updatePeople; } 
@@ -300,12 +470,25 @@ function SetIslandData() { sql.island.updatePeople; }
 function GetIslandData() {sql.island.select; }
 
 //Request Related Functions
+function CreateRequest() { sql.requests.requestFriend; sql.requests.requestNetwork;}
+function ResolveRequest() { sql.requests.resolve; cypher.add.usersAsFriends; cypher.add.userToNetwork;}
+function DeleteRequest() { sql.requests.delete; }
+function GetUserOpenRequests() { sql.requests.selectOpenFriendRequests; sql.requests.selectOpenNetworkRequests; }
+function GetUserPendingRequests() { sql.requests.selectPendingFriendRequests; sql.requests.selectPendingNetworkRequests; }
 
 //Project Related Functions
 function CreateProject() { sql.projects.create; }
 function ModifyProject() { sql.projects.modify; }
-function SetProjectAsDone() { sql.projects.finish; }
+function SetProjectAsDone() { sql.projects.finish; sql.users.updatePoints; }
 function DeleteProject() { sql.projects.delete; }
 
 function GetProjectId() { sql.projects.select; }
 function GetUsersProjects() { sql.projects.selectByUser; }
+
+//Notification Related Functions
+function CreateNotification() { sql.notifications.create; }
+function GetUserNotifications() { sql.notifications.selectByUser; }
+function MarkNotificationAsRead() { sql.notifications.markAsRead; }
+function DeleteNotification() { sql.notifications.delete; }
+
+//INVENTORY SYSTEM!!!!!!!!!!!!!!
