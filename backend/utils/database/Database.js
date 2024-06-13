@@ -75,6 +75,7 @@ function ProcessAndLogTableValues(queryResult) {
     });
 
     console.log("Table Data: \n" + data.map(row => '| ' + row.join(' | ') + ' |').join('\n'));
+    return data;
 }
 
 //Exported functions will be imported and used in API routes
@@ -387,6 +388,56 @@ module.exports = {
         console.log("Resource is: ");
         return ProcessAndLogRowValues(item, 0);
     },
+
+    //Notification Related Functions
+    CreateNotification: async function (id,text) { 
+        const newNotif = await psql.query(fillSQLParams(sql.notifications.create, {
+            "userid": id,
+            "text": text
+        }));
+        return ProcessData(newNotif[1].rows[0]['notificationid']);
+    },
+    GetUserNotifications: async function (id) { 
+        const userNotifs = await psql.query(fillSQLParams(sql.notifications.selectByUser, {
+            "id": id,
+        }));
+        return ProcessAndLogTableValues(userNotifs);
+    },
+    MarkNotificationAsRead: async function (id) { 
+
+        const markedNotif = await psql.query(fillSQLParams(sql.notifications.markAsRead, {
+            "id": id
+        }));
+        return id;
+    },
+    DeleteNotification: async function (id) { 
+
+        const notif = await psql.query(fillSQLParams(sql.notifications.selectByUser, {
+            "id": id,
+        }));
+
+        const exists = ProcessData(notif.rows[0]['notificationid']);
+        
+        if(exists === undefined) { //If notif doesn't exist then return 
+            throw new Error("Notification doesn't exist!");
+        }
+
+        //Delete notif in postgres
+        const deleteCmd = await psql.query(fillSQLParams(sql.notifications.delete, {
+            "id": id
+        }));
+
+        //Verify notif is deleted
+        const checkForNotif = await psql.query(fillSQLParams(sql.notifications.selectByUser, {
+            "id": id,
+        }));
+
+        if(deleteCmd.rowCount !== 1) {
+            throw new Error("Error deleting notif in SQL database")
+        }
+
+        return id;
+    },
  }
 
  /* Unimplemented Functions are below */
@@ -484,11 +535,5 @@ function DeleteProject() { sql.projects.delete; }
 
 function GetProjectId() { sql.projects.select; }
 function GetUsersProjects() { sql.projects.selectByUser; }
-
-//Notification Related Functions
-function CreateNotification() { sql.notifications.create; }
-function GetUserNotifications() { sql.notifications.selectByUser; }
-function MarkNotificationAsRead() { sql.notifications.markAsRead; }
-function DeleteNotification() { sql.notifications.delete; }
 
 //INVENTORY SYSTEM!!!!!!!!!!!!!!
