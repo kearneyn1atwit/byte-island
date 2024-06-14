@@ -122,6 +122,16 @@ module.exports = {
         }
         console.log("New user is created with id: " + userId);
 
+        //Create user island + (CREATE FILE FOR THIS)
+        const newIsland = await psql.query(fillSQLParams(sql.island.create, {
+            "id": userId,
+            "path": "/user"+String(userId) //placeholder
+        }));
+
+        if(newIsland.rowCount != 1) {
+            throw new Error("Island was not created successfully!");
+        }
+
         //Use UserId returned back by Postgres to create corresponding Cypher node
         const newUserNode = await neo4j.query(fillCypherParams(cypher.create.user, {
             "IDVAR": userId
@@ -389,6 +399,32 @@ module.exports = {
         return ProcessAndLogRowValues(item, 0);
     },
 
+    //Island Related Functions
+    SetIslandPopulation: async function (id,people) { 
+        const island = await psql.query(fillSQLParams(sql.island.updatePeople,  {
+            "id": id,
+            "people": people
+        }));
+        if(island.rowCount != 1) {
+            throw new Error("Error updating population!");
+        }
+    },
+    SetIslandData: async function (id,path) { 
+        const island = await psql.query(fillSQLParams(sql.island.updateData,  {
+            "id": id,
+            "path": path
+        }));
+        if(island.rowCount != 1) {
+            throw new Error("Error updating island data!");
+        }
+    },
+    GetIslandData: async function (id) {
+        const island = await psql.query(fillSQLParams(sql.island.select,  {
+            "id": id
+        }));
+        return ProcessAndLogRowValues(island, 0);
+    },
+
     //Project Related Functions
     CreateProject: async function (userid, name, desc, social, career, personal, duedate) { 
         const newProj = await psql.query(fillSQLParams(sql.projects.create, {
@@ -635,12 +671,6 @@ function DeleteNetwork() {
 }
 
 //Tag Related Functions
-
-//Island Related Functions
-function CreateIsland() { sql.island.create; } //remove export and attach to create user
-function SetIslandPopulation() { sql.island.updatePeople; } 
-function SetIslandData() { sql.island.updatePeople; }
-function GetIslandData() {sql.island.select; }
 
 //Request Related Functions
 function CreateRequest() { sql.requests.requestFriend; sql.requests.requestNetwork;}

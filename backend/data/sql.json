@@ -264,13 +264,13 @@
         },
         "updatePeople": { 
             "query": "UPDATE IslandData SET NumberOfPeople = NumberOfPeople + :people WHERE UserId = :id;",
-            "params": "id",
+            "params": "id,people",
             "desc": "Updates the number of people encoding by the userid"
         },
         "updateData": { 
-            "query": "UPDATE IslandData SET DataPath = DataPath + :people WHERE UserId = :id;",
-            "params": "id,people",
-            "desc": "Updates the number of islandData encoding by the userid"
+            "query": "UPDATE IslandData SET DataPath = ':path' WHERE UserId = :id;",
+            "params": "id,path",
+            "desc": "Updates the islandData encoding by the userid"
         },
         "select": { 
             "query": "SELECT * From IslandData WHERE UserId = :id;",
