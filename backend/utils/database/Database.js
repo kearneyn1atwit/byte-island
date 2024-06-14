@@ -425,6 +425,114 @@ module.exports = {
         return ProcessAndLogRowValues(island, 0);
     },
 
+    //Request Related Functions
+    CreateRequest: async function (senderid, targetid, targetIsUser) { 
+        
+        //Query for request existing / make it so duplicates can't exist
+
+        if(targetIsUser) {
+            const friendRequest = await psql.query(fillSQLParams(sql.requests.requestFriend,  {
+                "senderid": senderid,
+                "userid": targetid
+            }));
+            if(friendRequest[0].rowCount != 1) {
+                throw new Error("Error requesting friend!");
+            }
+            return friendRequest[1].rows[0]['requestid']
+
+        } else {
+            const networkRequest = await psql.query(fillSQLParams(sql.requests.requestNetwork,  {
+                "senderid": senderid,
+                "networkid": targetid
+            }));
+            if(networkRequest[0].rowCount != 1) {
+                throw new Error("Error requesting friend!");
+            }
+
+            return networkRequest[1].rows[0]['requestid']
+        }
+    },
+    ResolveRequest: async function (id) { 
+        //Delete request in postgres
+        const resolveCmd = await psql.query(fillSQLParams(sql.requests.resolve, {
+            "id": id
+        }));
+
+        if(resolveCmd.rowCount !== 1) {
+            throw new Error("Error resolving request in SQL database")
+        }
+
+        const requestData = await psql.query(fillSQLParams(sql.requests.select, {
+            "id": id
+        }));
+
+        console.log(requestData)
+
+        if(requestData['targetuserid'] !== null) { //Friend Request
+            const makeFriends = await neo4j.query(fillCypherParams(cypher.add.usersAsFriends, {
+                "IDVAR1": requestData.rows[0]['senderid'],
+                "IDVAR2": requestData.rows[0]['targetuserid']
+            })); 
+            console.log(makeFriends)
+            if(makeFriends === undefined || makeFriends.records.length != 1) {
+                throw new Error("Error adding users as friends in Cypher database.");
+            }
+        } else { //Network Join Request
+            const joinNetwork = await neo4j.query(fillCypherParams(cypher.add.userToNetwork, {
+                "IDVAR1": requestData.rows[0]['senderid'],
+                "IDVAR2": requestData.rows[0]['targetuserid']
+            })); 
+            if(joinNetwork === undefined || joinNetwork.records.length != 1) {
+                throw new Error("Error adding user into network in Cypher database.");
+            }
+        }
+
+        return id;
+    },
+    DeleteRequest: async function (id) { 
+
+        //Delete request in postgres
+        const deleteCmd = await psql.query(fillSQLParams(sql.requests.delete, {
+            "id": id
+        }));
+
+        if(deleteCmd.rowCount !== 1) {
+            throw new Error("Error deleting request in SQL database")
+        }
+
+        return id;
+    },
+    GetUserOpenRequests: async function (id, targetIsUser) { 
+
+        if(targetIsUser) {
+            const openFriendRequests = await psql.query(fillSQLParams(sql.requests.selectOpenFriendRequests,  {
+                "senderid": id,
+            }));
+            return ProcessAndLogTableValues(openFriendRequests);
+
+        } else {
+            const openJoinRequests = await psql.query(fillSQLParams(sql.requests.selectOpenNetworkRequests,  {
+                "senderid": id
+            }));
+            return ProcessAndLogTableValues(openJoinRequests);
+        }
+    },
+    GetUserPendingRequests: async function (id, targetIsUser) { 
+
+        if(targetIsUser) {
+            const pendingFriendRequests = await psql.query(fillSQLParams(sql.requests.selectPendingFriendRequests,  {
+                "userid": id,
+            }));
+            return ProcessAndLogTableValues(pendingFriendRequests);
+
+        } else {
+            const pendingJoinRequests = await psql.query(fillSQLParams(sql.requests.selectPendingNetworkRequests,  {
+                "networkid": id
+            }));
+            return ProcessAndLogTableValues(pendingJoinRequests);
+        }
+    },
+
     //Project Related Functions
     CreateProject: async function (userid, name, desc, social, career, personal, duedate) { 
         const newProj = await psql.query(fillSQLParams(sql.projects.create, {
@@ -671,12 +779,5 @@ function DeleteNetwork() {
 }
 
 //Tag Related Functions
-
-//Request Related Functions
-function CreateRequest() { sql.requests.requestFriend; sql.requests.requestNetwork;}
-function ResolveRequest() { sql.requests.resolve; cypher.add.usersAsFriends; cypher.add.userToNetwork;}
-function DeleteRequest() { sql.requests.delete; }
-function GetUserOpenRequests() { sql.requests.selectOpenFriendRequests; sql.requests.selectOpenNetworkRequests; }
-function GetUserPendingRequests() { sql.requests.selectPendingFriendRequests; sql.requests.selectPendingNetworkRequests; }
 
 //INVENTORY SYSTEM!!!!!!!!!!!!!!

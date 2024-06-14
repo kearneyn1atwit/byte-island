@@ -23,27 +23,27 @@
     },
     "add": {
         "usersAsFriends": { 
-            "query": "MATCH (u1:User),(u2:User) WHERE u1.Id = <IDVAR1> AND u2.Id = <IDVAR2> CREATE (u1)-[r:FRIENDS]-(u2) RETURN u1,u2,r;",
+            "query": "MATCH (u1:User),(u2:User) WHERE u1.Id = <IDVAR1> AND u2.Id = <IDVAR2> CREATE (u1)-[r:FRIENDS]->(u2) RETURN u1,u2,r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Match two users based on their ids"
         },
         "userToNetwork": { 
-            "query": "MATCH (u:User),(n:Network) WHERE u.Id = <IDVAR1> AND n.Id = <IDVAR2> CREATE (u)-[r:PART_OF]-(n) RETURN u,n,r;",
+            "query": "MATCH (u:User),(n:Network) WHERE u.Id = <IDVAR1> AND n.Id = <IDVAR2> CREATE (u)-[r:PART_OF]->(n) RETURN u,n,r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Match user and network with their ids"
         },
         "tagToUser": { 
-            "query": "MATCH (t:Tag),(u:User) WHERE t.Id = <IDVAR1> AND u.Id = <IDVAR2> CREATE (t)-[r:INTERESTED_IN]-(u) RETURN t,u,r;",
+            "query": "MATCH (t:Tag),(u:User) WHERE t.Id = <IDVAR1> AND u.Id = <IDVAR2> CREATE (t)-[r:INTERESTED_IN]->(u) RETURN t,u,r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Match tag to user with their ids"
         },
         "tagToNetwork": { 
-            "query": "MATCH (t:Tag),(n:Network) WHERE t.Id = IDVA<IDVAR1>R1 AND n.Id = <IDVAR2> CREATE (t)-[r:FOCUSED_ON]-(n) RETURN t,n,r;",
+            "query": "MATCH (t:Tag),(n:Network) WHERE t.Id = <IDVAR1> AND n.Id = <IDVAR2> CREATE (t)-[r:FOCUSED_ON]->(n) RETURN t,n,r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Match tag to network with their ids"
         },
         "tagToPost": { 
-            "query": "MATCH (t:Tag),(p:Post) WHERE t.Id = <IDVAR1> AND p.Id = <IDVAR2> CREATE (t)-[r:RELATED_TO]-(p) RETURN t,p,r;",
+            "query": "MATCH (t:Tag),(p:Post) WHERE t.Id = <IDVAR1> AND p.Id = <IDVAR2> CREATE (t)-[r:RELATED_TO]->(p) RETURN t,p,r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Match tag to post with their ids"
         }

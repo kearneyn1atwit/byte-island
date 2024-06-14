@@ -280,17 +280,17 @@
     },
     "requests": {
         "requestFriend": { 
-            "query": "INSERT INTO Requests (SenderId, TargetUserId) VALUES (:senderid, :userid);",
+            "query": "INSERT INTO Requests (SenderId, TargetUserId) VALUES (:senderid, :userid); SELECT RequestId FROM Requests WHERE SenderId = :senderid AND TargetUserId = :userid;",
             "params": "senderid,userid",
             "desc": "Create a Friend Request w/ all needed values"
         },
         "requestNetwork": { 
-            "query": "INSERT INTO Requests (SenderId, TargetNetworkId) VALUES (:senderid, :networkid);",
+            "query": "INSERT INTO Requests (SenderId, TargetNetworkId) VALUES (:senderid, :networkid); SELECT RequestId FROM Requests WHERE SenderId = :senderid AND TargetNetworkId = :networkid;",
             "params": "senderid,networkid",
             "desc": "Create a Network Join Request w/ all needed values"
         },
         "resolve": { 
-            "query": "UPDATE Requests SET Resolved = TRUE WHERE Request = :id;",
+            "query": "UPDATE Requests SET Resolved = TRUE, ResolvedDate = CURRENT_TIMESTAMP WHERE RequestId = :id;",
             "params": "id",
             "desc": "Mark query as resolved between user and target with request id"
         },
@@ -299,23 +299,28 @@
             "params": "id",
             "desc": "Delete request on cancellation"
         },
+        "select": {
+            "query": "SELECT * FROM Requests WHERE RequestId = ':id';",
+            "params": "id",
+            "desc": "Get request details from the request id"
+        },
         "selectOpenFriendRequests": { 
-            "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetUserId != NULL AND Resolved != True AND Deleted != True;",
+            "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetUserId > 0 AND Resolved != True AND Deleted != True;",
             "params": "senderid",
             "desc": "Get friend requests being waited on by sender user Id"
         },
         "selectOpenNetworkRequests": { 
-            "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetNetworkId != NULL AND Resolved != True AND Deleted != True;",
+            "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetNetworkId > 0 AND Resolved != True AND Deleted != True;",
             "params": "senderid",
             "desc": "Get network requests being waited on by sender user Id"
         },
         "selectPendingFriendRequests": { 
-            "query": "SELECT * FROM Requests WHERE TargetUserID = :userid AND TargetUserId != NULL AND Resolved != True AND Deleted != True;",
+            "query": "SELECT * FROM Requests WHERE TargetUserID = :userid AND TargetUserId > 0 AND Resolved != True AND Deleted != True;",
             "params": "userid",
             "desc": "Get friend requests needing replies by target user id"
         },
         "selectPendingNetworkRequests": { 
-            "query": "SELECT * FROM Requests WHERE TargetNetworkId = :networkid AND TargetUserId != NULL AND Resolved != True AND Deleted != True;",
+            "query": "SELECT * FROM Requests WHERE TargetNetworkId = :networkid AND TargetUserId > 0 AND Resolved != True AND Deleted != True;",
             "params": "networkid",
             "desc": "Get network requests needing replies by target user id"
         }
