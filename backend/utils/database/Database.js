@@ -389,6 +389,128 @@ module.exports = {
         return ProcessAndLogRowValues(item, 0);
     },
 
+    //Project Related Functions
+    CreateProject: async function (userid, name, desc, social, career, personal, duedate) { 
+        const newProj = await psql.query(fillSQLParams(sql.projects.create, {
+            "userid": userid,
+            "name": name,
+            "desc": desc,
+            "social": social,
+            "career": career,
+            "personal": personal,
+            "duedate": new Date(duedate).toISOString()
+        }));
+        return ProcessData(newProj[1].rows[0]['projectid']);
+    },
+    ModifyProject: async function (id, data) { 
+        const project = await psql.query(fillSQLParams(sql.projects.select, {
+            "id": id
+        }));
+        current = ProcessAndLogRowValues(project,0);
+
+        params = {
+            "id": id
+        }
+        if(data.hasOwnProperty('name')) {
+            params['name'] = data['name'];
+        } else {
+            params['name'] = current['projectname'];
+        }
+        if(data.hasOwnProperty('desc')) {
+            params['desc'] = data['desc'];
+        }else {
+            params['desc'] = current['projectdescription'];
+        }
+        if(data.hasOwnProperty('social')) {
+            params['social'] = parseInt(data['social']);
+        } else {
+            params['social'] = current['socialpoints'];
+        }
+        if(data.hasOwnProperty('career')) {
+            params['career'] = parseInt(data['career']);
+        } else {
+            params['career'] = current['careerpoints'];
+        }
+        if(data.hasOwnProperty('personal')) {
+            params['personal'] = parseInt(data['personal']);
+        } else {
+            params['personal'] = current['personalpoints'];
+        }
+        
+        await psql.query(fillSQLParams(sql.projects.modify, params));
+
+        return id;
+    },
+    SetProjectAsDone: async function (id, datetime) { 
+
+        const project = await psql.query(fillSQLParams(sql.projects.select, {
+            "id": id
+        }));
+        data = ProcessAndLogRowValues(project,0);
+
+        ontime = datetime < new Date(current['duedate']).getTime();
+
+        const finishCmd = await psql.query(fillSQLParams(sql.projects.finish, {
+            "id": id,
+            "ontime": ontime
+        }));
+
+        if(finishCmd.rowCount != 1) {
+            throw new Error("Error marking project as done!");
+        }
+
+        if(ontime) {
+            const updateUser = await psql.query(fillSQLParams(sql.projects.updatePoints, {
+                "id": data['userid'],
+                "social": data['socialpoints'],
+                "career": career['career'],
+                "personal": personal['personal']
+            }));
+        } else {
+            //Add mechanics here later
+        }
+    },
+    DeleteProject: async function (id) { 
+
+        const project = await psql.query(fillSQLParams(sql.projects.select, {
+            "id": id,
+        }));
+
+        const exists = ProcessData(project.rows[0]['projectid']);
+        
+        if(exists === undefined) { //If project doesn't exist then return 
+            throw new Error("Project doesn't exist!");
+        }
+
+        //Delete project in postgres
+        const deleteCmd = await psql.query(fillSQLParams(sql.projects.delete, {
+            "id": id
+        }));
+
+        //Verify project is deleted
+        const checkForProject = await psql.query(fillSQLParams(sql.projects.select, {
+            "id": id,
+        }));
+
+        if(deleteCmd.rowCount !== 1 || checkForProject.rowCount !== 0) {
+            throw new Error("Error deleting project in database")
+        }
+
+        return id;
+    },
+    GetProjectDetails: async function (id) { 
+        const project = await psql.query(fillSQLParams(sql.projects.select, {
+            "id": id
+        }));
+        return ProcessAndLogRowValues(project,0);
+    },
+    GetUsersProjects: async function (userid) { 
+        const projects = await psql.query(fillSQLParams(sql.projects.selectByUser, {
+            "id": userid
+        }));
+        return ProcessAndLogTableValues(projects);
+    },
+
     //Notification Related Functions
     CreateNotification: async function (id,text) { 
         const newNotif = await psql.query(fillSQLParams(sql.notifications.create, {
@@ -526,14 +648,5 @@ function ResolveRequest() { sql.requests.resolve; cypher.add.usersAsFriends; cyp
 function DeleteRequest() { sql.requests.delete; }
 function GetUserOpenRequests() { sql.requests.selectOpenFriendRequests; sql.requests.selectOpenNetworkRequests; }
 function GetUserPendingRequests() { sql.requests.selectPendingFriendRequests; sql.requests.selectPendingNetworkRequests; }
-
-//Project Related Functions
-function CreateProject() { sql.projects.create; }
-function ModifyProject() { sql.projects.modify; }
-function SetProjectAsDone() { sql.projects.finish; sql.users.updatePoints; }
-function DeleteProject() { sql.projects.delete; }
-
-function GetProjectId() { sql.projects.select; }
-function GetUsersProjects() { sql.projects.selectByUser; }
 
 //INVENTORY SYSTEM!!!!!!!!!!!!!!

@@ -322,13 +322,13 @@
     },
     "projects": {
         "create": { 
-            "query": "INSERT INTO Projects (UserId, ProjectName, ProjectDescription, SocialPoints, CareerPoints, PersonalPoints, DueDate) VALUES (:userid, :name, :desc, :social, :career, :personal, :duedate);",
+            "query": "INSERT INTO Projects (UserId, ProjectName, ProjectDescription, SocialPoints, CareerPoints, PersonalPoints, DueDate) VALUES (:userid, ':name', ':desc', :social, :career, :personal, ':duedate'); SELECT ProjectId FROM Projects WHERE UserId = ':userid' AND ProjectName = ':name';",
             "params": "userid,name,desc,social,career,personal,duedate",
             "desc": "Create project with user, name, desc, points and due date"
         },
         "modify": { 
-            "query": "UPDATE Projects SET ProjectDescription = ':desc', SocialPoints = SocialPoints + :social, CareerPoints = CareerPoints + :career, PersonalPoints = PersonalPoints + :personal WHERE ProjectId = :id;",
-            "params": "id,desc,social,career,personal",
+            "query": "UPDATE Projects SET ProjectName = ':name', ProjectDescription = ':desc', SocialPoints = :social, CareerPoints = :career, PersonalPoints = :personal WHERE ProjectId = :id;",
+            "params": "id,name,desc,social,career,personal",
             "desc": "Modify project description and points values from id"
         },
         "finish": { 
@@ -342,19 +342,19 @@
             "desc": "Delete a project (and apply appropriate consequences if needed)"
         },
         "select": { 
-            "query": "SELECT * FROM Projects WHERE ProjectId = :id;",
+            "query": "SELECT * FROM Projects WHERE ProjectId = :id AND Deleted != True;",
             "params": "id",
             "desc": "Get a specific project details by projectId"
         },
         "selectByUser": { 
-            "query": "SELECT * FROM Projects WHERE UserId = :id;",
+            "query": "SELECT * FROM Projects WHERE UserId = :id AND Deleted != True;",
             "params": "id",
             "desc": "Get all projects for a given user"
         }
     },
     "notifications": {
         "create": { 
-            "query": "INSERT INTO Notifications (UserId, TextContent) VALUES (:userid, :text);",
+            "query": "INSERT INTO Notifications (UserId, TextContent) VALUES (:userid, ':text'); SELECT NotificationId FROM Notifications WHERE UserId = ':userid' AND TextContent = ':text' ORDER BY NotificationId desc;",
             "params": "userid,text",
             "desc": "Create notification that corresponds with a user"
         },
@@ -364,7 +364,7 @@
             "desc": "Set notification as read, not deleted"
         },
         "selectByUser": { 
-            "query": "SELECT * FROM Notifications WHERE UserId = :id AND Deleted != TRUE;",
+            "query": "SELECT NotificationId,TextContent,Viewed,CreatedDate FROM Notifications WHERE UserId = :id AND Deleted != TRUE;",
             "params": "id",
             "desc": "Get all notifications for a given user"
         },
