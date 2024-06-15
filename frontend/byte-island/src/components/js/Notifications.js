@@ -1,5 +1,5 @@
 export default {
-    props: ['notifCount'],
+    props: ['notificationCount','readCount'],
     data() {
       return {
         notifications: []
@@ -9,7 +9,11 @@ export default {
       
     },
     computed: {
-      
+      filteredNotifications() {
+        return this.notifications.sort(function(x,y){
+            return x.read === y.read ? 0 : x.read ? 1 : -1;
+        });
+      }
     },
     mounted() {
         this.getNotifications();
@@ -18,47 +22,48 @@ export default {
         // api call to get user notifications
         getNotifications() {
             this.notifications = [];
-            for(let i=0;i<this.notifCount;i++) {
-                if(i % 2 === 0){
+            for(let i=0;i<this.notificationCount + this.readCount;i++) {
+                if(i < this.notificationCount){
                     this.notifications.push({
                         id: i,
-                        type: "friend",
-                        messageBody: {
-                            message: "User "+i+" sent a friend request",
-                            user: 'User '+i
-                        },
-                        time: "12:58 PM"
+                        read: false,
+                        message: "Project X"+i+" is due soon! ("+new Date().toISOString()+")",
+                        datetime: new Date().toISOString()
                     });
                 }
                 else {
                     this.notifications.push({
                         id: i,
-                        type: "network",
-                        messageBody: {
-                            message: "User "+i+" wants to join your network: \"Network "+(i+1)+"\"",
-                            user: 'User '+i,
-                            network: 'Network '+(i+1)
-                        },
-                        time: "11:52 PM"
+                        read: true,
+                        message: "User Y"+i+" has joined your network: Network "+(i+1)+"!",
+                        datetime: new Date().toISOString()
                     });
                 }
             }
         },
-        accept(notification) {
-            // api call to accept notification
-            this.$emit('remove-notif');
-            this.notifications = this.notifications.filter((item) => item !== notification);
-            if(notification.type === 'friend'){
-                this.$emit('notification-success','You have a new friend: '+notification.messageBody.user+'!');
-            }
-            else if(notification.type === 'network') {
-                this.$emit('notification-success',notification.messageBody.user+' has joined '+notification.messageBody.network);
+        // api call to update notification as read
+        read(notification) {
+            this.$emit('read-notification');
+            notification.read = true;
+        },
+        // api call to remove notification
+        del(notification) { 
+            this.$emit('remove-notification');
+            this.notifications = this.notifications.filter((item) => item !== notification);  
+        },
+        // api call to read all
+        markAllRead() {
+            for(let i=0;i<this.notifications.length;i++) {
+                if(!this.notifications[i].read){
+                    this.$emit('read-notification');
+                    this.notifications[i].read = true;
+                }
             }
         },
-        ignore(notification) {
-            // api call to remove notification
-            this.$emit('remove-notif');
-            this.notifications = this.notifications.filter((item) => item !== notification);  
+        // api call to delete all
+        deleteAll() {
+            this.notifications = [];
+            this.$emit('remove-all-notifications');
         }
     },
     components: {

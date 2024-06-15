@@ -37,7 +37,7 @@ export default {
       }
     },
     mounted() {
-        this.todayDate = this.convertDate(new Date().toLocaleDateString());
+        this.todayDate = new Date().toISOString();
         this.getProjects();
     },
     methods: {
@@ -60,7 +60,7 @@ export default {
             for(let i=0;i<5;i++) {
                 this.projects.push({
                     id: i,
-                    due: "4/1/2025",
+                    due: new Date().toISOString(),
                     points: [i,i+12,i+3],
                     title: "Project "+(i+1),
                     desc: 'Project description for project '+(i+1),
@@ -68,19 +68,19 @@ export default {
                         {
                             id: i,
                             name: 'First update',
-                            date: '3/1/2024',
+                            date: new Date().toISOString(),
                             desc: 'This is update '+(3*i+1)+'.'
                         },
                         {
                             id: i+1,
                             name: 'Update #2',
-                            date: '7/17/2024',
+                            date: new Date().toISOString(),
                             desc: 'Update 2 here. And I have to admit, this is quite a long update description, let\'s see if it looks good on the website?'
                         },
                         {
                             id: i+2,
                             name: 'Most recent',
-                            date: '2/7/2025',
+                            date: new Date().toISOString(),
                             desc: 'The final update.'
                         }
                     ]
@@ -121,7 +121,7 @@ export default {
                 this.newBPoints = Math.floor(Math.random() * 51);
                 let d = new Date();
                 d.setDate(d.getDate() + 1);
-                this.newDueDate = d.toLocaleDateString();
+                this.newDueDate = d.toISOString();
             }
             else {
                 this.newRPoints = 0;
@@ -144,7 +144,7 @@ export default {
             if(this.overrideDueDate) {
                 finalDate = new Date(this.overrideDueDate);
                 finalDate.setDate(finalDate.getDate() + 1);
-                finalDate = finalDate.toLocaleDateString();
+                finalDate = finalDate.toISOString();
             }
             this.projects.push({
                 id: this.projects.length,
@@ -185,7 +185,7 @@ export default {
             }
             let finalDate = new Date(this.editProjectDueDate);
             finalDate.setDate(finalDate.getDate() + 1);
-            finalDate = finalDate.toLocaleDateString();
+            finalDate = finalDate.toISOString();
             // if no updates have actually been made to project fields
             if(this.editProjectTitle === project.title && this.editProjectDesc === project.desc && finalDate === project.due) {
                 this.$emit('project-warning','Warning: No project details have changed.');
@@ -198,7 +198,7 @@ export default {
             project.updates.push({
                 id: project.updates.length,
                 name: this.editProjectUpdateTitle,
-                date: new Date().toLocaleDateString(),
+                date: new Date().toISOString(),
                 desc: this.editProjectUpdateDesc
             });
             this.$emit('project-success',this.editProjectTitle + ' has been successfully updated.');
