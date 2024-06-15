@@ -176,11 +176,6 @@
             "params": "id",
             "desc": "Mark network as deleted from their id. NEEDS A CYPHER COUNTERPART"
         },
-        "selectAll": { 
-            "query": "SELECT * FROM Networks;",
-            "params": "",
-            "desc": "Select all networks in the table"
-        },
         "selectSome": { 
             "query": "SELECT * FROM Networks WHERE NetworkName '%:name%' AND Deleted != True;",
             "params": "name",
@@ -194,7 +189,7 @@
     },
     "tags": {
         "create": { 
-            "query": "INSERT INTO Tags (TagName) VALUES (':name');",
+            "query": "INSERT INTO Tags (TagName) VALUES (':name'); SELECT TagId FROM Tags WHERE TagName = ':name';",
             "params": "name",
             "desc": "Create tag with tag name. NEEDS A CYPHER COUNTERPART"
         },
@@ -202,11 +197,6 @@
             "query": "UPDATE Tags SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE TagId = :id;",
             "params": "id",
             "desc": "Mark tag as deleted from their id. NEEDS A CYPHER COUNTERPART"
-        },
-        "selectAll": { 
-            "query": "SELECT * FROM Tags",
-            "params": "",
-            "desc": "Select all tags in the table"
         },
         "selectSome": { 
             "query": "SELECT * FROM Tags WHERE TagName '%:name%' AND Deleted != True;",

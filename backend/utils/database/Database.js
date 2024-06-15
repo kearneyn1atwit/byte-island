@@ -517,6 +517,19 @@ module.exports = {
         }
         return id;
     },
+    GetUserPosts: async function(id) { 
+
+        const userPosts = await psql.query(fillSQLParams(sql.posts.getByUser, {
+            "id":id
+        }));
+        return ProcessAndLogTableValues(userPosts);
+    },
+    GetNetworkPosts: async function(id) { 
+        const networkPosts = await psql.query(fillSQLParams(sql.posts.getByNetwork, {
+            "id":id
+        }));
+        return ProcessAndLogTableValues(networkPosts);
+    },
     LikePost: async function(postid,userid) {
 
         //Add like to like count in Postgres
@@ -581,18 +594,87 @@ module.exports = {
 
         return id; 
     },
-    GetUserPosts: async function(id) { 
+    
 
-        const userPosts = await psql.query(fillSQLParams(sql.posts.getByUser, {
-            "id":id
+    //Tag Related Functions
+
+    CreateTag: async function(name) {
+
+        //Create tag in Postgres and verify its successfully added to the database
+        const newTag = await psql.query(fillSQLParams(sql.tags.create, {
+            "name": name
         }));
-        return ProcessAndLogTableValues(userPosts);
+
+        const tagId = newTag[1].rows[0]['tagid'];
+        console.log("New tag is created with id: " + tagId);
+
+        //Use TagId returned back by Postgres to create corresponding Cypher node
+        const newTagNode = await neo4j.query(fillCypherParams(cypher.create.tag, {
+            "IDVAR": tagId
+        })); 
+        if(newTagNode === undefined) {
+            throw new Error("Error adding tag into Cypher database.");
+        }
+
+        return tagId;
     },
-    GetNetworkPosts: async function(id) { 
-        const networkPosts = await psql.query(fillSQLParams(sql.posts.getByNetwork, {
-            "id":id
+    AddTagToUser: async function(tagid,userid) {
+        await neo4j.query(fillCypherParams(cypher.add.tagToUser, {
+            "IDVAR1": tagid,
+            "IDVAR2": userid
+        })); 
+    },
+    AddTagToNetwork: async function(tagid,networkid) {
+        await neo4j.query(fillCypherParams(cypher.add.tagToNetwork, {
+            "IDVAR1": tagid,
+            "IDVAR2": networkid
+        })); 
+    },
+    AddTagToPost: async function(tagid,postid) {
+        await neo4j.query(fillCypherParams(cypher.add.tagToPost, {
+            "IDVAR1": tagid,
+            "IDVAR2": postid
+        })); 
+    },
+    SearchTag: async function(name) {
+        sql.tags.select;
+        sql.tags.selectSome;
+    },
+    RemoveTagFromUser: async function(tagid,userid) {
+        await neo4j.query(fillCypherParams(cypher.remove.tagFromUser, {
+            "IDVAR1": tagid,
+            "IDVAR2": userid
+        })); 
+    },
+    RemoveTagFromNetwork: async function(tagid,networkid) {
+        await neo4j.query(fillCypherParams(cypher.remove.tagFromNetwork, {
+            "IDVAR1": tagid,
+            "IDVAR2": networkid
+        })); 
+    },
+    RemoveTagFromPost: async function(tagid,postid) {
+        await neo4j.query(fillCypherParams(cypher.remove.tagFromPost, {
+            "IDVAR1": tagid,
+            "IDVAR2": postid
+        })); 
+    },
+    DeleteTag: async function(id) {
+
+        //Delete tag in Postgres and verify its successfully "deleted" to the database
+        const deleteCmd = await psql.query(fillSQLParams(sql.tags.delete, {
+            "id": id
         }));
-        return ProcessAndLogTableValues(networkPosts);
+
+        if(deleteCmd.rowCount !== 1) {
+            throw new Error("Error deleting tag in SQL database")
+        }
+        
+        //Use TagId returned back by Postgres to "delete" corresponding Cypher node
+        await neo4j.query(fillCypherParams(cypher.delete.tag, {
+            "IDVAR": id
+        })); 
+
+        return id; 
     },
 
     //Image Functions
@@ -602,7 +684,7 @@ module.exports = {
         }));
         return ProcessData(newImage[1].rows[0]['imageid']);
     },
-    GetImages: async function (id) { 
+    GetImage: async function (id) { 
 
         if(id.length) {
             const images = await psql.query(fillSQLParams(sql.image.selectSome, {
@@ -1009,44 +1091,24 @@ module.exports = {
  /* Unimplemented Functions are below */
 
 //User Related Functions
-function SearchUsers() {//TO BE EXPANDED
+function SearchUsers() {
     sql.users.select;
     sql.users.selectSome;
-    //cypher ???
+    cypher.select.relatedUsers;
 } 
 
 //Network Related Functions
-function SearchNetworks() {} //tbd
+function SearchNetworks() {
+    sql.networks.select;
+    sql.networks.selectSome;
+    //sql search query?
+    cypher.select.relatedNetworks;
+} 
 
 //Post Related Functions
-function SearchPosts() { sql.posts.SEARCHING; }
-
-//Tag Related Functions
-
-function CreateTag() {
-    cypher.create.tag;
-}
-
-function AddTag() {
-    cypher.add.tagToNetwork;
-    cypher.add.tagToPost;
-    cypher.add.tagToUser;
-}
-
-function SelectTag() {
-    cypher.select.relatedNetworks;
+function SearchPosts() { 
     cypher.select.relatedPosts;
-    cypher.select.relatedUsers;
-}
-
-function RemoveTag() {
-    cypher.remove.tagFromNetwork;
-    cypher.remove.tagFromPost;
-    cypher.remove.tagFromUser;
-}
-
-function DeleteTag() {
-    cypher.delete.tag;
+    sql.posts.SEARCHING; 
 }
 
 //INVENTORY SYSTEM!!!!!!!!!!!!!!
