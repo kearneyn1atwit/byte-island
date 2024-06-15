@@ -32,6 +32,11 @@
             "params": "IDVAR1,IDVAR2",
             "desc": "Match user and network with their ids"
         },
+        "userAsAdmin": { 
+            "query": "MATCH (u:User),(n:Network) WHERE u.Id = <IDVAR1> AND n.Id = <IDVAR2> CREATE (u)-[r:ADMIN_OF]->(n) RETURN u,n,r;",
+            "params": "IDVAR1,IDVAR2",
+            "desc": "Make user a network admin with their ids"
+        },
         "tagToUser": { 
             "query": "MATCH (t:Tag),(u:User) WHERE t.Id = <IDVAR1> AND u.Id = <IDVAR2> CREATE (t)-[r:INTERESTED_IN]->(u) RETURN t,u,r;",
             "params": "IDVAR1,IDVAR2",
@@ -59,6 +64,11 @@
             "params": "IDVAR",
             "desc": "Get all users in network based on network id"
         },
+        "networkAdmins": {
+            "query": "MATCH (n:Network {Id: <IDVAR> })-[r:ADMIN_OF]-(u) RETURN u;",
+            "params": "IDVAR",
+            "desc": "Get all users in network based on network id"
+        },
         "relatedUsers": { 
             "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:INTERESTED_IN]-(u) RETURN u;",
             "params": "IDVAR",
@@ -77,27 +87,32 @@
     },
     "remove": {
         "usersFromFriends": { 
-            "query": "MATCH (u1:User {Id: <IDVAR1> })-[r:FRIENDS]-(u2:User {Id: <IDVAR2> }) RETURN u1,u2,r DELETE r;",
+            "query": "MATCH (u1:User {Id: <IDVAR1> })-[r:FRIENDS]-(u2:User {Id: <IDVAR2> }) DELETE r RETURN u1,u2;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch two users based on their ids"
         },
         "userFromNetwork": { 
-            "query": "MATCH (u:User {Id: <IDVAR1> })-[r:PART_OF]-(n:Network {Id: <IDVAR2> }) RETURN u,n,r DELETE r;",
+            "query": "MATCH (u:User {Id: <IDVAR1> })-[r:PART_OF]-(n:Network {Id: <IDVAR2> }) DELETE r RETURN u,n;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch user and network with their ids (ADMIN????)"
         },
+        "userFromAdmins": { 
+            "query": "MATCH (u:User {Id: <IDVAR1> })-[r:ADMIN_OF]-(n:Network {Id: <IDVAR2> }) DELETE r RETURN u,n;",
+            "params": "IDVAR1,IDVAR2",
+            "desc": "Unmatch user a network admin with their ids"
+        },
         "tagFromUser": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:INTERESTED_IN]-(u:User {Id: <IDVAR2> }) RETURN t,u,r DELETE r;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:INTERESTED_IN]-(u:User {Id: <IDVAR2> }) DELETE r RETURN t,u;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from user with their ids"
         },
         "tagFromNetwork": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:FOCUSED_ON]-(u:User {Id: <IDVAR2> }) RETURN t,n,r DELETE r;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:FOCUSED_ON]-(u:User {Id: <IDVAR2> }) DELETE r RETURN t,n;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from network with their ids"
         },
         "tagFromPost": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:RELATED_TO]-(u:User {Id: <IDVAR2> }) RETURN t,p,r DELETE r;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:RELATED_TO]-(u:User {Id: <IDVAR2> }) DELETE r RETURN t,p;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from post with their ids"
         }

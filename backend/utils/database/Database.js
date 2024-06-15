@@ -293,6 +293,136 @@ module.exports = {
         return id; 
     },
 
+    //Network Related Functions 
+    CreateNetwork: async function (name, private) { 
+
+        //Make sure user doesn't already exist
+        const oldNetworkRow = await psql.query(fillSQLParams(sql.networks.select, {
+            "name": name
+        }));
+
+        if(oldNetworkRow.rowCount !== 0) { //If network exists then return 
+            throw new Error("Network already exists!");
+        }
+
+        //Create network in Postgres and verify its successfully added to the database
+       const newNetworkRow = await psql.query(fillSQLParams(sql.networks.create, {
+            "name": name,
+            "private": private
+        }));
+
+        const networkId = newNetworkRow[1].rows[0]['networkid'];
+        console.log("New network is created with id: " + networkId);
+        console.log(newNetworkRow[1].rows[0])
+
+        //Use NetworkId returned back by Postgres to create corresponding Cypher node
+        const newNetworkNode = await neo4j.query(fillCypherParams(cypher.create.network, {
+            "IDVAR": networkId
+        })); 
+        if(newNetworkNode === undefined) {
+            throw new Error("Error adding user into Cypher database.");
+        }
+
+        return networkId;
+    },
+    GetNetworkId: async function (name) { 
+        const network = await psql.query(fillSQLParams(sql.networks.select, {
+            "name": name
+        }));
+        return ProcessData(network.rows[0]['networkid']);
+    },
+    SetNetworkName: async function (id,name) { 
+        await psql.query(fillSQLParams(sql.networks.updateName, {
+            "id": id,
+            "name": name
+        }));
+        return id;
+    },
+    SetNetworkStatus: async function (id,private) { 
+        await psql.query(fillSQLParams(sql.networks.private, {
+            "id": id,
+            "private": private
+        }));
+        return id;
+    },
+    GetNetworkMembers: async function (id) { 
+        const networkMembers = await neo4j.query(fillCypherParams(cypher.select.usersInNetwork, {
+            "IDVAR": id,
+        })); 
+        idlist = []
+        networkMembers.records.forEach(record => {
+            idlist.push(record.get('u').properties.Id.low);
+        });
+        return idlist;
+    },
+    AddNetworkMember: async function (userid,networkid) { 
+        await neo4j.query(fillCypherParams(cypher.add.userToNetwork, {
+            "IDVAR1": userid,
+            "IDVAR2": networkid
+        })); 
+    },
+    RemoveNetworkMember: async function (userid,networkid) {
+        await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
+            "IDVAR1": userid,
+            "IDVAR2": networkid
+        }));  
+    },
+    GetNetworkAdmins: async function (id) {
+        const networkAdmins = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
+            "IDVAR": id,
+        })); 
+        idlist = []
+        networkAdmins.records.forEach(record => {
+            idlist.push(record.get('u').properties.Id.low);
+        });
+        return idlist;
+    },
+    AddNetworkAdmin: async function (userid,networkid) {
+        await neo4j.query(fillCypherParams(cypher.add.userAsAdmin, {
+            "IDVAR1": userid,
+            "IDVAR2": networkid
+        })); 
+    },
+    RemoveNetworkAdmin: async function (userid,networkid) {
+        await neo4j.query(fillCypherParams(cypher.remove.userFromAdmins, {
+            "IDVAR1": userid,
+            "IDVAR2": networkid
+        })); 
+    },
+    DeleteNetwork: async function (name) {
+
+        const network = await psql.query(fillSQLParams(sql.networks.select, {
+            "name": name
+        }));
+        const id = ProcessData(network.rows[0]['networkid']);
+        
+        if(id === undefined) { //If network doesn't exist then return 
+            throw new Error("Network doesn't exist!");
+        }
+
+        //Delete network in Postgres and verify its successfully "deleted" to the database
+        const deleteCmd = await psql.query(fillSQLParams(sql.networks.delete, {
+            "id": id
+        }));
+
+        const checkForNetwork = await psql.query(fillSQLParams(sql.networks.select, {
+            "name": name,
+        }));
+        
+        if(deleteCmd.rowCount !== 1 || checkForNetwork.rowCount !== 0) {
+            throw new Error("Error deleting network in SQL database")
+        }
+        
+        //Use NetworkId returned back by Postgres to "delete" corresponding Cypher node
+        const deletedNode = await neo4j.query(fillCypherParams(cypher.delete.network, {
+            "IDVAR": id
+        })); 
+  
+        console.log(deletedNode);
+
+        return id; 
+    },
+
     //Image Functions
     CreateImage: async function (path) {
         const newImage = await psql.query(fillSQLParams(sql.image.create, {
@@ -533,7 +663,7 @@ module.exports = {
         }
     },
 
-    //Project Related Functions
+    //Project Related Functions (NEEDS UPDATES)
     CreateProject: async function (userid, name, desc, social, career, personal, duedate) { 
         const newProj = await psql.query(fillSQLParams(sql.projects.create, {
             "userid": userid,
@@ -717,12 +847,15 @@ function GetUserProfile() {
 }
 function GetUserPosts() { sql.posts.getByUser; }
 function RemoveUserFromFriendsList() { cypher.remove.usersFromFriends; }
-function RemoveUseFromNetwork() { cypher.remove.userFromNetwork; }
+function RemoveUserFromNetwork() { cypher.remove.userFromNetwork; }
 function SearchUsers() {//TO BE EXPANDED
     sql.users.select;
     sql.users.selectSome;
     //cypher ???
 } 
+
+//Network Related Functions
+function SearchNetworks() {} //tbd
 
 //Post Related Functions
 function CreatePost() { 
@@ -752,31 +885,7 @@ function GetUserPosts() { sql.posts.getByUser; }
 function GetNetworkPosts() { sql.posts.getByNetwork; }
 function SearchPosts() { sql.posts.SEARCHING; }
 
-//Network Related Functions 
-function GetNetworkId() { sql.networks.select; }
-function CreateNetwork() { 
-    sql.networks.create;
-    cypher.create.network;
-}
 
-function SetNetworkName() { sql.networks.updateName; }
-function SetNetworkStatus() { sql.networks.private; }
-
-function GetNetworkMembers() { cypher.select.usersInNetwork; }
-function AddNetworkMember() { cypher.add.userToNetwork; }
-function RemoveNetworkMember() { cypher.remove.userFromNetwork; }
-
-//Admin Commands (TBD)
-function GetNetworkAdmins() {}
-function AddNetworkAdmin() {}
-function RemoveNetworkAdmin() {}
-
-function SearchNetworks() {} //tbd
-
-function DeleteNetwork() {
-    sql.networks.delete;
-    cypher.delete.network;
-}
 
 //Tag Related Functions
 

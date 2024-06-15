@@ -162,7 +162,7 @@
     },
     "networks": {
         "create": { 
-            "query": "INSERT INTO Networks (NetworkName, PrivateNetwork) VALUES (:name,:private);",
+            "query": "INSERT INTO Networks (NetworkName, PrivateNetwork) VALUES (':name',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
             "params": "name,private",
             "desc": "Create network with network name. NEEDS A CYPHER COUNTERPART"
         },
@@ -192,7 +192,7 @@
             "desc": "Select networks based off matching names"
         },
         "select": { 
-            "query": "SELECT * FROM Networks WHERE NetworkName ':name' AND Deleted != True;",
+            "query": "SELECT * FROM Networks WHERE NetworkName = ':name' AND Deleted != True;",
             "params": "name",
             "desc": "Select one network off its name"
         }
