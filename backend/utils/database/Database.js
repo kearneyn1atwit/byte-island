@@ -142,7 +142,6 @@ module.exports = {
 
         return userId; 
     },
-    //Don't export and use internally? (Revisit)
     GetUserId: async function(username) { 
         const user = await psql.query(fillSQLParams(sql.users.select, {
             "name": username,
@@ -166,6 +165,22 @@ module.exports = {
             "id": id,
         }));
         return ProcessAndLogRowValues(userData,0);
+    },
+    GetUserProfileData: async function(idlist) { 
+
+        //Might need enhancing later?
+
+        if(idlist.length === 1) {
+            const profile = await psql.query(fillSQLParams(sql.users.getProfileInformation, {
+                "id": idlist,
+            }));
+            return ProcessAndLogRowValues(profile,0);
+        } else {
+            const miniProfileList = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                "id": idlist,
+            }));
+            return ProcessAndLogTableValues(miniProfileList);
+        }
     },
     UpdateUserCredentials: async function(id, dict) { 
         const currentUserData = await psql.query(fillSQLParams(sql.users.getCredentials, {
@@ -255,6 +270,23 @@ module.exports = {
         }
 
         return dict;
+    },
+    GetUserFriendsList: async function(id) {
+        const friends = await neo4j.query(fillCypherParams(cypher.select.friendsList, {
+            "IDVAR": id
+        }));
+        idlist = []
+        friends.records.forEach(record => {
+            console.log("Id of friend is: " + record.get('f').properties.Id.low)
+            idlist.push(record.get('f').properties.Id.low);
+        });
+        return idlist;
+    },
+    RemoveUserFromFriendsList: async function(userId, formerFriendId) { 
+        await neo4j.query(fillCypherParams(cypher.remove.usersFromFriends, {
+            "IDVAR1": userId,
+            "IDVAR2": formerFriendId
+        }));
     },
     DeleteUser: async function(username) { 
 
@@ -558,6 +590,7 @@ module.exports = {
     //Request Related Functions
     CreateRequest: async function (senderid, targetid, targetIsUser) { 
         
+        //Ensure not made for deleted entities
         //Query for request existing / make it so duplicates can't exist
 
         if(targetIsUser) {
@@ -589,14 +622,14 @@ module.exports = {
         }));
 
         if(resolveCmd.rowCount !== 1) {
-            throw new Error("Error resolving request in SQL database")
+            throw new Error("Error resolving request in SQL database. It may have been previously deleted")
         }
 
         const requestData = await psql.query(fillSQLParams(sql.requests.select, {
             "id": id
         }));
 
-        if(requestData['targetuserid'] !== undefined) { //Friend Request
+        if(requestData.rows[0]['targetuserid'] !== undefined) { //Friend Request
             const makeFriends = await neo4j.query(fillCypherParams(cypher.add.usersAsFriends, {
                 "IDVAR1": requestData.rows[0]['senderid'],
                 "IDVAR2": requestData.rows[0]['targetuserid']
@@ -836,14 +869,7 @@ module.exports = {
  /* Unimplemented Functions are below */
 
 //User Related Functions
-function GetUserProfile() { 
-    sql.users.getMiniProfile; 
-    sql.users.getProfileInformation; 
-    cypher.select.friendsList; //move to separate function???
-    //more when add other direction for cypher select queries
-}
 function GetUserPosts() { sql.posts.getByUser; }
-function RemoveUserFromFriendsList() { cypher.remove.usersFromFriends; }
 function SearchUsers() {//TO BE EXPANDED
     sql.users.select;
     sql.users.selectSome;

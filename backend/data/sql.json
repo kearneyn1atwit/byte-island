@@ -81,9 +81,9 @@
             "desc": "Grab all columns needed to display user profile from table (JOIN WITH ISLAND DATA?)"
         },
         "getMiniProfile": { 
-            "query": "SELECT Username, ProfileImageId FROM Users WHERE UserId = :id AND Deleted != True;",
+            "query": "SELECT Username, ProfileImageId FROM Users WHERE UserId IN (:id) AND Deleted != True;",
             "params": "id",
-            "desc": "Get username and image id to display a user (not on their profile page) | MAKE THIS TAKE ANY NUMBER OF INPUTS"
+            "desc": "Get username and image id to display a user (not on their profile page)"
         }
     },
     "posts": {
@@ -290,7 +290,7 @@
             "desc": "Create a Network Join Request w/ all needed values"
         },
         "resolve": { 
-            "query": "UPDATE Requests SET Resolved = TRUE, ResolvedDate = CURRENT_TIMESTAMP WHERE RequestId = :id;",
+            "query": "UPDATE Requests SET Resolved = TRUE, ResolvedDate = CURRENT_TIMESTAMP WHERE RequestId = :id AND Deleted != TRUE;",
             "params": "id",
             "desc": "Mark query as resolved between user and target with request id"
         },
@@ -315,12 +315,12 @@
             "desc": "Get network requests being waited on by sender user Id"
         },
         "selectPendingFriendRequests": { 
-            "query": "SELECT * FROM Requests WHERE TargetUserID = :userid AND TargetUserId > 0 AND Resolved != True AND Deleted != True;",
+            "query": "SELECT * FROM Requests WHERE TargetUserID = :userid AND Resolved != True AND Deleted != True;",
             "params": "userid",
             "desc": "Get friend requests needing replies by target user id"
         },
         "selectPendingNetworkRequests": { 
-            "query": "SELECT * FROM Requests WHERE TargetNetworkId = :networkid AND TargetUserId > 0 AND Resolved != True AND Deleted != True;",
+            "query": "SELECT * FROM Requests WHERE TargetNetworkId = :networkid AND Resolved != True AND Deleted != True;",
             "params": "networkid",
             "desc": "Get network requests needing replies by target user id"
         }
