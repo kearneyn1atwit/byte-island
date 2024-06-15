@@ -8,19 +8,21 @@
     >
       <div class="text-center">
 
-        <h1 class="text-h1 font-weight-bold my-10"><span style="color: #98FF86;">Byte</span> Islands</h1>
+        <h1 class="text-h1 font-weight-bold my-10"><span style="color: #98FF86;">Byte</span> Island</h1>
       </div>
 
       <div class="py-4" />
 
       <v-row class="login-form">
         <v-col cols="12">
-          <v-form @submit.prevent>
-            <v-text-field v-model="username" variant="outlined" :rules="[rules.required]" placeholder="Username" class="ital-input mb-2"></v-text-field>
+          <v-form v-model="valid" @submit.prevent>
+            <v-text-field v-if="showUsername" v-model="username" variant="outlined" :rules="[rules.required]" placeholder="Username" class="ital-input mb-2"></v-text-field>
+            <v-text-field v-model="email" variant="outlined" :rules="[rules.emailRules]" placeholder="Email" class="ital-input mb-2"></v-text-field>
             <v-text-field :type="show ? 'text' : 'password'" :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show = !show" v-model="password" variant="outlined" :rules="[rules.required]" placeholder="Password" class="ital-input mb-2"></v-text-field>
             <v-row align="center" justify="center" class="mt-5">
-              <v-btn size="large" :disabled="!(username && password)" variant="outlined" class="form-btn mr-10" @click="signup()">Sign up</v-btn>
-              <v-btn size="large" :disabled="!(username && password)" variant="outlined" class="form-btn" @click="login()">Login</v-btn>
+              <v-btn size="large" :disabled="!(email && password) || (showUsername && !username) || !valid" variant="outlined" class="form-btn mr-10" @click="signup()">Sign up</v-btn>
+              <v-btn v-if="!showUsername" size="large" :disabled="!(email && password) || !valid" variant="outlined" class="form-btn" @click="login()">Login</v-btn>
+              <v-btn v-else size="large" variant="outlined" class="form-btn-back"  @click="showUsername = false;">Back</v-btn>
             </v-row>
           </v-form>
 
@@ -46,6 +48,11 @@
   background-color: #98FF86;
   color: black;
   border-color: #98FF86;
+}
+.form-btn-back:hover {
+  background-color: #F44336;
+  color: black !important;
+  border-color: #F44336;
 }
 </style>
 

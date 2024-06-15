@@ -2,6 +2,7 @@ import CryptoJS from "crypto-js";
 import Notifications from "./Notifications";
 import Projects from "./Projects";
 import Search from "./Search";
+import Requests from "./Requests";
 
 export default {
     data() {
@@ -10,7 +11,9 @@ export default {
         rPoints: 0,
         gPoints: 12,
         bPoints: 6,
-        notifCount: 0,
+        requestCount: 0,
+        notificationCount: 0,
+        readCount: 0,
         drawer: false,
         loaded: false,
         widget: "dashboard",
@@ -25,7 +28,7 @@ export default {
     },
     async created() {
       // change to real authentication later
-      if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password" || this.$route.params.username !== 'user'){
+      if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password"){
         this.$router.push('/not-found');
       }
       else {
@@ -37,30 +40,50 @@ export default {
       
     },
     mounted() {
-      this.username = this.$route.params.username;
-      this.getNotifications();
-      // refresh notification count every minute
-      setInterval(() => this.getNewNotifications(),60000);
+      this.getUsername();
+      this.getNotificationsRequests();
+      // refresh request count every minute
+      setInterval(() => this.getNewNotificationsRequests(),60000);
     },
     methods: {
-        getNotifications() {
-          // api call to get notif count
-          this.notifCount = 8;
-          if(this.notifCount > 0) {
-            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.notifCount+' notification(s).');
+        //api call to get username from email
+        getUsername() {
+          this.username = 'user';
+        },
+        getNotificationsRequests() {
+          // api call to get notifications/requests (get just list length)
+          this.notificationCount = 7;
+          this.readCount = 4;
+          this.requestCount = 8;
+          if(this.notificationCount > 0 && this.requestCount > 0) {
+            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.notificationCount+' notification(s) and '+this.requestCount+' request(s).');
+          }
+          else if(this.notificationCount > 0 && this.requestCount === 0) {
+            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.notificationCount+' notifcation(s).');
+          }
+          else if(this.notificationCount === 0 && this.requestCount > 0) {
+            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.requestCount+' request(s).');
           }
           else {
             this.showSuccessAlertFunc('Welcome back, '+this.username+'!');
           }
-          
         },
-        // different function so "welcome back" text isn't shown every refresh, uses same api call
-        getNewNotifications() {
-          // if new notifications are received, show this alert
-          let newNotifsCount = 0;
-          this.notifCount += newNotifsCount;
-          if(newNotifsCount > 0) {
-            this.showSuccessAlertFunc('You have '+newNotifsCount+' new notification(s)!');
+        // different function so "welcome back" text isn't shown every refresh, uses same api calls
+        getNewNotificationsRequests() {
+          let newNotificationsCount = 0;
+          let newRequestsCount = 0;
+          if(newNotificationsCount > 0 && newRequestsCount > 0) {
+            this.notificationCount += newNotificationsCount;
+            this.requestCount += newRequestsCount;
+            this.showSuccessAlertFunc('You have '+newNotificationsCount+' new notification(s) and '+newRequestsCount+' new request(s)!');
+          }
+          else if(newNotificationsCount > 0 && newRequestsCount === 0) {
+            this.notificationCount += newNotificationsCount;
+            this.showSuccessAlertFunc('You have '+newNotificationsCount+' new notification(s)!');
+          }
+          else if(newNotificationsCount === 0 && newRequestsCount > 0) {
+            this.requestCount += newRequestsCount;
+            this.showSuccessAlertFunc('You have '+newRequestsCount+' new request(s)!');
           }
         },
         signOut() {
@@ -122,6 +145,7 @@ export default {
     components: {
       Notifications,
       Projects,
-      Search
+      Search,
+      Requests
     },
   };
