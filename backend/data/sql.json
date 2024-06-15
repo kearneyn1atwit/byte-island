@@ -88,49 +88,44 @@
     },
     "posts": {
         "create": { 
-            "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId) VALUES (:userid,:networkid,':text',:imageid);",
-            "params": "userid,networkid,text,imageid",
-            "desc": "Create posts with all post data. NEEDS A CYPHER COUNTERPART"
-        },
-        "reply": { 
-            "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId, ParentId) VALUES (:userid,:networkid,':text',:imageid,:replyid);",
+            "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId, ParentId) VALUES (:userid,:networkid,':text',:imageid,:replyid); SELECT PostId FROM Posts WHERE UserId = 1 ORDER BY CreatedDate DESC LIMIT 1;",
             "params": "userid,networkid,text,imageid,replyid",
-            "desc": "Same as create except it includes parent Id and any relevant checks | CYPHER COUNTERPART"
+            "desc": "Create posts with all post data."
         },
         "like": { 
             "query": "UPDATE Posts SET Likes = Likes + 1 WHERE PostId = :id AND Deleted != True;",
             "params": "id",
-            "desc": "Need to keep track of this somehow, might be moved to CYPHER / ADD CYPHER QUERY"
+            "desc": "Need to keep track of this somehow, specific relation stored in cypher"
         },
         "unlike": { 
             "query": "UPDATE Posts SET Likes = Likes - 1 WHERE PostId = :id AND Deleted != True;",
             "params": "id",
-            "desc": "Need to keep track of this somehow, might be moved to CYPHER / ADD CYPHER QUERY"
+            "desc": "Need to keep track of this somehow, specific relation stored in cypher"
         },
         "editText": { 
             "query": "UPDATE Posts SET TextContent = ':text' WHERE PostId = :id AND Deleted != True;",
             "params": "id,text",
-            "desc": "Updates the post's text by id. | CYPHER?"
+            "desc": "Updates the post's text by id."
         },
         "editImage": { 
-            "query": "UPDATE Posts SET ImageId = :image WHERE PostId = :id AND Deleted != True;",
-            "params": "id,image",
-            "desc": "Updates the post's image by id. | CYPHER?"
+            "query": "UPDATE Posts SET ImageId = :imageid WHERE PostId = :id AND Deleted != True;",
+            "params": "id,imageid",
+            "desc": "Updates the post's image by id."
         },
         "delete": { 
             "query": "UPDATE Posts SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE PostId = :id;",
             "params": "id",
-            "desc": "Mark post as deleted from their id. NEEDS A CYPHER COUNTERPART"
+            "desc": "Mark post as deleted from their id."
         },
         "getByUser": { 
             "query": "SELECT PostId, UserId, NetworkId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE UserId = :id AND Deleted != True ORDER BY PostId;",
             "params": "id",
-            "desc": "Grabs all posts from a user"
+            "desc": "Grabs all posts from a user. FIGURE OUT REPLIES"
         },
         "getByNetwork": { 
-            "query": "SELECT PostId, UserId, NetworkId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE NetworkId = :id AND Deleted != True ORDER BY PostId;",
+            "query": "SELECT PostId, UserId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE NetworkId = :id AND Deleted != True ORDER BY PostId;",
             "params": "id",
-            "desc": "Grabs all posts in a network (maybe remove NetworkId)"
+            "desc": "Grabs all posts in a network"
         },
         "SEARCHING": { 
             "query": "",

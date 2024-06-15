@@ -51,6 +51,11 @@
             "query": "MATCH (t:Tag),(p:Post) WHERE t.Id = <IDVAR1> AND p.Id = <IDVAR2> CREATE (t)-[r:RELATED_TO]->(p) RETURN t,p,r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Match tag to post with their ids"
+        },
+        "likeToPost": { 
+            "query": "MATCH (u:User),(p:Post) WHERE u.Id = <IDVAR1> AND p.Id = <IDVAR2> CREATE (u)-[r:LIKES]->(p) RETURN u,p,r;",
+            "params": "IDVAR1,IDVAR2",
+            "desc": "Add user like to post with their ids"
         }
     },
     "select": {
@@ -68,6 +73,11 @@
             "query": "MATCH (n:Network {Id: <IDVAR> })-[r:ADMIN_OF]-(u) RETURN u;",
             "params": "IDVAR",
             "desc": "Get all users in network based on network id"
+        },
+        "likedPosts": { 
+            "query": "MATCH (u:User {Id: <IDVAR1> })-[r:LIKES]-(p:Post {Id: <IDVAR2> }) RETURN u;",
+            "params": "IDVAR",
+            "desc": "Get users based on given tags | DEFINE SORTING"
         },
         "relatedUsers": { 
             "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:INTERESTED_IN]-(u) RETURN u;",
@@ -107,29 +117,34 @@
             "desc": "Unmatch tag from user with their ids"
         },
         "tagFromNetwork": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:FOCUSED_ON]-(u:User {Id: <IDVAR2> }) DELETE r RETURN t,n;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:FOCUSED_ON]-(n:Network {Id: <IDVAR2> }) DELETE r RETURN t,n;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from network with their ids"
         },
         "tagFromPost": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:RELATED_TO]-(u:User {Id: <IDVAR2> }) DELETE r RETURN t,p;",
+            "query": "MATCH (t:Tag {Id: <IDVAR1> })-[r:RELATED_TO]-(p:Post {Id: <IDVAR2> }) DELETE r RETURN t,p;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Unmatch tag from post with their ids"
+        },
+        "likeFromPost": { 
+            "query": "MATCH (u:User {Id: <IDVAR1> })-[r:LIKES]-(p:Post {Id: <IDVAR2> }) DELETE r RETURN u,p;",
+            "params": "IDVAR1,IDVAR2",
+            "desc": "Remove user like to post with their ids"
         }
     },
     "delete": {
         "user": { 
-            "query": "MATCH (u {Id: <IDVAR> }) SET u.Deleted = True RETURN u.Id, labels(u) AS labels",
+            "query": "MATCH (u:User {Id: <IDVAR> }) SET u.Deleted = True RETURN u.Id, labels(u) AS labels",
             "params": "IDVAR",
             "desc": "Deletes user node with corresponding user id"
         },
         "network": { 
-            "query": "MATCH (n {Id: <IDVAR> }) SET n.Deleted = True RETURN n.Id, labels(n) AS labels",
+            "query": "MATCH (n:Network {Id: <IDVAR> }) SET n.Deleted = True RETURN n.Id, labels(n) AS labels",
             "params": "IDVAR",
             "desc": "Deletes network node with corresponding network id"
         },
         "tag": { 
-            "query": "MATCH (t {Id: <IDVAR> }) SET t.Deleted = True RETURN t.Id, labels(t) AS labels",
+            "query": "MATCH (t:Tag {Id: <IDVAR> }) SET t.Deleted = True RETURN t.Id, labels(t) AS labels",
             "params": "IDVAR",
             "desc": "Deletes tag node with corresponding tag id"
         },

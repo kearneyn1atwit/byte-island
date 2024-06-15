@@ -328,7 +328,7 @@ module.exports = {
     //Network Related Functions 
     CreateNetwork: async function (name, private) { 
 
-        //Make sure user doesn't already exist
+        //Make sure network doesn't already exist
         const oldNetworkRow = await psql.query(fillSQLParams(sql.networks.select, {
             "name": name
         }));
@@ -453,6 +453,146 @@ module.exports = {
         console.log(deletedNode);
 
         return id; 
+    },
+
+    //Post Related Functions
+    CreatePost: async function(userid,text,imageid,replyid,networkid) { 
+
+        if(userid === undefined || (text === undefined && image === undefined)) {
+            throw new Error("Invalid data to create a post!");
+        }
+
+        params = { userid: userid }
+
+        if(networkid !== undefined) {
+            params['networkid'] = networkid;
+        } else {
+            params['networkid'] = null;
+        }
+        if(replyid !== undefined) {
+            params['replyid'] = replyid;
+        } else {
+            params['replyid'] = null;
+        }
+        if(text !== undefined) { //Fix this later
+            params['text'] = text;
+        } else {
+            params['text'] = null;
+        }
+        if(imageid !== undefined) {
+            params['imageid'] = imageid;
+        } else {
+            params['imageid'] = null;
+        }
+
+        //Create post in Postgres and verify its successfully added to the database
+        const newPostRow = await psql.query(fillSQLParams(sql.posts.create, params));
+
+        const postId = newPostRow[1].rows[0]['postid'];
+        console.log("New post is created with id: " + postId);
+        console.log(newPostRow[1].rows[0])
+
+        //Use PostId returned back by Postgres to create corresponding Cypher node
+        const newPostNode = await neo4j.query(fillCypherParams(cypher.create.post, {
+            "IDVAR": postId
+        })); 
+        if(newPostNode === undefined) {
+            throw new Error("Error adding post into Cypher database.");
+        }
+
+        return postId;
+    },
+    EditPost: async function(id,newtext,newimageid) {
+        if(newtext !== undefined, newtext !== null) {
+            await psql.query(fillSQLParams(sql.posts.editText, {
+                "id": id,
+                "text": newtext
+            }));
+        }
+        if(newimageid !== undefined, newimageid !== null) {
+            await psql.query(fillSQLParams(sql.posts.editImage, {
+                "id": id,
+                "imageid": newimageid
+            }));
+        }
+        return id;
+    },
+    LikePost: async function(postid,userid) {
+
+        //Add like to like count in Postgres
+        const likeRow = await psql.query(fillSQLParams(sql.posts.like, {
+            "id": postid
+        }));
+
+        if(likeRow.rowCount !== 1) {
+            throw new Error("Failed to add to counter in SQL database");
+        }
+
+        //Use ids to create likes relationship between nodes
+        const likeRelationship = await neo4j.query(fillCypherParams(cypher.add.likeToPost, {
+            "IDVAR1": userid,
+            "IDVAR2": postid
+        })); 
+
+        if(likeRelationship === undefined) {
+            throw new Error("Error adding post like in Cypher database.");
+        }
+
+        return likeRelationship;
+    },
+    UnlikePost: async function(postid,userid) {
+
+        //Add like to like count in Postgres
+        const unlikeRow = await psql.query(fillSQLParams(sql.posts.unlike, {
+            "id": postid
+        }));
+
+        if(unlikeRow.rowCount !== 1) {
+            throw new Error("Failed to remove from counter in SQL database");
+        }
+
+        //Use ids to remove likes relationship between nodes
+        const newPostNode = await neo4j.query(fillCypherParams(cypher.remove.likeFromPost, {
+            "IDVAR1": userid,
+            "IDVAR2": postid
+        })); 
+
+        if(newPostNode === undefined) {
+            throw new Error("Error removing post like in Cypher database.");
+        }
+
+        return postid;
+    },
+    DeletePost: async function(id) {
+        
+        //Delete post in Postgres and verify its successfully "deleted" to the database
+        const deleteCmd = await psql.query(fillSQLParams(sql.posts.delete, {
+            "id": id
+        }));
+        
+        if(deleteCmd.rowCount !== 1) {
+            throw new Error("Error deleting post in SQL database")
+        }
+        
+        //Use PostId returned back by Postgres to "delete" corresponding Cypher node
+        const deletedNode = await neo4j.query(fillCypherParams(cypher.delete.post, {
+            "IDVAR": id
+        })); 
+
+        return id; 
+    },
+    GetUserPosts: async function(id) { 
+
+        const userPosts = await psql.query(fillSQLParams(sql.posts.getByUser, {
+            "id":id
+        }));
+        return ProcessAndLogTableValues(userPosts);
+    },
+    GetNetworkPosts: async function(id) { 
+        const networkPosts = await psql.query(fillSQLParams(sql.posts.getByNetwork, {
+            "id":id
+        }));
+        return ProcessAndLogTableValues(networkPosts);
     },
 
     //Image Functions
@@ -869,7 +1009,6 @@ module.exports = {
  /* Unimplemented Functions are below */
 
 //User Related Functions
-function GetUserPosts() { sql.posts.getByUser; }
 function SearchUsers() {//TO BE EXPANDED
     sql.users.select;
     sql.users.selectSome;
@@ -880,32 +1019,6 @@ function SearchUsers() {//TO BE EXPANDED
 function SearchNetworks() {} //tbd
 
 //Post Related Functions
-function CreatePost() { 
-    sql.posts.create; 
-    cypher.create.post;
-}
-function ReplyToPost() {
-    sql.posts.reply; 
-    cypher.create.post;
-}
-function EditPost() {
-    sql.posts.editText;
-    sql.posts.editImage;
-    cypher.add.tagToPost;
-    cypher.remove.tagFromPost;
-}
-function EditPostLikes() {
-    sql.posts.like;
-    sql.posts.unlike;
-    cypher.add.likeToPost;
-    cypher.remove.likeFromPost;
-}
-function DeletePost() {
-    sql.posts.delete;
-    cypher.delete.post;
-}
-function GetUserPosts() { sql.posts.getByUser; }
-function GetNetworkPosts() { sql.posts.getByNetwork; }
 function SearchPosts() { sql.posts.SEARCHING; }
 
 //Tag Related Functions
