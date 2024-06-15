@@ -596,21 +596,18 @@ module.exports = {
             "id": id
         }));
 
-        console.log(requestData)
-
-        if(requestData['targetuserid'] !== null) { //Friend Request
+        if(requestData['targetuserid'] !== undefined) { //Friend Request
             const makeFriends = await neo4j.query(fillCypherParams(cypher.add.usersAsFriends, {
                 "IDVAR1": requestData.rows[0]['senderid'],
                 "IDVAR2": requestData.rows[0]['targetuserid']
             })); 
-            console.log(makeFriends)
             if(makeFriends === undefined || makeFriends.records.length != 1) {
                 throw new Error("Error adding users as friends in Cypher database.");
             }
         } else { //Network Join Request
             const joinNetwork = await neo4j.query(fillCypherParams(cypher.add.userToNetwork, {
                 "IDVAR1": requestData.rows[0]['senderid'],
-                "IDVAR2": requestData.rows[0]['targetuserid']
+                "IDVAR2": requestData.rows[0]['targetnetworkid']
             })); 
             if(joinNetwork === undefined || joinNetwork.records.length != 1) {
                 throw new Error("Error adding user into network in Cypher database.");
@@ -838,7 +835,7 @@ module.exports = {
 
  /* Unimplemented Functions are below */
 
-//User functions
+//User Related Functions
 function GetUserProfile() { 
     sql.users.getMiniProfile; 
     sql.users.getProfileInformation; 
@@ -847,7 +844,6 @@ function GetUserProfile() {
 }
 function GetUserPosts() { sql.posts.getByUser; }
 function RemoveUserFromFriendsList() { cypher.remove.usersFromFriends; }
-function RemoveUserFromNetwork() { cypher.remove.userFromNetwork; }
 function SearchUsers() {//TO BE EXPANDED
     sql.users.select;
     sql.users.selectSome;
@@ -875,7 +871,8 @@ function EditPost() {
 function EditPostLikes() {
     sql.posts.like;
     sql.posts.unlike;
-    //ADD CYPHER QUERIES TO THIS
+    cypher.add.likeToPost;
+    cypher.remove.likeFromPost;
 }
 function DeletePost() {
     sql.posts.delete;
@@ -885,8 +882,32 @@ function GetUserPosts() { sql.posts.getByUser; }
 function GetNetworkPosts() { sql.posts.getByNetwork; }
 function SearchPosts() { sql.posts.SEARCHING; }
 
-
-
 //Tag Related Functions
+
+function CreateTag() {
+    cypher.create.tag;
+}
+
+function AddTag() {
+    cypher.add.tagToNetwork;
+    cypher.add.tagToPost;
+    cypher.add.tagToUser;
+}
+
+function SelectTag() {
+    cypher.select.relatedNetworks;
+    cypher.select.relatedPosts;
+    cypher.select.relatedUsers;
+}
+
+function RemoveTag() {
+    cypher.remove.tagFromNetwork;
+    cypher.remove.tagFromPost;
+    cypher.remove.tagFromUser;
+}
+
+function DeleteTag() {
+    cypher.delete.tag;
+}
 
 //INVENTORY SYSTEM!!!!!!!!!!!!!!
