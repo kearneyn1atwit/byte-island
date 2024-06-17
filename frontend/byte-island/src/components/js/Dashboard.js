@@ -3,6 +3,7 @@ import Notifications from "./Notifications";
 import Projects from "./Projects";
 import Search from "./Search";
 import Requests from "./Requests";
+import Editor from "./Editor"
 
 export default {
     data() {
@@ -146,6 +147,7 @@ export default {
       Notifications,
       Projects,
       Search,
-      Requests
+      Requests,
+      Editor
     },
   };

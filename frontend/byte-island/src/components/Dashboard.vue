@@ -55,7 +55,7 @@
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Networks" value="networks" @click="wip()"></v-list-item>
             <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
-            <v-list-item title="Island Shop" value="shop" @click="wip()"></v-list-item>
+            <v-list-item title="Island Editor" value="editor" @click="toWidget('editor')"></v-list-item>
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
@@ -71,6 +71,9 @@
           <Requests ref="requestsRef" :requestCount="requestCount" @request-success="showSuccessAlertFunc" @remove-request="requestCount--" v-if="widget === 'requests'">
 
           </Requests>
+          <Editor ref="editorRef" @editor-success="showSuccessAlertFunc" v-if="widget === 'editor'">
+
+          </Editor>
         </v-list>
       </VResizeDrawer>
         <v-main>
