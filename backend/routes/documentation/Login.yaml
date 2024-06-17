@@ -22,6 +22,9 @@ paths:
           schema:
             type: object
             properties:
+              username:
+                type: string
+                description: Username for logged in user
               token:
                 type: string
                 description: JWT token for authentication
