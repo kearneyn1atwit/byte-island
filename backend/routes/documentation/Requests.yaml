@@ -1,0 +1,196 @@
+swagger: '2.0'
+info:
+  title: Requests API
+  description: API for managing requests
+  version: 1.0.0
+basePath: /requests
+paths:
+  /requests:
+    get:
+      summary: Get currently open friend/network requests
+      description: Get friend or network requests for the given username
+      parameters:
+        - name: username
+          in: query
+          description: Username for which to retrieve requests
+          required: true
+          type: string
+        - name: type
+          in: query
+          description: Type of request ("user" or "network")
+          required: true
+          type: string
+      responses:
+        '200':
+          description: List of requests retrieved successfully
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  description: Request ID
+                Message:
+                  type: string
+                  description: Message content of the request
+                Datetime:
+                  type: string
+                  description: Date and time of the request
+                AcceptMessage:
+                  type: string
+                  description: Message upon acceptance of the request
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    post:
+      summary: Send friend/network request
+      description: Send a friend or network request
+      parameters:
+        - name: type
+          in: body
+          description: Type of the request ("user" or "network")
+          required: true
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of the request
+        - name: username
+          in: body
+          description: Username of the user to send the request to
+          required: true
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                description: Username of the user
+        - name: message
+          in: body
+          description: Message content of the request
+          required: true
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Message content of the request
+      responses:
+        '200':
+          description: Request sent successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of successful sending of friend/network request
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    put:
+      summary: Accept friend/network request
+      description: Accept a friend/network request
+      parameters:
+        - name: requestId
+          in: body
+          description: ID of the request to accept
+          required: true
+          schema:
+            type: object
+            properties:
+              requestId:
+                type: integer
+                description: ID of the request
+      responses:
+        '200':
+          description: Request accepted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of request being successfully resolved
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    delete:
+      summary: Delete friend/network request
+      description: Delete a friend/network request
+      parameters:
+        - name: requestId
+          in: body
+          description: ID of the request to delete
+          required: true
+          schema:
+            type: object
+            properties:
+              requestId:
+                type: integer
+                description: ID of the request
+      responses:
+        '200':
+          description: Request deleted successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of successful operation
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    

@@ -1,0 +1,91 @@
+swagger: '2.0'
+info:
+  title: Users API
+  description: API for managing users
+  version: 1.0.0
+basePath: /users
+paths:
+  /users:
+    get:
+      summary: Get list of users
+      description: Retrieve a list of users based on user provided search criteria
+      parameters:
+        - name: searchBy
+          in: query
+          description: Criteria id to search with (0 = name, 1 = ID)
+          required: true
+          type: integer
+        - name: searchString
+          in: query
+          description: String to use as search criteria
+          required: true
+          type: string
+      responses:
+        '200':
+          description: List of users retrieved successfully
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                Username:
+                  type: string
+                  description: Name of the user
+                UserId:
+                  type: string
+                  description: ID of the user
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    put:
+      summary: Block a user
+      description: Block a specified user
+      parameters:
+        - name: requestingUsername
+          in: body
+          description: Username of the user making the block request
+          required: true
+          type: string
+        - name: usernameToBlock
+          in: body
+          description: Username of the user to be blocked
+          required: true
+          type: string
+      responses:
+        '200':
+          description: User blocked successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of successful blocking
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization

@@ -3,7 +3,7 @@ info:
   title: Signup API
   description: API for user creation and registration
   version: 1.0.0
-basePath: /auth
+basePath: /signup
 paths:
   /signup:
     post:
@@ -25,9 +25,9 @@ paths:
           schema:
             type: object
             properties:
-              message:
+              token:
                 type: string
-                description: Success Message
+                description: JWT token for authentication
         '409': 
           description: Database Conflict 
           schema:

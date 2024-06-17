@@ -3,18 +3,18 @@ info:
   title: Login API
   description: API for user authentication
   version: 1.0.0
-basePath: /auth
+basePath: /login
 paths:
   /login:
     post:
       summary: Login for Users
       description: Authenticate user credentials and then generate a JWT (JSON Web Token) token and return it
       parameters:
-        - name: username
-          description: Username that user is attempting to login with
+        - name: email
+          description: Email for user that is being requested to login
           required: true
         - name: password
-          description: Password of the user that should be entered
+          description: Password of the user that corresponds to the given email
           required: true
       responses:
         '200':

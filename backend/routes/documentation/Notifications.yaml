@@ -1,0 +1,152 @@
+swagger: '2.0'
+info:
+  title: Notifications API
+  description: API for managing notifications
+  version: 1.0.0
+basePath: /notifications
+paths:
+  /notifications:
+    get:
+      summary: Get all notifications for a user
+      description: Retrieve all notifications for the specified username
+      parameters:
+        - name: username
+          in: query
+          description: Username that corresponds to the user whose notifications are being retrieved
+          required: true
+          type: string
+      responses:
+        '200':
+          description: List of notifications retrieved successfully
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  description: Notification ID
+                Read:
+                  type: boolean
+                  description: Read status of the notification
+                Message:
+                  type: string
+                  description: Text contents of the notification
+                Datetime:
+                  type: string
+                  description: Date and time of the notification being created
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    put:
+      summary: Mark notification(s) as read
+      description: Mark a specific notification or all notifications as read if UserId is not -1
+      parameters:
+        - name: notificationId
+          in: body
+          description: ID of the notification to mark as read
+          required: true
+          schema:
+            type: object
+            properties:
+              notificationId:
+                type: integer
+                description: ID of the notification
+        - name: userId
+          in: body
+          description: ID of the user who the notifications are linked to
+          required: true
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: ID of the user
+      responses:
+        '200':
+          description: Notification(s) marked as read successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Message confirming the notifications are marked as read
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    delete:
+      summary: Remove notification(s)
+      description: Remove a specific notification or all notifications if UserId is not -1
+      parameters:
+        - name: notificationId
+          in: body
+          description: ID of the notification to remove
+          required: true
+          schema:
+            type: object
+            properties:
+              notificationId:
+                type: integer
+                description: ID of the notification
+        - name: userId
+          in: body
+          description: ID of the user whose notifications are to be removed
+          required: true
+          schema:
+            type: object
+            properties:
+              userId:
+                type: string
+                description: ID of the user
+      responses:
+        '200':
+          description: Notification(s) removed successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of successful operation
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+

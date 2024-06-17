@@ -1,0 +1,52 @@
+swagger: '2.0'
+info:
+  title: Networks API
+  description: API for interacting with networks
+  version: 1.0.0
+basePath: /networks
+paths:
+  /networks:
+    get:
+      summary: Get a list of networks
+      description: Retrieve a list of networks based on user provided search criteria
+      parameters:
+        - name: searchBy
+          in: query
+          description: Criteria id to search with (0 = name, 1 = ID)
+          required: true
+          type: integer
+        - name: searchString
+          in: query
+          description: String to use as search criteria
+          required: true
+          type: string
+      responses:
+        '200':
+          description: List of networks retrieved successfully
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                NetworkName:
+                  type: string
+                  description: Name of the network
+                NetworkId:
+                  type: string
+                  description: ID of the network
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization

@@ -1,0 +1,296 @@
+swagger: '2.0'
+info:
+  title: Projects API
+  description: API for managing projects
+  version: 1.0.0
+basePath: /projects
+paths:
+  /projects:
+    get:
+      summary: Get all user's projects
+      description: Retrieve all projects for the specified username
+      parameters:
+        - name: username
+          in: query
+          description: Username for which to retrieve projects
+          required: true
+          type: string
+      responses:
+        '200':
+          description: List of projects retrieved successfully
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                Id:
+                  type: integer
+                  description: Project ID
+                Due:
+                  type: string
+                  description: Due date of the project
+                Points:
+                  type: array
+                  items:
+                    type: integer
+                  description: Points associated with the project
+                Title:
+                  type: string
+                  description: Title of the project
+                Desc:
+                  type: string
+                  description: Description of the project
+                Updates:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      Id:
+                        type: integer
+                        description: Update ID
+                      Name:
+                        type: string
+                        description: Name of the update
+                      Date:
+                        type: string
+                        description: Date of the update
+                      Desc:
+                        type: string
+                        description: Description of the update
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    post:
+      summary: Create a new project
+      description: Create a new project with specified attributes
+      parameters:
+        - name: due
+          in: body
+          description: Due date of the project
+          required: true
+          schema:
+            type: object
+            properties:
+              due:
+                type: string
+                description: Due date of the project
+        - name: points
+          in: body
+          description: Points associated with the project
+          required: true
+          schema:
+            type: object
+            properties:
+              points:
+                type: array
+                items:
+                  type: integer
+                description: Points associated with the project
+        - name: title
+          in: body
+          description: Title of the project
+          required: true
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Title of the project
+        - name: desc
+          in: body
+          description: Description of the project
+          required: true
+          schema:
+            type: object
+            properties:
+              desc:
+                type: string
+                description: Description of the project
+      responses:
+        '200':
+          description: Project created successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of successful project creation
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    put:
+      summary: Complete/edit project
+      description: Mark a project as complete or update its details (add a new element to the project’s updates array with UpdateTitle, UpdateDesc, and current date/time)
+      parameters:
+        - name: projectId
+          in: body
+          description: ID of the project to complete/edit
+          required: true
+          schema:
+            type: object
+            properties:
+              projectId:
+                type: integer
+                description: ID of the project
+        - name: markAsDone
+          in: body
+          description: Flag to mark the project as done
+          required: true
+          schema:
+            type: object
+            properties:
+              markAsDone:
+                type: boolean
+                description: Flag to mark the project as done
+        - name: due
+          in: body
+          description: Due date of the project
+          required: false
+          schema:
+            type: object
+            properties:
+              due:
+                type: string
+                description: Due date of the project
+        - name: points
+          in: body
+          description: Points associated with the project
+          required: false
+          schema:
+            type: object
+            properties:
+              points:
+                type: array
+                items:
+                  type: integer
+                description: Points associated with the project
+        - name: title
+          in: body
+          description: Title of the project
+          required: false
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+                description: Title of the project
+        - name: desc
+          in: body
+          description: Description of the project
+          required: false
+          schema:
+            type: object
+            properties:
+              desc:
+                type: string
+                description: Description of the project
+        - name: updateTitle
+          in: body
+          description: Title of the update
+          required: false
+          schema:
+            type: object
+            properties:
+              updateTitle:
+                type: string
+                description: Title of the update
+        - name: updateDesc
+          in: body
+          description: Description of the update
+          required: false
+          schema:
+            type: object
+            properties:
+              updateDesc:
+                type: string
+                description: Description of the update
+      responses:
+        '200':
+          description: Project marked as done/updated successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of successful operation
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+    delete:
+      summary: Delete project
+      description: Remove a specific project
+      parameters:
+        - name: projectId
+          in: body
+          description: ID of the project to delete
+          required: true
+          schema:
+            type: object
+            properties:
+              projectId:
+                type: integer
+                description: ID of the project
+      responses:
+        '200':
+          description: Project removed successfully
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Confirmation message of successful operation
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
