@@ -104,6 +104,12 @@ export default {
             else {
               this.widget = widget;
             }
+          } else if(this.$refs.editorRef) {
+              if(this.$refs.editorRef.editorView === 'shop' || this.$refs.editorRef.editorView === 'inventory') {
+                this.$refs.editorRef.editorView = "editor";
+              } else {
+                this.widget = widget;
+              }
           }
           // user has not opened projects view
           else {

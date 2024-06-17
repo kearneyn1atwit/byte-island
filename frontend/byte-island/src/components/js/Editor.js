@@ -1,7 +1,7 @@
 export default {
     data() {
       return {
-
+            editorView: "editor"
         };
     },
     async created() {
