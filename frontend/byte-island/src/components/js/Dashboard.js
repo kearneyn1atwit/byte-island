@@ -3,15 +3,20 @@ import Notifications from "./Notifications";
 import Projects from "./Projects";
 import Search from "./Search";
 import Requests from "./Requests";
+<<<<<<< Updated upstream
 import Editor from "./Editor"
+=======
+import Friends from './Friends';
+>>>>>>> Stashed changes
 
 export default {
     data() {
       return {
         username: '',
+        pfp: '',
         rPoints: 0,
-        gPoints: 12,
-        bPoints: 6,
+        gPoints: 0,
+        bPoints: 0,
         requestCount: 0,
         notificationCount: 0,
         readCount: 0,
@@ -41,15 +46,19 @@ export default {
       
     },
     mounted() {
-      this.getUsername();
+      this.getUserDetails();
       this.getNotificationsRequests();
       // refresh request count every minute
       setInterval(() => this.getNewNotificationsRequests(),60000);
     },
     methods: {
         //api call to get username from email
-        getUsername() {
+        getUserDetails() {
           this.username = 'user';
+          this.pfp = 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250';
+          this.rPoints = 0;
+          this.gPoints = 12;
+          this.bPoints = 6;
         },
         getNotificationsRequests() {
           // api call to get notifications/requests (get just list length)
@@ -148,6 +157,7 @@ export default {
       Projects,
       Search,
       Requests,
-      Editor
+      Editor,
+      Friends
     },
   };
