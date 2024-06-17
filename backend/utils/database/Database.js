@@ -146,7 +146,12 @@ module.exports = {
         const user = await psql.query(fillSQLParams(sql.users.select, {
             "name": username,
         }));
-        return ProcessData(user.rows[0]['userid']);
+        try {
+            return user.rows[0]['userid'];
+        } catch(err) {
+            console.log(err);
+            return -1;
+        }
     }, 
     GetUserCredentials: async function(id) { 
         const userData = await psql.query(fillSQLParams(sql.users.getCredentials, {
