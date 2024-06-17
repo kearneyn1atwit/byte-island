@@ -3,11 +3,8 @@ import Notifications from "./Notifications";
 import Projects from "./Projects";
 import Search from "./Search";
 import Requests from "./Requests";
-<<<<<<< Updated upstream
-import Editor from "./Editor"
-=======
+import Editor from "./Editor";
 import Friends from './Friends';
->>>>>>> Stashed changes
 
 export default {
     data() {
