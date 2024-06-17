@@ -55,10 +55,6 @@ export default {
             // api call to remove request
             this.$emit('remove-request');
             this.requests = this.requests.filter((item) => item !== request);  
-        },
-        block(request) {
-            // api call for blocking user
-            alert("Work in progress..?");
         }
     },
     components: {

@@ -28,16 +28,16 @@ export default {
                     for(let i=0;i<3;i++) {
                         this.filteredList.push({
                             name: searchString+' '+(i+1),
-                            id: 'A56HlIJ'+i
+                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
                         });
                     }
                 }
-                // user by id
+                // user by tags
                 else {
                     for(let i=0;i<5;i++) {
                         this.filteredList.push({
                             name: 'Generic_user_'+(i+1),
-                            id: searchString+i
+                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
                         });
                     }
                 }
@@ -48,16 +48,18 @@ export default {
                     for(let i=0;i<6;i++) {
                         this.filteredList.push({
                             name: searchString+' '+(i+1),
-                            id: 'B99LMN1'+i
+                            desc: 'Description for network: '+searchString+' '+(i+1),
+                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
                         });
                     }
                 }
-                // network by id
+                // network by tags
                 else {
                     for(let i=0;i<4;i++) {
                         this.filteredList.push({
                             name: 'Generic_network_'+(i+1),
-                            id: searchString+i
+                            desc: 'Description for network: Generic_network_'+(i+1),
+                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
                         });
                     }
                 }
@@ -78,18 +80,13 @@ export default {
                 this.searchBy = 'name';
             }
             else {
-                this.searchBy = 'ID';
+                this.searchBy = 'tag';
             }
             this.getUsersNetworks(this.searchTab,this.searchByTab,this.search);
         },
         //api call to handle friending user
         friend(user) {
             this.$emit('user-network-success','A friend request has been sent to '+user.name);
-            this.filteredList = this.filteredList.filter((item) => item !== user);
-        },
-        //api call to handle blocking user
-        block(user) {
-            this.$emit('user-network-success',user.name+' has been successfully blocked.');
             this.filteredList = this.filteredList.filter((item) => item !== user);
         },
         //api call to handle joining network
