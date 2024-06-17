@@ -595,9 +595,7 @@ module.exports = {
         return id; 
     },
     
-
     //Tag Related Functions
-
     CreateTag: async function(name) {
 
         //Create tag in Postgres and verify its successfully added to the database
@@ -636,9 +634,26 @@ module.exports = {
             "IDVAR2": postid
         })); 
     },
-    SearchTag: async function(name) {
-        sql.tags.select;
-        sql.tags.selectSome;
+    SearchTag: async function(name, onlyExactMatch) {
+
+        //Create tag in Postgres and verify its successfully added to the database
+        const exactTagMatch = await psql.query(fillSQLParams(sql.tags.select, {
+            "name": name
+        }));
+
+        if(onlyExactMatch) {
+            try {
+                return ProcessAndLogRowValues(exactTagMatch,0);
+            } catch(e) {
+                throw new Error("Exact tag does not exist!")
+            }
+        } 
+
+        const partialTagMatches = await psql.query(fillSQLParams(sql.tags.selectSome, {
+            "name": name
+        }));
+
+        return ProcessAndLogTableValues(partialTagMatches);
     },
     RemoveTagFromUser: async function(tagid,userid) {
         await neo4j.query(fillCypherParams(cypher.remove.tagFromUser, {

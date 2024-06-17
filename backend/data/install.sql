@@ -57,7 +57,8 @@ CREATE TABLE Posts (
     Deleted boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY(UserId) REFERENCES Users(UserId),
     FOREIGN KEY(NetworkId) REFERENCES Networks(NetworkId),
-    FOREIGN KEY(ImageId) REFERENCES Images(ImageId)
+    FOREIGN KEY(ImageId) REFERENCES Images(ImageId),
+    FOREIGN KEY(ParentId) REFERENCES Posts(PostId)
 );
 
 CREATE TABLE Tags (
@@ -112,10 +113,11 @@ CREATE TABLE Projects (
     OnTime boolean DEFAULT NULL,
     CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     DueDate timestamp NOT NULL,
+    Deleted boolean NOT NULL DEFAULT FALSE,
     DeletedDate timestamp,
     FOREIGN KEY(UserId) REFERENCES Users(UserId),
     CHECK (SocialPoints > 0 OR CareerPoints > 0 OR PersonalPoints > 0),
-    CHECK (DueDate - CreatedDate > 0)
+    CHECK (EXTRACT(EPOCH FROM (DueDate - CreatedDate)) > 0)
 );
 
 CREATE TABLE Notifications (
@@ -128,3 +130,14 @@ CREATE TABLE Notifications (
     Deleted boolean NOT NULL DEFAULT FALSE,
     FOREIGN KEY(UserId) REFERENCES Users(UserId)
 );
+
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (0, 'A', 0, 10, 0, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (1, 'B', 0, 20, 1, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (2, 'C', 0, 30, 2, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (3, 'D', 1, 40, 0, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (4, 'E', 1, 50, 1, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (5, 'F', 1, 60, 2, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (6, 'G', 2, 70, 0, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (7, 'H', 2, 80, 1, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (8, 'I', 2, 90, 2, 1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (9, 'J', 2, 100, 0, 1);

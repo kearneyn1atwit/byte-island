@@ -199,12 +199,12 @@
             "desc": "Mark tag as deleted from their id. NEEDS A CYPHER COUNTERPART"
         },
         "selectSome": { 
-            "query": "SELECT * FROM Tags WHERE TagName '%:name%' AND Deleted != True;",
+            "query": "SELECT * FROM Tags WHERE TagName ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select tags based off matching names"
         },
         "select": { 
-            "query": "SELECT * FROM Tags WHERE TagName ':name' AND Deleted != True;",
+            "query": "SELECT * FROM Tags WHERE TagName ILIKE ':name' AND Deleted != True;",
             "params": "name",
             "desc": "Select one tag off its name"
         }
