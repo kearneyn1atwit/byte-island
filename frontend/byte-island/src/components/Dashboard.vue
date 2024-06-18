@@ -54,8 +54,6 @@
           <v-divider></v-divider>
         </div>
 
-        
-
         <v-list density="compact" nav class="custom-nav">
           <div v-if="widget === 'dashboard'">
             <v-list-item title="Notifications" value="notifications" style="color: rgb(152,255,134);" @click="toWidget('notifications')"></v-list-item>  
@@ -108,12 +106,11 @@
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{gPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{bPoints}}</li>
             </ul>
-            
-        </v-row>
         <v-row class="mt-n5 mx-1">
-            <v-col cols="12" class="text-center mt-n10">
-                <img style="min-width: 55vw;" src="/island.png" alt="island">
-            </v-col>
+          <v-col cols="12" class="text-center mt-n10">
+              <img style="min-width: 55vw;" src="/island.png" alt="island">
+          </v-col>
+        </v-row>
         </v-row>
     </div>    
   </v-main>

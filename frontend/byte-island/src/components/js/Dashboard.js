@@ -110,6 +110,7 @@ export default {
             else {
               this.widget = widget;
             }
+            //if in Island Editor, go back to editor page when clicking arrow.
           } else if(this.$refs.editorRef) {
               if(this.$refs.editorRef.editorView === 'shop' || this.$refs.editorRef.editorView === 'inventory') {
                 this.$refs.editorRef.editorView = "editor";
