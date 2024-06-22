@@ -60,6 +60,16 @@
             "params": "name",
             "desc": "Select one user off its username"
         },
+        "selectByEmail": { 
+            "query": "SELECT UserId FROM Users WHERE Email LIKE ':email' AND Deleted != True;",
+            "params": "email",
+            "desc": "Select one user off its email"
+        },
+        "verifyEmailUnused": {
+            "query": "SELECT Email FROM Users WHERE Email LIKE ':email' AND Deleted != True;",
+            "params": "email",
+            "desc": "Get any uses of email"
+        },
         "getCredentials": { 
             "query": "SELECT Username, Email, PasswordHash FROM Users WHERE UserId = :id AND Deleted != True;",
             "params": "id",

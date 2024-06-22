@@ -29,14 +29,36 @@ export default {
     methods: {
       //api call for logging in
       login() {
-          if(this.email === 'user@a.com' && this.password === 'password') {
-            this.$router.push({ name: 'Home', params: { 
-              id: CryptoJS.AES.encrypt(this.password,'123456').toString()
-             }});
-          }
-          else {
+
+          const hashedPassword = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
+
+          fetch("http://localhost:5000/login", {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json', 
+              },
+              body: JSON.stringify({
+                email: this.email,
+                password: hashedPassword
+              }) 
+          })
+          .then(response => {
+              if (!response.ok) {
+                response.json().then((data) => this.showErrorAlertFunc(data.message));
+              }
+              console.log("Response was okay!");
+              return response.json(); 
+          })
+          .then(data => {
+            console.log('Login successful:', data.token); //This is the authorization token that must be stored
+              this.$router.push({ name: 'Home', params: {  
+                id: CryptoJS.AES.encrypt("password",'123456').toString() //needs to be changed so it doesn't use this method anymore
+              }});
+          })
+          .catch(error => {
+              console.error('Error logging in:', error);
               this.showErrorAlertFunc('Invalid email or password.');
-          }
+          });
       },
       //api call for signing up
       signup() {
@@ -44,10 +66,38 @@ export default {
           this.showUsername = true;
         }
         else {
-          // api call for signing up here
-          this.$router.push({ name: 'Home', params: { 
-            id: CryptoJS.AES.encrypt(this.password,'123456').toString()
-           }});
+
+          //Hash password before making API call
+          const hashedPassword = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
+
+          fetch("http://localhost:5000/signup", {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json', 
+              },
+              body: JSON.stringify({
+                username: this.username,
+                email: this.email,
+                password: hashedPassword
+              }) 
+          })
+          .then(response => {
+              if (!response.ok) {
+                response.json().then((data) => this.showErrorAlertFunc(data.message));
+              } else {
+                return response.json(); 
+              }
+          })
+          .then(data => {
+              console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
+              this.$router.push({ name: 'Home', params: { 
+                id: CryptoJS.AES.encrypt("password",'123456').toString() //Needs to be changed to not use this method anymore
+               }});
+          })
+          .catch(error => {
+              console.error('Error signing up:', error);
+              this.showErrorAlertFunc('Error signing up.');
+          });
         }
       },
       showErrorAlertFunc(text) {

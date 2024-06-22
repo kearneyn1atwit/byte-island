@@ -106,7 +106,7 @@ module.exports = {
             throw new Error("User already exists!");
         }
 
-        //Create user un Postgres and verify its successfully added to the database
+        //Create user in Postgres and verify its successfully added to the database
         await psql.query(fillSQLParams(sql.users.create, {
             "username": username,
             "email": email,
@@ -149,10 +149,25 @@ module.exports = {
         try {
             return user.rows[0]['userid'];
         } catch(err) {
-            console.log(err);
             return -1;
         }
     }, 
+    GetUserIdByEmail: async function(email) { 
+        const user = await psql.query(fillSQLParams(sql.users.selectByEmail, {
+            "email": email,
+        }));
+        try {
+            return user.rows[0]['userid'];
+        } catch(err) {
+            return -1;
+        }
+    }, 
+    GetUserEmailUsed: async function(email) {
+        const userWithEmail = await psql.query(fillSQLParams(sql.users.verifyEmailUnused, {
+            "email": email
+        }));
+        return userWithEmail.rowCount > 0;
+    },
     GetUserCredentials: async function(id) { 
         const userData = await psql.query(fillSQLParams(sql.users.getCredentials, {
             "id": id,
