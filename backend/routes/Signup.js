@@ -61,7 +61,10 @@ router.post('/signup', async (req, res) => {
     // Generate JWT token and return it 
     const token = auth.generateJWT(username);
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ 
+      token: token,
+      username: username
+     });
 
   } catch (error) {
     console.error(error);

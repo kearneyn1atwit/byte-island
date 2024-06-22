@@ -46,7 +46,10 @@ router.post('/login', async (req, res) => {
     // Generate JWT token and return it 
     const token = auth.generateJWT(userData['username']);
 
-    return res.status(200).json({ token });
+    return res.status(200).json({ 
+      token: token,
+      username: userData['username']
+     });
 
   } catch (error) {
     console.error(error);
