@@ -3,7 +3,8 @@ export default {
       return {
             searchCategory: 'all',
             searchTab: 0,
-            searchString: ''
+            searchString: '',
+            itemList: []
         };
     },
     async created() {
@@ -32,6 +33,10 @@ export default {
                 searchBar.style.borderColor = "#7DAEFF"; 
             }
             
+        },
+        clearSearch() {
+            this.searchString = '';
+            this.itemList = [];
         }
     },
     components: {
