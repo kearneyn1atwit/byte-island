@@ -83,7 +83,8 @@ export default {
                             date: new Date().toISOString(),
                             desc: 'The final update.'
                         }
-                    ]
+                    ],
+                    completed: 'incomplete'
                 });
             }
         },
@@ -152,7 +153,8 @@ export default {
                 points: [this.newRPoints,this.newGPoints,this.newBPoints],
                 title: this.newTitle,
                 desc: this.newDesc,
-                updates: []
+                updates: [],
+                completed: 'incomplete'
             });
             this.$emit('project-success',this.newTitle + ' successfully created.');
             this.resetData();
@@ -160,6 +162,7 @@ export default {
         // api call to handle done project
         done(project) {
             this.$emit('project-completed',project.title+' has been marked as complete!',project.points[0],project.points[1],project.points[2]);
+            project.completed = new Date().toISOString();
             this.projects = this.projects.filter((item) => item !== project);
         },
         edit(project) {

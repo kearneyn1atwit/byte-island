@@ -16,7 +16,6 @@
             <v-col cols="12">
                 <v-btn color="success" variant="outlined" size="small" @click="accept(request)">Accept</v-btn>
                 <v-btn color="secondary" class="ml-3" variant="outlined" size="small" @click="ignore(request)">Ignore</v-btn>
-                <v-btn v-if="searchTab === 0" color="red" class="ml-3" variant="outlined" size="small" @click="block(request)">Block User</v-btn>
             </v-col>
         </v-row>
         <hr v-if="index !== requests.length-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">

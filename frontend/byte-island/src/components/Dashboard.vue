@@ -14,12 +14,13 @@
         handle-position="border"
         :save-width="true"
         width="500"
-        min-width="200"
+        min-width="350"
         :width-snap-back="false"
         :temporary="true"
         persistent
+        :scrim="false"
       >
-        <div style="position: sticky; top:0; left: 5px; width:calc(100% - 5px); z-index: 1; background-color: rgb(33,33,33);">
+        <div style="position: sticky; top:0; left: 5px; width:calc(100% - 5px); z-index: 2; background-color: rgb(33,33,33);">
           <v-list-item v-if="widget === 'dashboard'">
             <div v-if="notificationCount + requestCount > 0">
               <v-badge color="rgb(89,153,80)" :content="notificationCount + requestCount" class="ml-auto ma-5 mt-4 badge-lg">
@@ -29,6 +30,9 @@
             <div v-else>
               <v-icon icon="mdi-menu" class="menu-icon ml-auto ma-5 mt-4" @click.stop="drawer = !drawer"></v-icon>
             </div>
+            <div>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 10px; z-index: -1" class="text-center"><v-avatar class="mr-5" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+            </div>
         </v-list-item>
 
         <v-list-item v-else>
@@ -37,9 +41,15 @@
               <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
             </v-badge>
           </div>  
+          <div v-else-if="widget === 'editor'">
+            
+          </div>
           <div v-else>
             <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard')"></v-icon>
           </div>
+          <div>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 10px; z-index: -1" class="text-center"><v-avatar class="mr-5" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+            </div>
         </v-list-item>
           <v-divider></v-divider>
         </div>
@@ -52,10 +62,10 @@
             <v-list-item title="Search" value="search" style="color: rgb(152,255,134);" @click="toWidget('search')"></v-list-item>
             <v-list-item title="Requests" value="requests" @click="toWidget('requests')"></v-list-item>   
             <v-badge v-if="requestCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="requestCount" style="position: absolute; top: 188px; left: 140px;"></v-badge> 
-            <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
+            <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="toWidget('friends')"></v-list-item>
             <v-list-item title="Networks" value="networks" @click="wip()"></v-list-item>
             <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
-            <v-list-item title="Island Shop" value="shop" @click="wip()"></v-list-item>
+            <v-list-item title="Island Editor" value="editor" @click="toWidget('editor')"></v-list-item>
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
@@ -71,12 +81,18 @@
           <Requests ref="requestsRef" :requestCount="requestCount" @request-success="showSuccessAlertFunc" @remove-request="requestCount--" v-if="widget === 'requests'">
 
           </Requests>
+          <Editor ref="editorRef" @editor-success="showSuccessAlertFunc" v-if="widget === 'editor'">
+
+          </Editor>
+          <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" v-if="widget === 'friends'">
+
+          </Friends>   
         </v-list>
       </VResizeDrawer>
         <v-main>
     <div class="h-100">
         <v-row>
-        <h1 class="mt-5 mb-0 ml-7">Points</h1>
+        <h1 class="mt-5 mb-0 ml-7"><span v-if="username !== visitedUsername">{{visitedUsername}}'s </span>Points</h1>
         <div v-if="notificationCount + requestCount > 0" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
           <v-badge color="rgb(89,153,80)" :content="notificationCount + requestCount" >
             <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
@@ -85,17 +101,23 @@
         <div class="ml-auto ma-5 mt-8 mr-10 badge-lg" v-else>
           <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
         </div>
-            <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;">
+            <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-if="friendRPoints < 0">
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{rPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{gPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{bPoints}}</li>
             </ul>
+            <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-else>
+                <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{friendRPoints}}</li>
+                <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{friendGPoints}}</li>
+                <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{friendBPoints}}</li>
+            </ul>
             
         </v-row>
-        <v-row class="mt-3 mx-1">
-            <v-col cols="12" class="text-center">
-                <img style="max-width: 50%; min-width: 250px;" src="/island.png" alt="island">
-            </v-col>
+        <v-row class="mt-n5 mx-1">
+          <!-- replace with friends island when friend is visited -->
+          <v-col cols="12" class="text-center mt-n10">
+              <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island">
+          </v-col>
         </v-row>
     </div>    
   </v-main>
