@@ -1,4 +1,5 @@
 import CryptoJS from "crypto-js";
+import { mapMutations } from "vuex";
 
 export default {
     data() {
@@ -10,8 +11,7 @@ export default {
         show: false,
         valid: false,
         rules: {
-            required: v => !!v || 'Field is required!',
-            emailRules: v => /.+@.+/.test(v) || 'Invalid email address!'
+            required: v => !!v || 'Field is required!'
         },
         showErrorAlert: false,
         errorAlertText: ''
@@ -27,6 +27,7 @@ export default {
         
     },
     methods: {
+      ...mapMutations(['setToken']),
       //api call for logging in
       login() {
 
@@ -50,9 +51,10 @@ export default {
               return response.json(); 
           })
           .then(data => {
+            this.setToken(data.token);
             console.log('Login successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: {  
-                id: CryptoJS.AES.encrypt("password",'123456').toString() //needs to be changed so it doesn't use this method anymore
+                id: 'user' //change to data.user later
               }});
           })
           .catch(error => {
@@ -89,9 +91,10 @@ export default {
               }
           })
           .then(data => {
+              this.setToken(data.token);
               console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: { 
-                id: CryptoJS.AES.encrypt("password",'123456').toString() //Needs to be changed to not use this method anymore
+                id: 'user' //change to data.user later
                }});
           })
           .catch(error => {

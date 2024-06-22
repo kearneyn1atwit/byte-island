@@ -1,4 +1,5 @@
-import CryptoJS from "crypto-js";
+import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 import Notifications from "./Notifications";
 import Projects from "./Projects";
 import Search from "./Search";
@@ -32,21 +33,26 @@ export default {
         showErrorAlert: false,
         errorAlertText: '',
         showWarningAlert: false,
-        warningAlertText: ''
+        warningAlertText: '',
+        _isLoggedIn: false
       };
     },
     async created() {
+      this.setFromComputed();
       // change to real authentication later
-      if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password"){
-        this.$router.push('/not-found');
+      if(!this._isLoggedIn) {
+        this.$router.push('/');
       }
+      // if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password"){
+      //   this.$router.push('/');
+      // }
       else {
         this.loaded = true;
       }
       
     },
     computed: {
-      
+      ...mapGetters(['isLoggedIn'])
     },
     mounted() {
       this.getUserDetails();
@@ -55,7 +61,11 @@ export default {
       setInterval(() => this.getNewNotificationsRequests(),60000);
     },
     methods: {
-        //api call to get username from email
+        ...mapMutations(['setToken']),
+        setFromComputed() {
+          this._isLoggedIn = this.isLoggedIn
+        },
+        //api call to get user data upon login
         getUserDetails() {
           this.username = 'user';
           this.visitedUsername = 'user';
@@ -103,8 +113,9 @@ export default {
           }
         },
         signOut() {
-          // expire token
-          this.$router.push({name: 'Login'});
+          // expire tokens
+          this.setToken(null);
+          this.$router.push('/');
         },
         // could get complicated with nested menus, be sure to have a reference to each widget
         toWidget(widget) {
