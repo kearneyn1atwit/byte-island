@@ -14,7 +14,7 @@
         handle-position="border"
         :save-width="true"
         width="500"
-        min-width="200"
+        min-width="350"
         :width-snap-back="false"
         :temporary="true"
         persistent
@@ -84,7 +84,7 @@
           <Editor ref="editorRef" @editor-success="showSuccessAlertFunc" v-if="widget === 'editor'">
 
           </Editor>
-          <Friends ref="friendsRef" @unfriend-friend="showSuccessAlertFunc" v-if="widget === 'friends'">
+          <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" v-if="widget === 'friends'">
 
           </Friends>   
         </v-list>
@@ -92,7 +92,7 @@
         <v-main>
     <div class="h-100">
         <v-row>
-        <h1 class="mt-5 mb-0 ml-7">Points</h1>
+        <h1 class="mt-5 mb-0 ml-7"><span v-if="username !== visitedUsername">{{visitedUsername}}'s </span>Points</h1>
         <div v-if="notificationCount + requestCount > 0" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
           <v-badge color="rgb(89,153,80)" :content="notificationCount + requestCount" >
             <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
@@ -101,16 +101,23 @@
         <div class="ml-auto ma-5 mt-8 mr-10 badge-lg" v-else>
           <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
         </div>
-            <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;">
+            <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-if="friendRPoints < 0">
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{rPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{gPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{bPoints}}</li>
             </ul>
-        <v-row class="mt-n5 mx-1">
-          <v-col cols="12" class="text-center mt-n10">
-              <img style="min-width: 55vw;" src="/island.png" alt="island">
-          </v-col>
+            <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-else>
+                <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{friendRPoints}}</li>
+                <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{friendGPoints}}</li>
+                <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{friendBPoints}}</li>
+            </ul>
+            
         </v-row>
+        <v-row class="mt-n5 mx-1">
+          <!-- replace with friends island when friend is visited -->
+          <v-col cols="12" class="text-center mt-n10">
+              <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island">
+          </v-col>
         </v-row>
     </div>    
   </v-main>

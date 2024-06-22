@@ -10,10 +10,16 @@ export default {
     data() {
       return {
         username: '',
+        visitedUsername: '',
         pfp: '',
         rPoints: 0,
         gPoints: 0,
         bPoints: 0,
+        island: null,
+        friendRPoints: -1,
+        friendGPoints: -1,
+        friendBPoints: -1,
+        friendIsland: null,
         requestCount: 0,
         notificationCount: 0,
         readCount: 0,
@@ -52,10 +58,13 @@ export default {
         //api call to get username from email
         getUserDetails() {
           this.username = 'user';
+          this.visitedUsername = 'user';
           this.pfp = 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250';
           this.rPoints = 0;
           this.gPoints = 12;
           this.bPoints = 6;
+          // get island data
+          this.island = null;
         },
         getNotificationsRequests() {
           // api call to get notifications/requests (get just list length)
@@ -117,6 +126,14 @@ export default {
               } else {
                 this.widget = widget;
               }
+              //if in Friend view, go back to all friends and load users island data
+          } else if(this.$refs.friendsRef) {
+            if(this.$refs.friendsRef.friendVisited) {
+              this.$refs.friendsRef.friendVisited = false;
+              this.return();
+            } else {
+              this.widget = widget;
+            }
           }
           // user has not opened projects view
           else {
@@ -151,6 +168,18 @@ export default {
           this.rPoints += rPoints;
           this.gPoints += gPoints;
           this.bPoints += bPoints;
+        },
+        visitFriend(friend) {
+          this.friendRPoints = friend.points[0];
+          this.friendGPoints = friend.points[1];
+          this.friendBPoints = friend.points[2];
+          this.visitedUsername = friend.username;
+          this.friendIsland = friend.island;
+        },
+        // return to users island
+        return() {
+          this.friendRPoints = -1;
+          this.getUserDetails();
         },
         wip() {
             alert("Feature not yet implemented.");

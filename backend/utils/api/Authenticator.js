@@ -2,6 +2,11 @@ const jwt = require('jsonwebtoken');
 const creds = require('../../data/credentials.json');
 const db = require('../database/Database');
 
+/**
+ * 
+ * @param {string} username User to generate JWT for 
+ * @returns Signed token 
+ */
 function generateJWT(username) {
     const payload = {
         username: username,
@@ -38,5 +43,6 @@ function verifyJWT(token, username) {
     }
 }
 
+//const data = verifyJWT(generateJWT('testuser1'), 'testuser1');
 
-const data = verifyJWT(generateJWT('testuser1'), 'testuser4');
+module.exports = { generateJWT, verifyJWT };
