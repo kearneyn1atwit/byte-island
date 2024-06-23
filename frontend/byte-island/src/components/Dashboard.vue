@@ -92,7 +92,7 @@
         <v-main>
     <div class="h-100">
         <v-row>
-        <h1 class="mt-5 mb-0 ml-7"><span v-if="username !== visitedUsername">{{visitedUsername}}'s </span>Points</h1>
+        <h1 class="mt-5 mb-0 ml-7"><span v-if="username !== visitedUsername">{{visitedUsername}}'s </span><span v-else>My </span>Points</h1>
         <div v-if="notificationCount + requestCount > 0" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
           <v-badge color="rgb(89,153,80)" :content="notificationCount + requestCount" >
             <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
