@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-//const bcrypt = require('bcrypt');
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
@@ -38,7 +37,7 @@ router.post('/signup', async (req, res) => {
     //Check username and email to make sure they aren't already used
     const id = await db.GetUserId(username);
     if (id != -1) {
-      return res.status(409).json({ message: 'Username already exists!' }); //needs email check
+      return res.status(409).json({ message: 'Username already exists!' }); 
     }
     const emailIsUsed = await db.GetUserEmailUsed(email)
     if(emailIsUsed) {

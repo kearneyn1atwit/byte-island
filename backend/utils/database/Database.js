@@ -6,6 +6,7 @@ const { Pool, QueryArrayResult } = require('pg');
 //Import data (maybe move it to one file)
 const sql = require('../../data/sql.json');
 const cypher = require('../../data/cypher.json');
+const { match } = require('assert');
 
 //remove params in data files later?
 /**
@@ -201,6 +202,75 @@ module.exports = {
             }));
             return ProcessAndLogTableValues(miniProfileList);
         }
+    },
+    //search is either user's name or tag id
+    SearchUsers: async function(search, byName) {
+
+        let matchingUsers = [];
+
+        if(byName) {
+
+            const exactUserMatch = await psql.query(fillSQLParams(sql.users.select, {
+                "name": search
+            }));
+    
+            try {
+                const id = ProcessAndLogRowValues(exactUserMatch,0);
+                matchingUsers.push({
+                    username: search,
+                    userid: id['userid']
+                });
+            } catch(e) {
+                console.log("Exact match not found: " + e);
+            }
+    
+            const partialUserMatches = await psql.query(fillSQLParams(sql.users.selectSome, {
+                "name": search
+            }));
+    
+            if(partialUserMatches.rowCount != 0) {
+                partialUserMatches.rows.forEach((rowData) => {
+                    if(rowData['username'] !== search) {
+                        console.log("Pushing Partial match: " + rowData['username']);
+                        matchingUsers.push({
+                            username: rowData['username'],
+                            userid: rowData['userid']
+                        })
+                    }
+                })
+            }
+        } else { //By Tags
+
+            console.log("Tag Driven Search Starts");
+            const userIds = await neo4j.query(fillCypherParams(cypher.select.relatedUsers, {
+                "IDVAR": search
+            }));
+            idlist = []
+            userIds.records.forEach(record => {
+                console.log("Id of related user is: " + record.get('u').properties.Id.low)
+                idlist.push(record.get('u').properties.Id.low);
+            });
+
+            console.log("Idlist is: " + idlist);
+
+            for (const id of idlist) {
+
+                console.log("Id is: " + id)
+
+                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                    "id": id
+                }));
+                
+                console.log(userMiniProfile);
+
+                matchingUsers.push({
+                    username: userMiniProfile[0]['username'],
+                    userid: id
+                })
+            }
+        }
+
+        return matchingUsers
     },
     UpdateUserCredentials: async function(id, dict) { 
         const currentUserData = await psql.query(fillSQLParams(sql.users.getCredentials, {
@@ -1125,18 +1195,10 @@ module.exports = {
 
  /* Unimplemented Functions are below */
 
-//User Related Functions
-function SearchUsers() {
-    sql.users.select;
-    sql.users.selectSome;
-    cypher.select.relatedUsers;
-} 
-
 //Network Related Functions
 function SearchNetworks() {
     sql.networks.select;
     sql.networks.selectSome;
-    //sql search query?
     cypher.select.relatedNetworks;
 } 
 
