@@ -241,30 +241,22 @@ module.exports = {
             }
         } else { //By Tags
 
-            console.log("Tag Driven Search Starts");
             const userIds = await neo4j.query(fillCypherParams(cypher.select.relatedUsers, {
                 "IDVAR": search
             }));
             idlist = []
             userIds.records.forEach(record => {
-                console.log("Id of related user is: " + record.get('u').properties.Id.low)
                 idlist.push(record.get('u').properties.Id.low);
             });
 
-            console.log("Idlist is: " + idlist);
-
             for (const id of idlist) {
-
-                console.log("Id is: " + id)
 
                 const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
                     "id": id
                 }));
-                
-                console.log(userMiniProfile);
 
                 matchingUsers.push({
-                    username: userMiniProfile[0]['username'],
+                    username: userMiniProfile.rows[0]['username'],
                     userid: id
                 })
             }
