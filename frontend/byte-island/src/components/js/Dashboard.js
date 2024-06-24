@@ -38,10 +38,13 @@ export default {
       };
     },
     async created() {
-      this.setFromComputed();
+      this.getUserDetails();
       // change to real authentication later
       if(!this._isLoggedIn) {
         this.$router.push('/');
+      }
+      else if(this.$route.params.id !== this.username) {
+        this.$router.push('/not-found');
       }
       // if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password"){
       //   this.$router.push('/');
@@ -52,23 +55,20 @@ export default {
       
     },
     computed: {
-      ...mapGetters(['isLoggedIn'])
+      ...mapGetters(['isLoggedIn','getUsername'])
     },
     mounted() {
-      this.getUserDetails();
       this.getNotificationsRequests();
       // refresh request count every minute
       setInterval(() => this.getNewNotificationsRequests(),60000);
     },
     methods: {
         ...mapMutations(['setToken']),
-        setFromComputed() {
-          this._isLoggedIn = this.isLoggedIn
-        },
         //api call to get user data upon login
         getUserDetails() {
-          this.username = 'user';
-          this.visitedUsername = 'user';
+          this._isLoggedIn = this.isLoggedIn;
+          this.username = this.getUsername;
+          this.visitedUsername = this.username;
           this.pfp = 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250';
           this.rPoints = 0;
           this.gPoints = 12;

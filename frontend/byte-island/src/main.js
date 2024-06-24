@@ -19,10 +19,14 @@ import { VResizeDrawer } from  '@wdns/vuetify-resize-drawer'
 const store = createStore({
     state() {
         return {
+            user: null,
             token: null
         }
     },
     mutations: {
+        setUser(state, user) {
+            state.user = user
+        },
         setToken(state, token) {
             state.token = token;
         }
@@ -31,6 +35,9 @@ const store = createStore({
     getters: {
         isLoggedIn(state) {
             return !!state.token;
+        },
+        getUsername(state) {
+            return state.user;
         }
     },
     plugins: [createPersistedState()]

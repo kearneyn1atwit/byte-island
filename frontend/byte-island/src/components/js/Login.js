@@ -27,7 +27,7 @@ export default {
         
     },
     methods: {
-      ...mapMutations(['setToken']),
+      ...mapMutations(['setToken','setUser']),
       //api call for logging in
       login() {
 
@@ -52,9 +52,10 @@ export default {
           })
           .then(data => {
             this.setToken(data.token);
+            this.setUser(data.username);
             console.log('Login successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: {  
-                id: 'user' //change to data.user later
+                id: data.username //change to data.user later
               }});
           })
           .catch(error => {
@@ -92,9 +93,10 @@ export default {
           })
           .then(data => {
               this.setToken(data.token);
+              this.setUser(data.username);
               console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: { 
-                id: 'user' //change to data.user later
+                id: data.username //change to data.user later
                }});
           })
           .catch(error => {
