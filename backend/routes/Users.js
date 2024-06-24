@@ -3,7 +3,6 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
-//Add Authentication later
 router.post('/users', async (req, res) => {
 
   if(!auth.verifyJWT(req.headers.authorization)) {

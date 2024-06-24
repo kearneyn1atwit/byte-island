@@ -38,6 +38,9 @@ const store = createStore({
         },
         getUsername(state) {
             return state.user;
+        },
+        getToken(state) {
+            return state.token;
         }
     },
     plugins: [createPersistedState()]
