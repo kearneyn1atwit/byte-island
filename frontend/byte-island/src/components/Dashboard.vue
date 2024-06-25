@@ -81,7 +81,7 @@
           <Requests ref="requestsRef" :requestCount="requestCount" @request-success="showSuccessAlertFunc" @remove-request="requestCount--" v-if="widget === 'requests'">
 
           </Requests>
-          <Editor ref="editorRef" @editor-success="showSuccessAlertFunc" v-if="widget === 'editor'">
+          <Editor ref="editorRef" v-if="widget === 'editor'">
 
           </Editor>
           <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" v-if="widget === 'friends'">
@@ -115,12 +115,12 @@
         </v-row>
         <v-row class="mt-n5 mx-1">
           <!-- replace with friends island when friend is visited -->
-          <v-col cols="12" class="text-center mt-n10">
+          <v-col cols="8" class="text-center mt-6">
               <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island">
           </v-col>
         </v-row>
     </div>    
-  </v-main>
+  </v-main> 
     </v-layout>
   </v-app>
 
