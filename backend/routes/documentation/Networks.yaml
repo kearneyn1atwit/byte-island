@@ -12,7 +12,7 @@ paths:
       parameters:
         - name: searchBy
           in: query
-          description: Criteria id to search with (0 = name, 1 = ID)
+          description: Criteria id to search with (0 = name, 1 = tag)
           required: true
           type: integer
         - name: searchString

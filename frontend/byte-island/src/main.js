@@ -65,8 +65,8 @@ const store = createStore({
         getUsername(state) {
             return state.user;
         },
-        getDB(state) {
-            return state.pseudoDatabase;
+        getToken(state) {
+            return state.token;
         }
     },
     plugins: [createPersistedState()]

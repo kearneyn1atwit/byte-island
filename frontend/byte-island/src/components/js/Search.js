@@ -1,3 +1,5 @@
+import { mapGetters } from "vuex";
+
 export default {
     data() {
         return {
@@ -13,7 +15,7 @@ export default {
       
     },
     computed: {
-      
+        ...mapGetters(['getToken'])
     },
     mounted() {
         
@@ -21,48 +23,121 @@ export default {
     methods: {
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
+            const token = this.getToken;
             this.filteredList = [];
+
             if(searchFor === 0) {
+
+                //API New Version
+                fetch("http://localhost:5000/users", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', 
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({
+                      searchBy: searchBy,
+                      searchString: searchString
+                    }) 
+                })
+                .then(response => {
+                    if (!response.ok) {
+                      response.json().then((data) => console.log(data.message));
+                    }
+                    console.log("Response was okay!");
+                    return response.json(); 
+                })
+                .then(data => {
+                    this.filteredList.length = 0;
+                    data.forEach((row) => {
+                        this.filteredList.push({
+                            name: row.username,
+                            pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
+                        })
+                    });
+                })
+                .catch(error => {
+                    console.error('Error with Users API:', error);
+                });
+
+                /*DEPRECATED*/
+
                 // user by name
-                if(searchBy === 0) {
-                    for(let i=0;i<3;i++) {
-                        this.filteredList.push({
-                            name: searchString+' '+(i+1),
-                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
-                        });
-                    }
-                }
-                // user by tags
-                else {
-                    for(let i=0;i<5;i++) {
-                        this.filteredList.push({
-                            name: 'Generic_user_'+(i+1),
-                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
-                        });
-                    }
-                }
+                // if(searchBy === 0) {
+                //     for(let i=0;i<3;i++) {
+                //         this.filteredList.push({
+                //             name: searchString+' '+(i+1),
+                //             pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
+                //         });
+                //     }
+                // }
+                // // user by tags
+                // else {
+                //     for(let i=0;i<5;i++) {
+                //         this.filteredList.push({
+                //             name: 'Generic_user_'+(i+1),
+                //             pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
+                //         });
+                //     }
+                // }
             }
             else {
+                
+                //API New Version
+                fetch("http://localhost:5000/networks", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json', 
+                        'Authorization': token
+                    },
+                    body: JSON.stringify({
+                      searchBy: searchBy,
+                      searchString: searchString
+                    }) 
+                })
+                .then(response => {
+                    if (!response.ok) {
+                      response.json().then((data) => console.log(data.message));
+                    }
+                    console.log("Response was okay!");
+                    return response.json(); 
+                })
+                .then(data => {
+                    this.filteredList.length = 0;
+                    data.forEach((row) => {
+                        this.filteredList.push({
+                            name: row.networkname,
+                            desc: "test description",//swap for networkdesc once added to db
+                            pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
+                        })
+                    });
+                })
+                .catch(error => {
+                    console.error('Error with Users API:', error);
+                });
+
+                /*Deprecated*/
+                
                 // network by name
-                if(searchBy === 0) {
-                    for(let i=0;i<6;i++) {
-                        this.filteredList.push({
-                            name: searchString+' '+(i+1),
-                            desc: 'Description for network: '+searchString+' '+(i+1),
-                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
-                        });
-                    }
-                }
-                // network by tags
-                else {
-                    for(let i=0;i<4;i++) {
-                        this.filteredList.push({
-                            name: 'Generic_network_'+(i+1),
-                            desc: 'Description for network: Generic_network_'+(i+1),
-                            pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
-                        });
-                    }
-                }
+                // if(searchBy === 0) {
+                //     for(let i=0;i<6;i++) {
+                //         this.filteredList.push({
+                //             name: searchString+' '+(i+1),
+                //             desc: 'Description for network: '+searchString+' '+(i+1),
+                //             pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
+                //         });
+                //     }
+                // }
+                // // network by tags
+                // else {
+                //     for(let i=0;i<4;i++) {
+                //         this.filteredList.push({
+                //             name: 'Generic_network_'+(i+1),
+                //             desc: 'Description for network: Generic_network_'+(i+1),
+                //             pic: 'https://picsum.photos/id/'+(1000+i)+'/55/55'
+                //         });
+                //     }
+                // }
             }
         },
         clearSearch() {
@@ -87,12 +162,10 @@ export default {
         //api call to handle friending user
         friend(user) {
             this.$emit('user-network-success','A friend request has been sent to '+user.name);
-            this.filteredList = this.filteredList.filter((item) => item !== user);
         },
         //api call to handle joining network
         askToJoin(network) {
             this.$emit('user-network-success','A request to join network \"'+network.name+'\" has been successfully sent.');
-            this.filteredList = this.filteredList.filter((item) => item !== network);
         },
         wip() {
             alert("Feature not yet implemented.");

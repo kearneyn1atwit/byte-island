@@ -6,6 +6,7 @@ const { Pool, QueryArrayResult } = require('pg');
 //Import data (maybe move it to one file)
 const sql = require('../../data/sql.json');
 const cypher = require('../../data/cypher.json');
+const { match } = require('assert');
 
 //remove params in data files later?
 /**
@@ -201,6 +202,67 @@ module.exports = {
             }));
             return ProcessAndLogTableValues(miniProfileList);
         }
+    },
+    //search is either user's name or tag id
+    SearchUsers: async function(search, byName) {
+
+        let matchingUsers = [];
+
+        if(byName) {
+
+            const exactUserMatch = await psql.query(fillSQLParams(sql.users.select, {
+                "name": search
+            }));
+    
+            try {
+                const id = ProcessAndLogRowValues(exactUserMatch,0);
+                matchingUsers.push({
+                    username: search,
+                    userid: id['userid']
+                });
+            } catch(e) {
+                console.log("Exact match not found: " + e);
+            }
+    
+            const partialUserMatches = await psql.query(fillSQLParams(sql.users.selectSome, {
+                "name": search
+            }));
+    
+            if(partialUserMatches.rowCount != 0) {
+                partialUserMatches.rows.forEach((rowData) => {
+                    if(rowData['username'] !== search) {
+                        console.log("Pushing Partial match: " + rowData['username']);
+                        matchingUsers.push({
+                            username: rowData['username'],
+                            userid: rowData['userid']
+                        })
+                    }
+                })
+            }
+        } else { //By Tags
+
+            const userIds = await neo4j.query(fillCypherParams(cypher.select.relatedUsers, {
+                "IDVAR": search
+            }));
+            idlist = []
+            userIds.records.forEach(record => {
+                idlist.push(record.get('u').properties.Id.low);
+            });
+
+            for (const id of idlist) {
+
+                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                    "id": id
+                }));
+
+                matchingUsers.push({
+                    username: userMiniProfile.rows[0]['username'],
+                    userid: id
+                })
+            }
+        }
+
+        return matchingUsers;
     },
     UpdateUserCredentials: async function(id, dict) { 
         const currentUserData = await psql.query(fillSQLParams(sql.users.getCredentials, {
@@ -406,6 +468,69 @@ module.exports = {
             idlist.push(record.get('u').properties.Id.low);
         });
         return idlist;
+    },
+    //search is either user's name or tag id
+    SearchNetworks: async function(search, byName) {
+
+        let matchingNetworks = [];
+
+        if(byName) {
+
+            const exactNetworkMatch = await psql.query(fillSQLParams(sql.networks.select, {
+                "name": search
+            }));
+    
+            try {
+                const id = ProcessAndLogRowValues(exactNetworkMatch,0);
+                matchingNetworks.push({
+                    networkname: search,
+                    networkid: id['networkid']
+                });
+            } catch(e) {
+                console.log("Exact match not found: " + e);
+            }
+    
+            const partialNetworkMatches = await psql.query(fillSQLParams(sql.networks.selectSome, {
+                "name": search
+            }));
+
+            console.log("Partial was: " + partialNetworkMatches.rows);
+    
+            if(partialNetworkMatches.rowCount != 0) {
+                partialNetworkMatches.rows.forEach((rowData) => {
+                    if(rowData['networkname'] !== search) {
+                        console.log("Pushing Partial match: " + rowData['networkname']);
+                        matchingNetworks.push({
+                            networkname: rowData['networkname'],
+                            networkid: rowData['networkid']
+                        })
+                    }
+                })
+            }
+        } else { //By Tags
+
+            const userIds = await neo4j.query(fillCypherParams(cypher.select.relatedNetworks, {
+                "IDVAR": search
+            }));
+            idlist = []
+            userIds.records.forEach(record => {
+                idlist.push(record.get('u').properties.Id.low);
+            });
+
+            for (const id of idlist) {
+
+                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                    "id": id
+                }));
+
+                matchingNetworks.push({
+                    username: userMiniProfile.rows[0]['username'],
+                    userid: id
+                })
+            }
+        }
+
+        return matchingNetworks;
     },
     AddNetworkMember: async function (userid,networkid) { 
         await neo4j.query(fillCypherParams(cypher.add.userToNetwork, {
@@ -1125,18 +1250,10 @@ module.exports = {
 
  /* Unimplemented Functions are below */
 
-//User Related Functions
-function SearchUsers() {
-    sql.users.select;
-    sql.users.selectSome;
-    cypher.select.relatedUsers;
-} 
-
 //Network Related Functions
 function SearchNetworks() {
     sql.networks.select;
     sql.networks.selectSome;
-    //sql search query?
     cypher.select.relatedNetworks;
 } 
 

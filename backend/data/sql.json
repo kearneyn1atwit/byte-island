@@ -51,7 +51,7 @@
             "desc": "Select all users in the table"
         },
         "selectSome": { 
-            "query": "SELECT UserId FROM Users WHERE Username LIKE '%:name%' AND Deleted != True;",
+            "query": "SELECT UserId, Username FROM Users WHERE Username ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select users based off matching names"
         },
@@ -187,7 +187,7 @@
             "desc": "Mark network as deleted from their id. NEEDS A CYPHER COUNTERPART"
         },
         "selectSome": { 
-            "query": "SELECT * FROM Networks WHERE NetworkName '%:name%' AND Deleted != True;",
+            "query": "SELECT NetworkId, NetworkName FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select networks based off matching names"
         },

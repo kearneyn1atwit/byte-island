@@ -16,7 +16,7 @@ function setOptions(apiPaths) {
           },
           servers: [
             {
-              url: "http://localhost:5000/api", //Adjust this later
+              url: "http://localhost:5000", //Adjust this later
             },
           ],
         },
