@@ -118,7 +118,7 @@
         </v-row>
         <v-row class="mt-n5 mx-1">
           <!-- replace with friends island when friend is visited -->
-          <v-col cols="8" class="text-center mt-6">
+          <v-col cols="8" class="text-center mt-0">
               <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island">
           </v-col>
         </v-row>

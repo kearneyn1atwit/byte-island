@@ -1,6 +1,52 @@
 <template>
     <div>
+        <v-dialog v-model="showNewPost" max-width="500">
+            <template v-slot:default="{}">
+                <v-card title="New Post">
+                <v-card-text>
+                    <h1 class="mt-3">Make next post...</h1>
+                    <v-btn-toggle rounded class="toggle-group toggle-group-2 mt-2" v-model="newPostTab" mandatory>
+                        <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Public</v-btn>
+                        <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Friends-Only</v-btn>
+                    </v-btn-toggle>
+                    <v-textarea clearable no-resize v-model="newPost" rows="10" variant="outlined" placeholder="Enter message..." bg-color="white" class="mb-n10 mt-5"></v-textarea>
+
+                </v-card-text>
+
+                <v-card-actions class="mb-3 mx-3">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="Cancel"
+                    class="mr-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showNewPost = false; newPostTab = 0"
+                    ></v-btn>
+                    <v-btn
+                    text="Post"
+                    variant="outlined"
+                    color="primary"
+                    :disabled="!newPost"
+                    @click="post()"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
+       <!-- <div style="position: fixed; bottom: 0; width: 100%; z-index: 2;" class="new-post-div mx-n1">
+            <h1 class="ml-5 mt-3">Make next post...</h1>
+            <v-btn-toggle rounded class="mx-5 toggle-group toggle-group-2 mt-2" v-model="newPostTab" mandatory>
+                <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Public</v-btn>
+                <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Friends-Only</v-btn>
+            </v-btn-toggle>
+            <v-row class="mx-5 mt-3">
+                <v-text-field v-model="newPost" variant="outlined" placeholder="Enter message..." bg-color="white" class="ital-input mb-2 mr-3"></v-text-field>
+                <v-btn @click="wip()" variant="outlined" size="large" style="margin-top: 6px;">Post</v-btn>
+            </v-row>
+        </div>  -->
         <h1 class="header-h1 ml-2 my-0">My Posts</h1>
+        <v-btn @click="showNewPost = true" variant="outlined" color="success" class="my-3 ml-2 custom-btn">New post</v-btn>
         <h2 class="ml-2 mb-1">Show me...</h2>
         <v-btn-toggle rounded class="mx-2 toggle-group mb-5" v-model="postsTabs" mandatory>
             <v-btn @click="updateSearch()" class="ma-1 toggle-btn toggle-btn-sm" color="#98FF86">All</v-btn>
@@ -82,18 +128,18 @@
                 </v-list-item>
             </div>
         </div>
-        <!-- <div style="position: sticky; bottom: 0;" class="new-post-div mx-n3">
-            <v-row class="mx-5 mt-5">
-                <v-text-field v-model="newPost" variant="outlined" placeholder="Enter message..." bg-color="white" class="ital-input mb-2 mr-3"></v-text-field>
-                <v-btn variant="outlined" size="large" style="margin-top: 6px;">Post</v-btn>
-            </v-row>
-        </div>  -->
     </div>
+     
 </template>
 <style scoped>
 .header-h1 {
     font-size: 2rem;
     color: rgb(152,255,134);
+}
+.custom-btn:hover {
+    background-color: #98FF86;
+    color: black !important;
+    border-color: #98FF86;
 }
 .text-muted {
     color: grey;
@@ -107,10 +153,16 @@
     border: 3px solid #98FF86;
     width: calc(100% - 8px);
 }
+.toggle-group-2 {
+    width: 100%;
+}
 .toggle-btn {
     width: calc(33.333333% - 8px);
     border-radius: 5px !important;
     height: 35px !important;
+}
+.toggle-btn-2 {
+    width: calc(50% - 8px);
 }
 .toggle-btn-sm {
     height: 25px !important;
@@ -120,6 +172,7 @@
 }
 .new-post-div {
     border-top: 5px solid grey;
+    background-color: #212121;
 }
 </style>
 <script src="./js/Posts.js">

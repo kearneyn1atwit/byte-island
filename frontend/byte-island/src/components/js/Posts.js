@@ -3,7 +3,10 @@ export default {
         return {
             postsTabs: 0,
             posts: [],
-            newPost: ''
+            newPost: '',
+            newPostTab: 0,
+            showNewPost: false,
+            showReplyToPost: false
         }
     },
     async created() {
@@ -59,6 +62,13 @@ export default {
                 });
             }
         },
+        // api call to post
+        post() {
+            this.showNewPost = false;
+            this.newPost = '';
+            this.newPostTab = 0;
+            this.getPosts();
+        },
         updateSearch() {
             // reset hideReplies
             for(let i=0;i<6;i++) {
@@ -67,6 +77,7 @@ export default {
         },
         replyToPost(post) {
             this.wip();
+            this.getPosts();
         },
         wip() {
             alert('Work in progress.');

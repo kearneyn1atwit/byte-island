@@ -8,17 +8,18 @@ export default {
             searchFor: 'user',
             searchBy: 'name',
             search: '',
-            filteredList: []
+            filteredList: [],
+            username: ''
         }
     },
     async created() {
       
     },
     computed: {
-        ...mapGetters(['getToken'])
+        ...mapGetters(['getToken','getUsername'])
     },
     mounted() {
-        
+        this.username = this.getUsername;
     },
     methods: {
         getUsersNetworks(searchFor,searchBy,searchString) {
