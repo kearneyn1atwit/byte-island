@@ -81,12 +81,12 @@
             "desc": "Return user's private, restricted and deleted status | WORTHLESS QUERY?"
         },
         "getPoints": { 
-            "query": "SELECT SocialPoints, CareerPoints, PersonalPoints FROM Users WHERE UserId = :id AND Deleted != True;",
+            "query": "SELECT CareerPoints, PersonalPoints, SocialPoints FROM Users WHERE UserId = :id AND Deleted != True;",
             "params": "id",
             "desc": "Get all types of points for user from their id"
         },
         "getProfileInformation": { 
-            "query": "SELECT Username, ProfileImageId, SocialPoints, CareerPoints, PersonalPoints FROM Users WHERE UserId = :id AND Deleted != True;",
+            "query": "SELECT Username, ProfileImageId, CareerPoints, PersonalPoints, SocialPoints FROM Users WHERE UserId = :id AND Deleted != True;",
             "params": "id",
             "desc": "Grab all columns needed to display user profile from table (JOIN WITH ISLAND DATA?)"
         },

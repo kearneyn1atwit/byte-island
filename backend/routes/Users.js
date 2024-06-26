@@ -5,7 +5,7 @@ const auth = require('../utils/api/Authenticator');
 
 router.post('/users', async (req, res) => {
 
-  if(!auth.verifyJWT(req.headers.authorization)) {
+  if(!await auth.verifyJWT(req.headers.authorization)) {
     return res.status(401).json({ message: 'Access denied!' });
   } 
 
