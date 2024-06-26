@@ -2,7 +2,7 @@
     
         <div v-if="projectView === 'all'">
             <h1 class="header-h1 ml-2 mb-5">My Projects</h1>
-            <v-btn variant="outlined" color="success" class="ml-2 custom-btn mb-5" @click="newProject()"><u>Add New!</u></v-btn>
+            <v-btn variant="outlined" color="success" class="ml-2 custom-btn mb-5" @click="newProject()">Add New!</v-btn>
             <v-text-field
                 v-model="projectSearch"
                 density="compact"

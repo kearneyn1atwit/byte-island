@@ -42,7 +42,7 @@
                 
                 <v-row v-if="searchTab === 0" class="my-0" justify="space-around">
                     <v-col cols="12">
-                        <v-btn color="#98FF86" class="ml-5 mt-1" variant="outlined" size="small" @click="friend(userNetwork)">Friend</v-btn>
+                        <v-btn color="#98FF86" class="ml-5 mt-1" variant="outlined" size="small" @click="friend(userNetwork)" :disabled="username === userNetwork.name">Friend</v-btn>
                     </v-col>
                 </v-row>
                 <v-row v-else class="my-0" justify="space-around">

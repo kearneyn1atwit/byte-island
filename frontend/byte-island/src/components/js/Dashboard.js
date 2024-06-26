@@ -6,6 +6,7 @@ import Search from "./Search";
 import Requests from "./Requests";
 import Editor from "./Editor";
 import Friends from './Friends';
+import Posts from './Posts';
 
 export default {
     data() {
@@ -113,7 +114,7 @@ export default {
           }
         },
         signOut() {
-          // expire tokens
+          // expire token
           this.setToken(null);
           this.$router.push('/');
         },
@@ -202,6 +203,7 @@ export default {
       Search,
       Requests,
       Editor,
-      Friends
+      Friends,
+      Posts
     },
   };

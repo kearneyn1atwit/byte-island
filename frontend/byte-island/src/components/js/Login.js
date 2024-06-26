@@ -55,7 +55,7 @@ export default {
             this.setUser(data.username);
             console.log('Login successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: {  
-                id: data.username //change to data.user later
+                id: data.username
               }});
           })
           .catch(error => {
@@ -96,7 +96,7 @@ export default {
               this.setUser(data.username);
               console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: { 
-                id: data.username //change to data.user later
+                id: data.username
                }});
           })
           .catch(error => {

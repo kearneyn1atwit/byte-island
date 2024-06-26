@@ -20,7 +20,28 @@ const store = createStore({
     state() {
         return {
             user: null,
-            token: null
+            token: null,
+            pseudoDatabase: [{
+                id: "01",
+                name: "simple block",
+                RGB: 10000,
+                image: "/01.png",
+                inventory: 0
+            },
+            {
+                id: "02",
+                name: "blue block",
+                RGB: 1,
+                image: "/02.png",
+                inventory: 0
+            },
+            {
+                id: "03",
+                name: "placer block",
+                RGB: 10101,
+                image: "/blockplace.png",
+                inventory: 0
+            }]
         }
     },
     mutations: {
@@ -29,6 +50,11 @@ const store = createStore({
         },
         setToken(state, token) {
             state.token = token;
+        },
+        setInv(state,id,inv) {
+            console.log(id);
+            console.log(Number(id));
+            state.pseudoDatabase[Number(id)].inventory=inv;
         }
     },
     actions: {},

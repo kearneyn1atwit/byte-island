@@ -7,10 +7,10 @@
         <v-list-item title="Inventory" value="inventory" style="color: rgb(152,255,134);" @click="toEditorView('inventory')"></v-list-item>
     </div>
     
-    <Shop ref="shopRef" @request-success="showSuccessAlertFunc" v-if="editorView === 'shop'">
+    <Shop ref="shopRef" v-if="editorView === 'shop'">
         
     </Shop>
-    <Inventory ref="inventoryRef" @editor-success="showSuccessAlertFunc" v-if="editorView === 'inventory'">
+    <Inventory ref="inventoryRef" v-if="editorView === 'inventory'">
 
     </Inventory>
 

@@ -8,17 +8,18 @@ export default {
             searchFor: 'user',
             searchBy: 'name',
             search: '',
-            filteredList: []
+            filteredList: [],
+            username: ''
         }
     },
     async created() {
       
     },
     computed: {
-        ...mapGetters(['getToken'])
+        ...mapGetters(['getToken','getUsername'])
     },
     mounted() {
-        
+        this.username = this.getUsername;
     },
     methods: {
         getUsersNetworks(searchFor,searchBy,searchString) {
@@ -162,12 +163,10 @@ export default {
         //api call to handle friending user
         friend(user) {
             this.$emit('user-network-success','A friend request has been sent to '+user.name);
-            this.filteredList = this.filteredList.filter((item) => item !== user);
         },
         //api call to handle joining network
         askToJoin(network) {
             this.$emit('user-network-success','A request to join network \"'+network.name+'\" has been successfully sent.');
-            this.filteredList = this.filteredList.filter((item) => item !== network);
         },
         wip() {
             alert("Feature not yet implemented.");

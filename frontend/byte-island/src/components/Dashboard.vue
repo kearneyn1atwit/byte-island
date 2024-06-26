@@ -64,7 +64,7 @@
             <v-badge v-if="requestCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="requestCount" style="position: absolute; top: 188px; left: 140px;"></v-badge> 
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="toWidget('friends')"></v-list-item>
             <v-list-item title="Networks" value="networks" @click="wip()"></v-list-item>
-            <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
+            <v-list-item title="My Posts" value="posts" style="color: rgb(152,255,134);" @click="toWidget('posts')"></v-list-item>
             <v-list-item title="Island Editor" value="editor" @click="toWidget('editor')"></v-list-item>
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
@@ -81,12 +81,15 @@
           <Requests ref="requestsRef" :requestCount="requestCount" @request-success="showSuccessAlertFunc" @remove-request="requestCount--" v-if="widget === 'requests'">
 
           </Requests>
-          <Editor ref="editorRef" @editor-success="showSuccessAlertFunc" v-if="widget === 'editor'">
+          <Editor ref="editorRef" v-if="widget === 'editor'">
 
           </Editor>
           <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" v-if="widget === 'friends'">
 
           </Friends>   
+          <Posts ref="postsRef" v-if="widget === 'posts'">
+
+          </Posts>
         </v-list>
       </VResizeDrawer>
         <v-main>
@@ -115,12 +118,12 @@
         </v-row>
         <v-row class="mt-n5 mx-1">
           <!-- replace with friends island when friend is visited -->
-          <v-col cols="12" class="text-center mt-n10">
+          <v-col cols="8" class="text-center mt-0">
               <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island">
           </v-col>
         </v-row>
     </div>    
-  </v-main>
+  </v-main> 
     </v-layout>
   </v-app>
 
