@@ -1,69 +1,145 @@
+import { mapGetters } from "vuex";
+
 export default {
     props: ['notificationCount','readCount'],
     data() {
       return {
-        notifications: []
+        token: null,
+        username: '',
+        notifications: [],
+        loaded: false
       };
     },
     async created() {
       
     },
     computed: {
+      ...mapGetters(['getToken','getUsername']),
       filteredNotifications() {
-        return this.notifications.sort(function(x,y){
-            return x.read === y.read ? 0 : x.read ? 1 : -1;
-        });
+        if(this.notifications.length > 0){
+            return this.notifications.sort(function(x,y){
+                return x.Read === y.Read ? 0 : x.Read ? 1 : -1;
+            });
+        }
+        return [];
       }
     },
     mounted() {
+        this.getUserDetails();
         this.getNotifications();
     },
     methods: {
+        getUserDetails() {
+            this.token = this.getToken;
+            this.username = this.getUsername;
+        },
         // api call to get user notifications
         getNotifications() {
-            this.notifications = [];
-            for(let i=0;i<this.notificationCount + this.readCount;i++) {
-                if(i < this.notificationCount){
-                    this.notifications.push({
-                        id: i,
-                        read: false,
-                        message: "Project X"+i+" is due soon! ("+new Date().toISOString()+")",
-                        datetime: new Date().toISOString()
-                    });
+            fetch("http://localhost:5000/notifications/"+this.username, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
                 }
-                else {
-                    this.notifications.push({
-                        id: i,
-                        read: true,
-                        message: "User Y"+i+" has joined your network: Network "+(i+1)+"!",
-                        datetime: new Date().toISOString()
-                    });
+            })
+            .then(response => {
+                if (!response.ok) {
+                  response.json().then((data) => console.log(data.message));
                 }
-            }
+                return response.json(); 
+            })
+            .then(data => {
+              this.notifications = data;
+              this.loaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Notifications API:', error);
+                this.loaded = true;
+            });
         },
-        // api call to update notification as read
+        // api call to update notification as read (DONE)
         read(notification) {
-            this.$emit('read-notification');
-            notification.read = true;
+            fetch("http://localhost:5000/notifications", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    notificationId: notification.Id,
+                    username: this.username
+                  }) 
+            })
+            .then(response => {
+                this.getNotifications();
+                this.$emit('get-notifications');
+            })
+            .catch(error => {
+                console.error('Error with Notifications API:', error);
+            });
         },
-        // api call to remove notification
+        // api call to remove notification (DONE)
         del(notification) { 
-            this.$emit('remove-notification');
-            this.notifications = this.notifications.filter((item) => item !== notification);  
+            fetch("http://localhost:5000/notifications", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    notificationId: notification.Id,
+                    username: this.username
+                  }) 
+            })
+            .then(response => {
+                this.getNotifications();
+                this.$emit('get-notifications');
+            })
+            .catch(error => {
+                console.error('Error with Notifications API:', error);
+            }); 
         },
-        // api call to read all
+        // api call to read all (DONE)
         markAllRead() {
-            for(let i=0;i<this.notifications.length;i++) {
-                if(!this.notifications[i].read){
-                    this.$emit('read-notification');
-                    this.notifications[i].read = true;
-                }
-            }
+            fetch("http://localhost:5000/notifications", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    notificationId: -1,
+                    username: this.username
+                  }) 
+            })
+            .then(response => {
+                this.getNotifications();
+                this.$emit('get-notifications');
+            })
+            .catch(error => {
+                console.error('Error with Notifications API:', error);
+            });
         },
-        // api call to delete all
+        // api call to delete all (DONE)
         deleteAll() {
-            this.notifications = [];
-            this.$emit('remove-all-notifications');
+            fetch("http://localhost:5000/notifications", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    notificationId: -1,
+                    username: this.username
+                  }) 
+            })
+            .then(response => {
+                this.getNotifications();
+                this.$emit('get-notifications');
+            })
+            .catch(error => {
+                console.error('Error with Notifications API:', error);
+            });
         }
     },
     components: {

@@ -35,7 +35,8 @@ export default {
         errorAlertText: '',
         showWarningAlert: false,
         warningAlertText: '',
-        _isLoggedIn: false
+        _isLoggedIn: false,
+        token: null
       };
     },
     async created() {
@@ -56,18 +57,19 @@ export default {
       
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken'])
     },
     mounted() {
-      this.getNotificationsRequests();
-      // refresh request count every minute
-      setInterval(() => this.getNewNotificationsRequests(),60000);
+      this.getNotifications();
+      this.getRequests();
+      this.handleBadge();
     },
     methods: {
         ...mapMutations(['setToken']),
         //api call to get user data upon login
         getUserDetails() {
           this._isLoggedIn = this.isLoggedIn;
+          this.token = this.getToken;
           this.username = this.getUsername;
           this.visitedUsername = this.username;
           this.pfp = 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250';
@@ -77,11 +79,47 @@ export default {
           // get island data
           this.island = null;
         },
-        getNotificationsRequests() {
-          // api call to get notifications/requests (get just list length)
-          this.notificationCount = 7;
-          this.readCount = 4;
+        getNotifications() {
+          fetch("http://localhost:5000/notifications/"+this.username, {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json', 
+                  'Authorization': this.token
+              }
+          })
+          .then(response => {
+            console.log(response);
+              if (!response.ok) {
+                response.json().then((data) => console.log(data.message));
+              }
+              console.log("Response was okay!");
+              return response.json(); 
+          })
+          .then(data => {
+            if(data.message) {
+              this.notificationCount = 0;
+            }
+            else {
+              this.notificationCount = data.length;
+            }
+            this.readCount = 0;
+            for(let i=0;i<data.length;i++) {
+              if(data[i].Read) {
+                this.readCount++;
+              }
+            }
+          })
+          .catch(error => {
+            this.notificationCount = 0;
+            this.readCount = 0;
+              console.error('Error with Notifications API:', error);
+          });
+        },
+        getRequests() {
+          // api call to get requests (get just list length)
           this.requestCount = 8;
+        },
+        handleBadge() {
           if(this.notificationCount > 0 && this.requestCount > 0) {
             this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.notificationCount+' notification(s) and '+this.requestCount+' request(s).');
           }
@@ -93,24 +131,6 @@ export default {
           }
           else {
             this.showSuccessAlertFunc('Welcome back, '+this.username+'!');
-          }
-        },
-        // different function so "welcome back" text isn't shown every refresh, uses same api calls
-        getNewNotificationsRequests() {
-          let newNotificationsCount = 0;
-          let newRequestsCount = 0;
-          if(newNotificationsCount > 0 && newRequestsCount > 0) {
-            this.notificationCount += newNotificationsCount;
-            this.requestCount += newRequestsCount;
-            this.showSuccessAlertFunc('You have '+newNotificationsCount+' new notification(s) and '+newRequestsCount+' new request(s)!');
-          }
-          else if(newNotificationsCount > 0 && newRequestsCount === 0) {
-            this.notificationCount += newNotificationsCount;
-            this.showSuccessAlertFunc('You have '+newNotificationsCount+' new notification(s)!');
-          }
-          else if(newNotificationsCount === 0 && newRequestsCount > 0) {
-            this.requestCount += newRequestsCount;
-            this.showSuccessAlertFunc('You have '+newRequestsCount+' new request(s)!');
           }
         },
         signOut() {

@@ -13,8 +13,7 @@
         handle-border-width="5"
         handle-position="border"
         :save-width="true"
-        width="500"
-        min-width="350"
+        min-width="500"
         :width-snap-back="false"
         :temporary="true"
         persistent
@@ -22,8 +21,8 @@
       >
         <div style="position: sticky; top:0; left: 5px; width:calc(100% - 5px); z-index: 2; background-color: rgb(33,33,33);">
           <v-list-item v-if="widget === 'dashboard'">
-            <div v-if="notificationCount + requestCount > 0">
-              <v-badge color="rgb(89,153,80)" :content="notificationCount + requestCount" class="ml-auto ma-5 mt-4 badge-lg">
+            <div v-if="(notificationCount - readCount) + requestCount > 0">
+              <v-badge color="rgb(89,153,80)" :content="(notificationCount - readCount) + requestCount" class="ml-auto ma-5 mt-4 badge-lg">
                   <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
               </v-badge>
             </div>
@@ -36,11 +35,21 @@
         </v-list-item>
 
         <v-list-item v-else>
-          <div v-if="notificationCount + requestCount > 0">
-            <v-badge color="rgb(89,153,80)" :content="notificationCount + requestCount" class="ml-auto ma-5 mt-4 badge-lg">
+          <div v-if="(notificationCount - readCount) + requestCount > 0 && widget !== 'notifications' && widget !== 'requests'">
+            <v-badge color="rgb(89,153,80)" :content="(notificationCount - readCount) + requestCount" class="ml-auto ma-5 mt-4 badge-lg">
               <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
             </v-badge>
-          </div>  
+          </div>
+          <div v-else-if="widget === 'notifications' && requestCount > 0">
+            <v-badge color="rgb(89,153,80)" :content="requestCount" class="ml-auto ma-5 mt-4 badge-lg">
+              <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
+            </v-badge>
+          </div>
+          <div v-else-if="widget === 'requests' && (notificationCount - readCount) > 0">
+            <v-badge color="rgb(89,153,80)" :content="(notificationCount - readCount)" class="ml-auto ma-5 mt-4 badge-lg">
+              <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
+            </v-badge>
+          </div>   
           <div v-else-if="widget === 'editor'">
             
           </div>
@@ -57,7 +66,7 @@
         <v-list density="compact" nav class="custom-nav">
           <div v-if="widget === 'dashboard'">
             <v-list-item title="Notifications" value="notifications" style="color: rgb(152,255,134);" @click="toWidget('notifications')"></v-list-item>  
-            <v-badge v-if="notificationCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="notificationCount" style="position: absolute; top: 32px; left: 178px;"></v-badge>           
+            <v-badge v-if="(notificationCount - readCount) > 0" color="rgb(89,153,80)" class="badge-lg" :content="notificationCount - readCount" style="position: absolute; top: 32px; left: 178px;"></v-badge>           
             <v-list-item title="My Projects" value="projects" @click="toWidget('projects')"></v-list-item>
             <v-list-item title="Search" value="search" style="color: rgb(152,255,134);" @click="toWidget('search')"></v-list-item>
             <v-list-item title="Requests" value="requests" @click="toWidget('requests')"></v-list-item>   
@@ -69,7 +78,7 @@
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
-          <Notifications ref="notificationsRef" :notificationCount="notificationCount" :readCount="readCount" @read-notification="notificationCount--; readCount++;" @remove-notification="notificationCount--" @remove-all-notifications="notificationCount = 0; readCount = 0" v-if="widget === 'notifications'">
+          <Notifications ref="notificationsRef" :notificationCount="notificationCount" :readCount="readCount" @get-notifications="getNotifications" @remove-all-notifications="notificationCount = 0; readCount = 0" v-if="widget === 'notifications'">
 
           </Notifications>
           <Projects ref="projectsRef" @project-success="showSuccessAlertFunc" @project-warning="showWarningAlertFunc" @project-error="showErrorAlertFunc" @project-completed="projectCompleted" v-if="widget === 'projects'">
@@ -96,8 +105,8 @@
     <div class="h-100">
         <v-row>
         <h1 class="mt-5 mb-0 ml-7"><span v-if="username !== visitedUsername">{{visitedUsername}}'s </span><span v-else>My </span>Points</h1>
-        <div v-if="notificationCount + requestCount > 0" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
-          <v-badge color="rgb(89,153,80)" :content="notificationCount + requestCount" >
+        <div v-if="(notificationCount - readCount) + requestCount > 0" class="ml-auto ma-5 mt-8 mr-10 badge-lg">
+          <v-badge color="rgb(89,153,80)" :content="(notificationCount - readCount) + requestCount" >
             <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
           </v-badge>
         </div>
