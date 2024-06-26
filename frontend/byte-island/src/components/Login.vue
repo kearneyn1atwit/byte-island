@@ -27,7 +27,7 @@
           </v-form>
 
         </v-col>
-        <div class="mx-5 ml-auto mt-5"><b><i>V 1.3.0.0</i></b></div>
+        <div class="mx-5 ml-auto mt-5"><b><i>V 1.4.0.0</i></b></div>
         
       </v-row>
     </v-responsive>

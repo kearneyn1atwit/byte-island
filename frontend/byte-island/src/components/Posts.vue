@@ -9,7 +9,7 @@
                         <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Public</v-btn>
                         <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Friends-Only</v-btn>
                     </v-btn-toggle>
-                    <v-textarea clearable no-resize v-model="newPost" rows="10" variant="outlined" placeholder="Enter message..." bg-color="white" class="mb-n10 mt-5"></v-textarea>
+                    <v-textarea clearable counter="500" persistent-counter maxlength="500" no-resize v-model="newPost" rows="10" variant="outlined" placeholder="Enter message..." bg-color="white" class="mb-n5 mt-5"></v-textarea>
 
                 </v-card-text>
 
@@ -21,7 +21,7 @@
                     class="mr-3"
                     variant="outlined"
                     color="red"
-                    @click="showNewPost = false; newPostTab = 0"
+                    @click="showNewPost = false; newPostTab = 0; newPost = ''"
                     ></v-btn>
                     <v-btn
                     text="Post"
@@ -34,17 +34,38 @@
                 </v-card>
             </template>
         </v-dialog>
-       <!-- <div style="position: fixed; bottom: 0; width: 100%; z-index: 2;" class="new-post-div mx-n1">
-            <h1 class="ml-5 mt-3">Make next post...</h1>
-            <v-btn-toggle rounded class="mx-5 toggle-group toggle-group-2 mt-2" v-model="newPostTab" mandatory>
-                <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Public</v-btn>
-                <v-btn class="ma-1 toggle-btn toggle-btn-2 toggle-btn-sm" color="#98FF86">Friends-Only</v-btn>
-            </v-btn-toggle>
-            <v-row class="mx-5 mt-3">
-                <v-text-field v-model="newPost" variant="outlined" placeholder="Enter message..." bg-color="white" class="ital-input mb-2 mr-3"></v-text-field>
-                <v-btn @click="wip()" variant="outlined" size="large" style="margin-top: 6px;">Post</v-btn>
-            </v-row>
-        </div>  -->
+        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
+            <template v-slot:default="{}">
+                <v-card :title="'Reply to Post from '+replyPost.user">
+                <v-card-text>
+                    <h1 class="mt-3">Enter your reply to:</h1>
+                    <pre class="mx-5 mt-3" style="white-space: pre-wrap; word-wrap: break-word;">{{replyPost.text}}</pre>
+                    
+                    <v-textarea counter="200" persistent-counter maxlength="200" clearable no-resize v-model="reply" rows="10" variant="outlined" placeholder="Enter reply..." bg-color="white" class="mb-n5 mt-5"></v-textarea>
+
+                </v-card-text>
+
+                <v-card-actions class="mb-3 mx-3">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="Cancel"
+                    class="mr-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showReplyToPost = false; reply = ''"
+                    ></v-btn>
+                    <v-btn
+                    text="Reply"
+                    variant="outlined"
+                    color="primary"
+                    :disabled="!reply"
+                    @click="confirmReply(replyPost)"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
         <h1 class="header-h1 ml-2 my-0">My Posts</h1>
         <v-btn @click="showNewPost = true" variant="outlined" color="success" class="my-3 ml-2 custom-btn">New post</v-btn>
         <h2 class="ml-2 mb-1">Show me...</h2>
@@ -61,11 +82,11 @@
                     <v-row align="center">
                         <v-col :class="post.replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
                             <pre>{{post.datetime}}</pre>
-                            <pre><b>{{post.user}}</b>: {{post.text}}</pre>
+                            <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.user}}</b>: {{post.text}}</pre>
                             <div v-if="!post.hideReplies">
-                                <div class="ml-10 my-7" v-for="reply in post.replies" :key="reply.id" >
+                                <div class="mx-10 my-7" v-for="reply in post.replies" :key="reply.id" >
                                     <pre class="reply-text">{{reply.datetime}}</pre>
-                                    <pre class="reply-text"><b>{{reply.user}}</b>: {{reply.text}}</pre>
+                                    <pre class="reply-text" style="white-space: pre-wrap; word-wrap: break-word;"><b>{{reply.user}}</b>: {{reply.text}}</pre>
                                 </div>
                             </div>
                             <div v-if="post.replies.length > 0" class="w-100">
@@ -85,11 +106,11 @@
                     <v-row align="center">
                         <v-col :class="post.replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
                             <pre>{{post.datetime}}</pre>
-                            <pre><b>{{post.user}}</b>: {{post.text}}</pre>
+                            <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.user}}</b>: {{post.text}}</pre>
                             <div v-if="!post.hideReplies">
-                                <div class="ml-10 my-7" v-for="reply in post.replies" :key="reply.id" >
+                                <div class="mx-10 my-7" v-for="reply in post.replies" :key="reply.id" >
                                     <pre class="reply-text">{{reply.datetime}}</pre>
-                                    <pre class="reply-text"><b>{{reply.user}}</b>: {{reply.text}}</pre>
+                                    <pre class="reply-text" style="white-space: pre-wrap; word-wrap: break-word;"><b>{{reply.user}}</b>: {{reply.text}}</pre>
                                 </div>
                             </div>
                             <div v-if="post.replies.length > 0" class="w-100">
@@ -109,11 +130,11 @@
                     <v-row align="center">
                         <v-col :class="post.replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
                             <pre>{{post.datetime}}</pre>
-                            <pre><b>{{post.user}}</b>: {{post.text}}</pre>
+                            <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.user}}</b>: {{post.text}}</pre>
                             <div v-if="!post.hideReplies">
-                                <div class="ml-10 my-7" v-for="reply in post.replies" :key="reply.id" >
+                                <div class="mx-10 my-7" v-for="reply in post.replies" :key="reply.id" >
                                     <pre class="reply-text">{{reply.datetime}}</pre>
-                                    <pre class="reply-text"><b>{{reply.user}}</b>: {{reply.text}}</pre>
+                                    <pre class="reply-text" style="white-space: pre-wrap; word-wrap: break-word;"><b>{{reply.user}}</b>: {{reply.text}}</pre>
                                 </div>
                             </div>
                             <div v-if="post.replies.length > 0" class="w-100">

@@ -1,3 +1,5 @@
+import { mapGetters } from "vuex";
+
 export default {
     data() {
         return {
@@ -6,13 +8,18 @@ export default {
             newPost: '',
             newPostTab: 0,
             showNewPost: false,
-            showReplyToPost: false
+            showReplyToPost: false,
+            replyPost: null,
+            reply: '',
+            token: null,
+            username: ''
         }
     },
     async created() {
       
     },
     computed: {
+        ...mapGetters(['getToken','getUsername']),
         publicPosts() {
             if(!this.posts) {
                 return []
@@ -31,9 +38,14 @@ export default {
         }
     },
     mounted() {
+        this.getUserDetails();
         this.getPosts();
     },
     methods: {
+        getUserDetails() {
+            this.token = this.getToken;
+            this.username = this.getUsername;
+        },
         //api call to get all posts
         getPosts() {
             this.posts = [];
@@ -65,9 +77,9 @@ export default {
         // api call to post
         post() {
             this.showNewPost = false;
-            this.newPost = '';
             this.newPostTab = 0;
-            this.getPosts();
+            //this.getPosts();
+            this.newPost = '';
         },
         updateSearch() {
             // reset hideReplies
@@ -76,8 +88,21 @@ export default {
             }
         },
         replyToPost(post) {
-            this.wip();
-            this.getPosts();
+            this.replyPost = post;
+            this.showReplyToPost = true;
+        },
+        // api call to reply to post
+        confirmReply(post) {
+            post.replies.push({
+                id: post.replies.length,
+                datetime: new Date().toISOString(),
+                user: this.username,
+                text: this.reply
+            });
+            console.log(post.replies);
+            this.showReplyToPost = false;
+            this.reply = '';
+            // this.getPosts();
         },
         wip() {
             alert('Work in progress.');
