@@ -24,17 +24,21 @@ async function verifyJWT(token, username) {
 
         if(username !== undefined) {
             //Validate with SQL that user is present in the database and not deleted
-            await db.GetUserId(username).then((response) => {
+            return await db.GetUserId(username).then((response) => {
 
                 //Verify username corresponds to a valid user id in the database
                 if(typeof response !== 'number' || response <= 0) {
                     throw new Error('Username is not valid/present in the database!');
                 }
 
+                console.log(username);
+                console.log(decoded['username'])
                 //Now validate JWT corresponds to the expected user
                 if(username !== undefined && decoded['username'] !== username) { 
                     throw new Error('Token does not correspond to expected user!')
                 }
+
+                console.log()
                 
                 return true;
             });
