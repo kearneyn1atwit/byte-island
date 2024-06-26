@@ -1,7 +1,6 @@
 import { mapGetters } from "vuex";
 
 export default {
-    props: ['notificationCount','readCount'],
     data() {
       return {
         token: null,

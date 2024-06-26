@@ -78,7 +78,7 @@
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="wip()"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
-          <Notifications ref="notificationsRef" :notificationCount="notificationCount" :readCount="readCount" @get-notifications="getNotifications" @remove-all-notifications="notificationCount = 0; readCount = 0" v-if="widget === 'notifications'">
+          <Notifications ref="notificationsRef" @get-notifications="getNotifications" v-if="widget === 'notifications'">
 
           </Notifications>
           <Projects ref="projectsRef" @project-success="showSuccessAlertFunc" @project-warning="showWarningAlertFunc" @project-error="showErrorAlertFunc" @project-completed="projectCompleted" v-if="widget === 'projects'">
