@@ -16,7 +16,7 @@ function generateJWT(username) {
     return jwt.sign(payload, creds.api.secretkey);
 }
 
-function verifyJWT(token, username) {
+async function verifyJWT(token, username) {
     try {
         //Command will verify token is valid and has not expired yet
         const decoded = jwt.verify(token, creds.api.secretkey);
@@ -24,7 +24,7 @@ function verifyJWT(token, username) {
 
         if(username !== undefined) {
             //Validate with SQL that user is present in the database and not deleted
-            db.GetUserId(username).then((response) => {
+            await db.GetUserId(username).then((response) => {
 
                 //Verify username corresponds to a valid user id in the database
                 if(typeof response !== 'number' || response <= 0) {
@@ -39,6 +39,7 @@ function verifyJWT(token, username) {
                 return true;
             });
         } else {
+            console.log("Skip user validation")
             return true;
         }
         

@@ -29,7 +29,7 @@ app.use('/api', router);
 //Define the route paths and their corresponding definitions | Turn this into a dictionary later
 app.use('/', v1Login);
 app.use('/', v1Networks);
-//app.use('/', v1Notifications);
+app.use('/', v1Notifications);
 //app.use('/',v1Projects);
 //app.use('/',v1Requests);
 app.use('/', v1Signup);

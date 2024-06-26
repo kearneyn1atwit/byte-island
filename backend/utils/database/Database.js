@@ -213,7 +213,6 @@ module.exports = {
             const exactUserMatch = await psql.query(fillSQLParams(sql.users.select, {
                 "name": search
             }));
-    
             try {
                 const id = ProcessAndLogRowValues(exactUserMatch,0);
                 matchingUsers.push({
@@ -475,11 +474,9 @@ module.exports = {
         let matchingNetworks = [];
 
         if(byName) {
-
             const exactNetworkMatch = await psql.query(fillSQLParams(sql.networks.select, {
                 "name": search
             }));
-    
             try {
                 const id = ProcessAndLogRowValues(exactNetworkMatch,0);
                 matchingNetworks.push({
@@ -489,12 +486,9 @@ module.exports = {
             } catch(e) {
                 console.log("Exact match not found: " + e);
             }
-    
             const partialNetworkMatches = await psql.query(fillSQLParams(sql.networks.selectSome, {
                 "name": search
             }));
-
-            console.log("Partial was: " + partialNetworkMatches.rows);
     
             if(partialNetworkMatches.rowCount != 0) {
                 partialNetworkMatches.rows.forEach((rowData) => {
@@ -509,23 +503,23 @@ module.exports = {
             }
         } else { //By Tags
 
-            const userIds = await neo4j.query(fillCypherParams(cypher.select.relatedNetworks, {
+            const networkIds = await neo4j.query(fillCypherParams(cypher.select.relatedNetworks, {
                 "IDVAR": search
             }));
             idlist = []
-            userIds.records.forEach(record => {
+            networkIds.records.forEach(record => {
                 idlist.push(record.get('u').properties.Id.low);
             });
 
             for (const id of idlist) {
 
-                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                const network = await psql.query(fillSQLParams(sql.network.select, {
                     "id": id
                 }));
 
                 matchingNetworks.push({
-                    username: userMiniProfile.rows[0]['username'],
-                    userid: id
+                    networkname: network.rows[0]['networkname'],
+                    networkid: network.rows[0]['networkid']
                 })
             }
         }
@@ -1220,42 +1214,16 @@ module.exports = {
     },
     DeleteNotification: async function (id) { 
 
-        const notif = await psql.query(fillSQLParams(sql.notifications.selectByUser, {
-            "id": id,
-        }));
-
-        const exists = ProcessData(notif.rows[0]['notificationid']);
-        
-        if(exists === undefined) { //If notif doesn't exist then return 
-            throw new Error("Notification doesn't exist!");
-        }
-
         //Delete notif in postgres
         const deleteCmd = await psql.query(fillSQLParams(sql.notifications.delete, {
             "id": id
         }));
-
-        //Verify notif is deleted
-        const checkForNotif = await psql.query(fillSQLParams(sql.notifications.selectByUser, {
-            "id": id,
-        }));
-
-        if(deleteCmd.rowCount !== 1) {
-            throw new Error("Error deleting notif in SQL database")
-        }
 
         return id;
     },
  }
 
  /* Unimplemented Functions are below */
-
-//Network Related Functions
-function SearchNetworks() {
-    sql.networks.select;
-    sql.networks.selectSome;
-    cypher.select.relatedNetworks;
-} 
 
 //Post Related Functions
 function SearchPosts() { 

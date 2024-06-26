@@ -6,7 +6,7 @@ info:
 basePath: /networks
 paths:
   /networks:
-    get:
+    post:
       summary: Get a list of networks
       description: Retrieve a list of networks based on user provided search criteria
       parameters:
