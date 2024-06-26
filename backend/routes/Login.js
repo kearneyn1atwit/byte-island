@@ -37,17 +37,25 @@ router.post('/login', async (req, res) => {
     }
 
     //Verify password is correct
-    const userData = await db.GetUserCredentials(id);
-    if(userData['passwordhash'] !== password) {
+    const userCreds = await db.GetUserCredentials(id);
+    if(userCreds['passwordhash'] !== password) {
       return res.status(400).json({ message: 'Failed to login!' });
     }
 
+    const userData = await db.GetUserProfileData([id]);
+    const islandData = await db.GetIslandData(id);
+
     // Generate JWT token and return it 
-    const token = auth.generateJWT(userData['username']);
+    const token = auth.generateJWT(userCreds['username']);
 
     return res.status(200).json({ 
       token: token,
-      username: userData['username']
+      username: userData['username'],
+      pfp: "TEMP_FAKE_IMAGE_DATA_ID_" + userData['profileimageid'],
+      career: userData['careerpoints'],
+      personal: userData['personalpoints'],
+      social: userData['socialpoints'],
+      island: "TEMP_FAKE_ISLAND_DATA_" + islandData['datapath']
      });
 
   } catch (error) {

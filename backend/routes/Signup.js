@@ -35,7 +35,7 @@ router.post('/signup', async (req, res) => {
   try {
 
     //Check username and email to make sure they aren't already used
-    const id = await db.GetUserId(username);
+    let id = await db.GetUserId(username);
     if (id != -1) {
       return res.status(409).json({ message: 'Username already exists!' }); 
     }
@@ -46,7 +46,7 @@ router.post('/signup', async (req, res) => {
 
     //Create New User
     try {
-        const id = await db.CreateUser(username, email, password, 1); //Need a default image in 1's place
+        id = await db.CreateUser(username, email, password, 1); //Need a default image in 1's place
         
         if(id < 1) {
             throw new Error('Invalid user id returned!');
@@ -59,6 +59,19 @@ router.post('/signup', async (req, res) => {
 
     // Generate JWT token and return it 
     const token = auth.generateJWT(username);
+    
+    const userData = await db.GetUserProfileData([id]);
+    const islandData = await db.GetIslandData(id);
+
+    return res.status(200).json({ 
+      token: token,
+      username: userData['username'],
+      pfp: "TEMP_FAKE_IMAGE_DATA_ID_" + userData['profileimageid'],
+      career: userData['careerpoints'],
+      personal: userData['personalpoints'],
+      social: userData['socialpoints'],
+      island: "TEMP_FAKE_ISLAND_DATA_" + islandData['datapath']
+     });;
 
     return res.status(200).json({ 
       token: token,
