@@ -11,6 +11,7 @@ const v1Networks = require('./routes/Networks');
 const v1Notifications = require('./routes/Notifications');
 const v1Projects = require('./routes/Projects');
 const v1Requests = require('./routes/Requests');
+const v1Shop = require('./routes/Shop');
 const v1Signup = require('./routes/Signup');
 const v1Users = require('./routes/Users');
 
@@ -32,6 +33,7 @@ app.use('/', v1Networks);
 app.use('/', v1Notifications);
 //app.use('/',v1Projects);
 //app.use('/',v1Requests);
+app.use('/', v1Shop);
 app.use('/', v1Signup);
 app.use('/', v1Users);
 

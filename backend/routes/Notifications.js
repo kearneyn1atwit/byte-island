@@ -14,7 +14,7 @@ router.get('/notifications/:username', async (req, res) => {
         return res.status(401).json({ message: 'Access denied!' }); 
     }
 
-    if(!auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid and token matches username
+    if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid and token matches username
         return res.status(401).json({ message: 'Access denied!' });
     } 
 
@@ -67,7 +67,7 @@ router.put('/notifications', async (req, res) => {
         return res.status(401).json({ message: 'Access denied!' }); 
     }
   
-    if(!auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid against username
+    if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid against username
       return res.status(401).json({ message: 'Access denied!' });
     } 
 
@@ -131,7 +131,7 @@ router.delete('/notifications', async (req, res) => {
         return res.status(401).json({ message: 'Access denied!' }); 
     }
   
-    if(!auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid against username
+    if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid against username
       return res.status(401).json({ message: 'Access denied!' });
     } 
 

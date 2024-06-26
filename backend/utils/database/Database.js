@@ -912,8 +912,7 @@ module.exports = {
     GetShopDetails: async function () { 
         const contents = await psql.query(sql.resources.selectAll.query);
         console.log("Shop Contents Are: ");
-        ProcessAndLogTableValues(contents);
-        return contents;
+        return ProcessAndLogTableValues(contents);
     },
     GetResourcesByCategory: async function (category) { 
         const contents = await psql.query(fillSQLParams(sql.resources.selectCategory, {

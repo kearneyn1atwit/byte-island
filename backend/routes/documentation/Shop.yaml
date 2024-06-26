@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: Shop API
+  version: 1.0.0
+  description: API for shopping functionality
+
+paths:
+  /shop/{username}/{category}:
+    get:
+      summary: Get all shop items 
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+          description: Username of the shopper
+        - in: path
+          name: category
+          required: true
+          schema:
+            type: string
+          description: Category of the items
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    Id:
+                      type: integer
+                      description: Id of the item
+                    Name:
+                      type: string
+                      description: Name of item
+                    Category:
+                      type: integer
+                      description: Type of points
+                    Points:
+                      type: integer
+                      description: Point value
+                    Shape:
+                      type: integer
+                      description: Id of the shape of the item
+                    ImageId:
+                      type: integer
+                      description: ImageId for the shop resource
+                    Inventory:
+                      type: integer
+                      description: Amount owned by the user
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
+
+  /shop:
+    put:
+      summary: Update shop items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Username:
+                  type: string
+                  description: User to buy/sell for
+                Id:
+                  type: integer
+                  description: Id of item being bought/sold
+                Buy:
+                  type: boolean
+                  description: True = buy / False = sell
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Message:
+                    type: string
+                    description: State purchase was successful
+        '400':
+          description: Bad Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating a bad request
+        '401':
+          description: Unauthorized Request
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Error message indicating user does not have valid authorization
