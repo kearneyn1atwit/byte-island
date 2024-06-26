@@ -21,7 +21,7 @@ CREATE TABLE Users (
     UserId SERIAL PRIMARY KEY,
     Username varchar(20) NOT NULL,
     Email varchar(320) NOT NULL,
-    PasswordHash varchar(50) NOT NULL,
+    PasswordHash varchar(64) NOT NULL,
     ProfileImageId int,
     SocialPoints int NOT NULL DEFAULT 0,
     CareerPoints int NOT NULL DEFAULT 0,
@@ -37,10 +37,13 @@ CREATE TABLE Users (
 CREATE TABLE Networks (
     NetworkId SERIAL PRIMARY KEY,
     NetworkName varchar(60) NOT NULL,
+    NetworkDescription varchar(500) NOT NULL,
+    Members int NOT NULL DEFAULT 0,
     PrivateNetwork boolean NOT NULL DEFAULT FALSE,
     CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     DeletedDate timestamp,
-    Deleted boolean NOT NULL DEFAULT FALSE
+    Deleted boolean NOT NULL DEFAULT FALSE,
+    CHECK(Members > 0)
 );
 
 CREATE TABLE Posts (
@@ -58,7 +61,8 @@ CREATE TABLE Posts (
     FOREIGN KEY(UserId) REFERENCES Users(UserId),
     FOREIGN KEY(NetworkId) REFERENCES Networks(NetworkId),
     FOREIGN KEY(ImageId) REFERENCES Images(ImageId),
-    FOREIGN KEY(ParentId) REFERENCES Posts(PostId)
+    FOREIGN KEY(ParentId) REFERENCES Posts(PostId),
+    CHECK(Likes > 0)
 );
 
 CREATE TABLE Tags (

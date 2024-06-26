@@ -527,16 +527,34 @@ module.exports = {
         return matchingNetworks;
     },
     AddNetworkMember: async function (userid,networkid) { 
-        await neo4j.query(fillCypherParams(cypher.add.userToNetwork, {
+        const addCmd = await neo4j.query(fillCypherParams(cypher.add.userToNetwork, {
             "IDVAR1": userid,
             "IDVAR2": networkid
         })); 
+
+        if(addCmd === undefined) {
+            throw new Error("Error adding member to network!");
+        }
+
+        await psql.query(fillSQLParams(sql.networks.modifyMemberCount, {
+            "id": networkid,
+            "count": 1
+        }));
     },
     RemoveNetworkMember: async function (userid,networkid) {
-        await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
+        const deleteCmd = await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
             "IDVAR1": userid,
             "IDVAR2": networkid
         }));  
+
+        if(deleteCmd === undefined) {
+            throw new Error("Error deleting member from network!");
+        }
+
+        await psql.query(fillSQLParams(sql.networks.modifyMemberCount, {
+            "id": networkid,
+            "count": -1
+        }));
     },
     GetNetworkAdmins: async function (id) {
         const networkAdmins = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {

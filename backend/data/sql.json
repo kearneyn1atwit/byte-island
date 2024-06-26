@@ -169,11 +169,16 @@
         "create": { 
             "query": "INSERT INTO Networks (NetworkName, PrivateNetwork) VALUES (':name',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
             "params": "name,private",
-            "desc": "Create network with network name. NEEDS A CYPHER COUNTERPART"
+            "desc": "Create network with network name."
         },
         "updateName": { 
             "query": "UPDATE Networks SET NetworkName = ':name' WHERE NetworkId = :id AND Deleted != True;",
             "params": "id,name",
+            "desc": "Updates the network name by id"
+        },
+        "modifyMemberCount": {
+            "query": "UPDATE Networks SET Members = Members + :count WHERE NetworkId = :id AND Deleted != True;",
+            "params": "id,count",
             "desc": "Updates the network name by id"
         },
         "private": { 
