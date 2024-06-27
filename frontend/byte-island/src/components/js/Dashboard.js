@@ -7,6 +7,8 @@ import Requests from "./Requests";
 import Editor from "./Editor";
 import Friends from './Friends';
 import Posts from './Posts';
+import Networks from "./Networks";
+import Settings from "./Settings";
 
 export default {
     data() {
@@ -48,24 +50,25 @@ export default {
       else if(this.$route.params.id !== this.username) {
         this.$router.push('/not-found');
       }
-      // if(CryptoJS.AES.decrypt(this.$route.params.id,'123456').toString(CryptoJS.enc.Utf8) !== "password"){
-      //   this.$router.push('/');
-      // }
       else {
         this.loaded = true;
       }
       
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getDashboardCreateCount'])
     },
     mounted() {
+      this.visitDashboard();
       this.getNotifications();
       this.getRequests();
-      this.handleBadge();
+      // only show welcome message when the user visited the dashboard after login
+      if(this.getDashboardCreateCount === 1) {
+        this.handleBadge();
+      }
     },
     methods: {
-        ...mapMutations(['setToken']),
+        ...mapMutations(['setToken','visitDashboard','resetDashboardVisit']),
         //api call to get user data upon login
         getUserDetails() {
           this._isLoggedIn = this.isLoggedIn;
@@ -121,20 +124,21 @@ export default {
         },
         handleBadge() {
           if(this.notificationCount > 0 && this.requestCount > 0) {
-            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.notificationCount+' notification(s) and '+this.requestCount+' request(s).');
+            this.showSuccessAlertFunc('Welcome, '+this.username+'! You have '+this.notificationCount+' notification(s) and '+this.requestCount+' request(s).');
           }
           else if(this.notificationCount > 0 && this.requestCount === 0) {
-            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.notificationCount+' notifcation(s).');
+            this.showSuccessAlertFunc('Welcome, '+this.username+'! You have '+this.notificationCount+' notifcation(s).');
           }
           else if(this.notificationCount === 0 && this.requestCount > 0) {
-            this.showSuccessAlertFunc('Welcome back, '+this.username+'! You have '+this.requestCount+' request(s).');
+            this.showSuccessAlertFunc('Welcome, '+this.username+'! You have '+this.requestCount+' request(s).');
           }
           else {
-            this.showSuccessAlertFunc('Welcome back, '+this.username+'!');
+            this.showSuccessAlertFunc('Welcome, '+this.username+'!');
           }
         },
         signOut() {
           // expire token
+          this.resetDashboardVisit();
           this.setToken(null);
           this.$router.push('/');
         },
@@ -224,6 +228,8 @@ export default {
       Requests,
       Editor,
       Friends,
-      Posts
+      Posts,
+      Networks,
+      Settings
     },
   };

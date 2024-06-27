@@ -19,6 +19,7 @@ import { VResizeDrawer } from  '@wdns/vuetify-resize-drawer'
 const store = createStore({
     state() {
         return {
+            dashboardCreateCount: 0,
             user: null,
             token: null,
             pseudoDatabase: [{
@@ -55,6 +56,12 @@ const store = createStore({
             console.log(id);
             console.log(Number(id));
             state.pseudoDatabase[Number(id)].inventory=inv;
+        },
+        visitDashboard(state){
+            state.dashboardCreateCount++;
+        },
+        resetDashboardVisit(state){
+            state.dashboardCreateCount = 0;
         }
     },
     actions: {},
@@ -67,6 +74,9 @@ const store = createStore({
         },
         getToken(state) {
             return state.token;
+        },
+        getDashboardCreateCount(state) {
+            return state.dashboardCreateCount;
         }
     },
     plugins: [createPersistedState()]

@@ -66,7 +66,7 @@
                 </v-card>
             </template>
         </v-dialog>
-        <h1 class="header-h1 ml-2 my-0">My Posts</h1>
+        <h1 class="header-h1 ml-2 my-0">Posts</h1>
         <v-btn @click="showNewPost = true" variant="outlined" color="success" class="my-3 ml-2 custom-btn">New post</v-btn>
         <h2 class="ml-2 mb-1">Show me...</h2>
         <v-btn-toggle rounded class="mx-2 toggle-group mb-5" v-model="postsTabs" mandatory>

@@ -16,7 +16,7 @@
       <v-row class="login-form">
         <v-col cols="12">
           <v-form v-model="valid" @submit.prevent>
-            <v-text-field v-if="showUsername" v-model="username" variant="outlined" :rules="[rules.required]" placeholder="Username" class="ital-input mb-2"></v-text-field>
+            <v-text-field v-if="showUsername" v-model="username" counter="30" persistent-counter maxlength="30" variant="outlined" :rules="[rules.required]" placeholder="Username" class="ital-input mb-2"></v-text-field>
             <v-text-field v-model="email" variant="outlined" :rules="[rules.required]" placeholder="Email" class="ital-input mb-2"></v-text-field>
             <v-text-field :type="show ? 'text' : 'password'" :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show = !show" v-model="password" variant="outlined" :rules="[rules.required]" placeholder="Password" class="ital-input mb-2"></v-text-field>
             <v-row align="center" justify="center" class="mt-5">
@@ -27,7 +27,7 @@
           </v-form>
 
         </v-col>
-        <div class="mx-5 ml-auto mt-5"><b><i>V 1.4.0.0</i></b></div>
+        <div class="mx-5 ml-auto mt-5"><b><i>V 1.5.0.0</i></b></div>
         
       </v-row>
     </v-responsive>
