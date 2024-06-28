@@ -45,7 +45,11 @@ export default {
           })
           .then(response => {
               if (!response.ok) {
-                response.json().then((data) => this.showErrorAlertFunc(data.message));
+                if(response.status === 401) {
+                  //log out
+                  this.$router.push('/');
+                  this.setToken(null);
+                }
               }
               console.log("Response was okay!");
               return response.json(); 
@@ -86,7 +90,11 @@ export default {
           })
           .then(response => {
               if (!response.ok) {
-                response.json().then((data) => this.showErrorAlertFunc(data.message));
+                if(response.status === 401) {
+                  //log out
+                  this.$router.push('/');
+                  this.setToken(null);
+                }
               } else {
                 return response.json(); 
               }

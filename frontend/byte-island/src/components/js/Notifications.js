@@ -1,4 +1,5 @@
 import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 
 export default {
     data() {
@@ -28,6 +29,7 @@ export default {
         this.getNotifications();
     },
     methods: {
+        ...mapMutations(['setToken']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;
@@ -43,7 +45,11 @@ export default {
             })
             .then(response => {
                 if (!response.ok) {
-                  response.json().then((data) => console.log(data.message));
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.setToken(null);
+                      }
                 }
                 return response.json(); 
             })

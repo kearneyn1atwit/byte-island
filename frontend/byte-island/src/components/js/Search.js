@@ -1,4 +1,5 @@
 import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 
 export default {
     data() {
@@ -22,6 +23,7 @@ export default {
         this.username = this.getUsername;
     },
     methods: {
+        ...mapMutations(['setToken']),
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
             const token = this.getToken;
@@ -43,7 +45,11 @@ export default {
                 })
                 .then(response => {
                     if (!response.ok) {
-                      response.json().then((data) => console.log(data.message));
+                        if(response.status === 401) {
+                            //log out
+                            this.$router.push('/');
+                            this.setToken(null);
+                          }
                     }
                     console.log("Response was okay!");
                     return response.json(); 
@@ -98,7 +104,11 @@ export default {
                 })
                 .then(response => {
                     if (!response.ok) {
-                      response.json().then((data) => console.log(data.message));
+                        if(response.status === 401) {
+                            //log out
+                            this.$router.push('/');
+                            this.setToken(null);
+                          }
                     }
                     console.log("Response was okay!");
                     return response.json(); 

@@ -67,12 +67,12 @@
           <div v-if="widget === 'dashboard'">
             <v-list-item title="Notifications" value="notifications" style="color: rgb(152,255,134);" @click="toWidget('notifications')"></v-list-item>  
             <v-badge v-if="(notificationCount - readCount) > 0" color="rgb(89,153,80)" class="badge-lg" :content="notificationCount - readCount" style="position: absolute; top: 32px; left: 178px;"></v-badge>           
-            <v-list-item title="Projects" value="projects" @click="toWidget('projects')"></v-list-item>
+            <v-list-item title="My Projects" value="projects" @click="toWidget('projects')"></v-list-item>
             <v-list-item title="Search" value="search" style="color: rgb(152,255,134);" @click="toWidget('search')"></v-list-item>
             <v-list-item title="Requests" value="requests" @click="toWidget('requests')"></v-list-item>   
             <v-badge v-if="requestCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="requestCount" style="position: absolute; top: 188px; left: 140px;"></v-badge> 
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="toWidget('friends')"></v-list-item>
-            <v-list-item title="Networks" value="networks" @click="toWidget('networks')"></v-list-item>
+            <v-list-item title="My Networks" value="networks" @click="toWidget('networks')"></v-list-item>
             <v-list-item title="Posts" value="posts" style="color: rgb(152,255,134);" @click="toWidget('posts')"></v-list-item>
             <v-list-item title="Island Editor" value="editor" @click="toWidget('editor')"></v-list-item>
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="toWidget('settings')"></v-list-item>
@@ -99,7 +99,7 @@
           <Posts ref="postsRef" v-if="widget === 'posts'">
 
           </Posts>
-          <Networks ref="networksRef" v-if="widget === 'networks'">
+          <Networks ref="networksRef" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" v-if="widget === 'networks'">
 
           </Networks>
           <Settings ref="settingsRef" v-if="widget === 'settings'">

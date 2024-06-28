@@ -12,7 +12,6 @@
                 bg-color="white"
                 hide-details
                 clearable
-                @click:clear = "clearSearch()"
                 single-line
                 class="mx-3 mb-3 italic-search"
             ></v-text-field>

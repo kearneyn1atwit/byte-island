@@ -16,6 +16,9 @@ export default {
             if(!this.friends) {
                 return [];
             }
+            if(!this.friendSearch) {
+                return this.friends;
+            }
             return this.friends.filter(friend => {
                 return friend.username.toLowerCase().includes(this.friendSearch.toLowerCase()) 
             });

@@ -93,7 +93,11 @@ export default {
           .then(response => {
             console.log(response);
               if (!response.ok) {
-                response.json().then((data) => console.log(data.message));
+                if(response.status === 401) {
+                  //log out
+                  this.$router.push('/');
+                  this.setToken(null);
+                }
               }
               console.log("Response was okay!");
               return response.json(); 
@@ -167,6 +171,20 @@ export default {
             if(this.$refs.friendsRef.friendVisited) {
               this.$refs.friendsRef.friendVisited = false;
               this.return();
+            } else {
+              this.widget = widget;
+            }
+            //if in Network view, go back to all networks
+          } else if(this.$refs.networksRef) {
+            if(this.$refs.networksRef.userVisited) {
+              this.$refs.networksRef.userSearch = '';
+              this.$refs.networksRef.userVisited = false;
+              this.$refs.networksRef.networkVisited = true;
+              this.return();
+            }
+            else if(this.$refs.networksRef.networkVisited) {
+              this.$refs.networksRef.networkVisited = false;
+              this.$refs.networksRef.userSearch = '';
             } else {
               this.widget = widget;
             }
