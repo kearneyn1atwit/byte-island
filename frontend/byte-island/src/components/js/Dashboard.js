@@ -170,6 +170,7 @@ export default {
           } else if(this.$refs.friendsRef) {
             if(this.$refs.friendsRef.friendVisited) {
               this.$refs.friendsRef.friendVisited = false;
+              this.$refs.friendsRef.friendsData = 0;
               this.return();
             } else {
               this.widget = widget;
@@ -179,6 +180,7 @@ export default {
             if(this.$refs.networksRef.userVisited) {
               this.$refs.networksRef.userSearch = '';
               this.$refs.networksRef.userVisited = false;
+              this.$refs.networksRef.usersData = 0;
               this.$refs.networksRef.networkVisited = true;
               this.return();
             }

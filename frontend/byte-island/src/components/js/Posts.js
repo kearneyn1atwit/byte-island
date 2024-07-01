@@ -55,7 +55,7 @@ export default {
                     type: i%3 === 0 ? 'public' : 'friends',
                     hideReplies: false,
                     datetime: new Date().toISOString(),
-                    user: 'User'+i,
+                    user: this.username,
                     text: i%3 === 0 ? 'This is a public post '+(i+1) : 'This is a friend post '+(i+1),
                     replies: i%2 === 0 ? [] : [
                         {
@@ -99,7 +99,6 @@ export default {
                 user: this.username,
                 text: this.reply
             });
-            console.log(post.replies);
             this.showReplyToPost = false;
             this.reply = '';
             // this.getPosts();

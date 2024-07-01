@@ -30,7 +30,7 @@
               <v-icon icon="mdi-menu" class="menu-icon ml-auto ma-5 mt-4" @click.stop="drawer = !drawer"></v-icon>
             </div>
             <div>
-              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 10px; z-index: -1" class="text-center"><v-avatar class="mr-5" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
             </div>
         </v-list-item>
 
@@ -57,7 +57,7 @@
             <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard')"></v-icon>
           </div>
           <div>
-              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 10px; z-index: -1" class="text-center"><v-avatar class="mr-5" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
             </div>
         </v-list-item>
           <v-divider></v-divider>
@@ -68,13 +68,13 @@
             <v-list-item title="Notifications" value="notifications" style="color: rgb(152,255,134);" @click="toWidget('notifications')"></v-list-item>  
             <v-badge v-if="(notificationCount - readCount) > 0" color="rgb(89,153,80)" class="badge-lg" :content="notificationCount - readCount" style="position: absolute; top: 32px; left: 178px;"></v-badge>           
             <v-list-item title="My Projects" value="projects" @click="toWidget('projects')"></v-list-item>
-            <v-list-item title="Search" value="search" style="color: rgb(152,255,134);" @click="toWidget('search')"></v-list-item>
-            <v-list-item title="Requests" value="requests" @click="toWidget('requests')"></v-list-item>   
-            <v-badge v-if="requestCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="requestCount" style="position: absolute; top: 188px; left: 140px;"></v-badge> 
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="toWidget('friends')"></v-list-item>
             <v-list-item title="My Networks" value="networks" @click="toWidget('networks')"></v-list-item>
-            <v-list-item title="Posts" value="posts" style="color: rgb(152,255,134);" @click="toWidget('posts')"></v-list-item>
-            <v-list-item title="Island Editor" value="editor" @click="toWidget('editor')"></v-list-item>
+            <v-list-item title="Island Editor" value="editor" style="color: rgb(152,255,134);" @click="toWidget('editor')"></v-list-item>
+            <v-list-item title="My Posts" value="posts" @click="toWidget('posts')"></v-list-item>
+            <v-list-item title="Requests" value="requests" style="color: rgb(152,255,134);" @click="toWidget('requests')"></v-list-item>   
+            <v-badge v-if="requestCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="requestCount" style="position: absolute; top: 345px; left: 140px;"></v-badge> 
+            <v-list-item title="Search" value="search" @click="toWidget('search')"></v-list-item>
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="toWidget('settings')"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  

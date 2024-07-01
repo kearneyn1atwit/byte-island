@@ -1,6 +1,10 @@
+import { mapGetters } from "vuex";
+
 export default {
     data() {
         return {
+            token: null,
+            username: '',
             networkSearch: '',
             userSearch: '',
             networkVisited: false,
@@ -9,13 +13,19 @@ export default {
             viewedNetwork: null,
             networkUsers: [],
             visitedUser: null,
-            userProjects: []
+            usersProjects: [],
+            usersPosts: [],
+            usersData: 0,
+            showReplyToPost: false,
+            replyPost: null,
+            reply: '',
         }
     },
     async created() {
         
     },
     computed: {
+        ...mapGetters(['getUsername','getToken']),
         filteredNetworks() {
             if(!this.networks) {
                 return [];
@@ -40,9 +50,14 @@ export default {
         }
     },
     mounted() {
+        this.getUserDetails();
         this.getNetworks();
     },
     methods: {
+        getUserDetails() {
+            this.token = this.getToken;
+            this.username = this.getUsername;
+        },
         //api call to get networks
         getNetworks() {
             for(let i=0;i<10;i++) {
@@ -81,6 +96,10 @@ export default {
         },
         //api call to handle visiting user
         visit(user) {
+            this.visitedUser = user;
+            this.networkVisited = false;
+            this.userVisited = true;
+            this.$emit('visited-user',user);
             this.userSearch = '';
             this.userProjects = [];
             // api call to get users projects
@@ -89,7 +108,7 @@ export default {
                     id: i,
                     due: new Date().toISOString(),
                     points: [i+4,i,i+12],
-                    title: "Friend project "+(i+1),
+                    title: "User project "+(i+1),
                     desc: 'Project description for friend project '+(i+1),
                     updates: [
                         {
@@ -108,10 +127,56 @@ export default {
                     completed: i%2 === 0 ? 'incomplete' : new Date().toISOString()
                 });
             }
-            this.visitedUser = user;
-            this.networkVisited = false;
-            this.userVisited = true;
-            this.$emit('visited-user',user);
+            this.getUsersPosts();
+        },
+        //api call to get users posts
+        getUsersPosts() {
+            this.usersPosts = [];
+            for(let i=0;i<4;i++) {
+                this.usersPosts.push({
+                    id: i,
+                    type: 'public',
+                    hideReplies: false,
+                    datetime: new Date().toISOString(),
+                    user: this.visitedUser.username,
+                    text: 'This is a public post '+(i+1),
+                    replies: i%2 === 0 ? [] : [
+                        {
+                            id: 0,
+                            datetime: new Date().toISOString(),
+                            user: 'DifferentUser'+(i+5),
+                            text: 'This is a reply to the post '+(i+1)
+                        },
+                        {
+                            id: 1,
+                            datetime: new Date().toISOString(),
+                            user: 'AnotherUser'+(i+54),
+                            text: 'This is a different response to this post'
+                        }
+                    ]
+                });
+            }
+        },
+        replyToPost(post) {
+            this.replyPost = post;
+            this.showReplyToPost = true;
+        },
+        // api call to reply to post
+        confirmReply(post) {
+            post.replies.push({
+                id: post.replies.length,
+                datetime: new Date().toISOString(),
+                user: this.username,
+                text: this.reply
+            });
+            this.showReplyToPost = false;
+            this.reply = '';
+            // this.getUsersPosts();
+        },
+        resetHideReplies() {
+            for(let i=0;i<this.usersPosts.length;i++) {
+                this.usersPosts[i].hideReplies = false;
+            }
         },
         //api call to handle friending user
         friend(user) {

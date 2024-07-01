@@ -1,17 +1,27 @@
+import { mapGetters } from "vuex";
+
 export default {
     data() {
         return {
+            token: null,
+            username: '',
             friends: [],
             friendSearch: '',
             friendVisited: false,
             visitedFriend: null,
-            friendsProjects: []
+            friendsProjects: [],
+            friendsPosts: [],
+            friendsData: 0,
+            showReplyToPost: false,
+            replyPost: null,
+            reply: '',
         }
     },
     async created() {
         
     },
     computed: {
+        ...mapGetters(['getUsername','getToken']),
         filteredFriends() {
             if(!this.friends) {
                 return [];
@@ -25,9 +35,14 @@ export default {
         }
     },
     mounted() {
+        this.getUserDetails();
         this.getFriends();
     },
     methods: {
+        getUserDetails() {
+            this.token = this.getToken;
+            this.username = this.getUsername;
+        },
         //api call to get list of friends
         getFriends() {
             this.friends = [];
@@ -45,6 +60,9 @@ export default {
         },
         //api call to handle visiting friend
         visit(friend) {
+            this.friendVisited = true;
+            this.visitedFriend = friend;
+            this.$emit('visited-friend',friend);
             this.friendSearch = '';
             this.friendsProjects = [];
             // api call to get friends projects
@@ -72,9 +90,56 @@ export default {
                     completed: i%2 === 0 ? 'incomplete' : new Date().toISOString()
                 });
             }
-            this.friendVisited = true;
-            this.visitedFriend = friend;
-            this.$emit('visited-friend',friend);
+            this.getFriendsPosts();
+        },
+        // api call to get friends posts
+        getFriendsPosts() {
+            this.friendsPosts = [];
+            for(let i=0;i<6;i++) {
+                this.friendsPosts.push({
+                    id: i,
+                    type: i%3 === 0 ? 'public' : 'friends',
+                    hideReplies: false,
+                    datetime: new Date().toISOString(),
+                    user: this.visitedFriend.username,
+                    text: i%3 === 0 ? 'This is a public post '+(i+1) : 'This is a friend post '+(i+1),
+                    replies: i%2 === 0 ? [] : [
+                        {
+                            id: 0,
+                            datetime: new Date().toISOString(),
+                            user: 'DifferentUser'+(i+5),
+                            text: 'This is a reply to the post '+(i+1)
+                        },
+                        {
+                            id: 1,
+                            datetime: new Date().toISOString(),
+                            user: 'AnotherUser'+(i+54),
+                            text: 'This is a different response to this post'
+                        }
+                    ]
+                });
+            }
+        },
+        replyToPost(post) {
+            this.replyPost = post;
+            this.showReplyToPost = true;
+        },
+        // api call to reply to post
+        confirmReply(post) {
+            post.replies.push({
+                id: post.replies.length,
+                datetime: new Date().toISOString(),
+                user: this.username,
+                text: this.reply
+            });
+            this.showReplyToPost = false;
+            this.reply = '';
+            // this.getFriendsPosts();
+        },
+        resetHideReplies() {
+            for(let i=0;i<this.friendsPosts.length;i++) {
+                this.friendsPosts[i].hideReplies = false;
+            }
         },
         //api call to handle unfriending friend
         unfriend(friend) {

@@ -1,5 +1,37 @@
 <template>
     <div>
+        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
+            <template v-slot:default="{}">
+                <v-card :title="'Reply to Post from '+replyPost.user">
+                <v-card-text>
+                    <h1 class="mt-3">Enter your reply to:</h1>
+                    <pre class="mx-5 mt-3" style="white-space: pre-wrap; word-wrap: break-word;">{{replyPost.text}}</pre>
+                    
+                    <v-textarea counter="200" persistent-counter maxlength="200" clearable no-resize v-model="reply" rows="10" variant="outlined" placeholder="Enter reply..." bg-color="white" class="mb-n5 mt-5"></v-textarea>
+
+                </v-card-text>
+
+                <v-card-actions class="mb-3 mx-3">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="Cancel"
+                    class="mr-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showReplyToPost = false; reply = ''"
+                    ></v-btn>
+                    <v-btn
+                    text="Reply"
+                    variant="outlined"
+                    color="primary"
+                    :disabled="!reply"
+                    @click="confirmReply(replyPost)"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
         <h1 class="header-h1 ml-2 mt-0 mb-1">Friends</h1>
         <v-text-field
                 v-model="friendSearch"
@@ -52,9 +84,12 @@
                 <pre>Friends since: <span class="text-muted">{{visitedFriend.friendsSince}}</span></pre>             
             </v-col>    
         </v-row>
-        <hr class="my-5" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
-        <h2 style="color: rgb(152,255,134);" class="mb-2 text-center">{{visitedFriend.username}}'s Projects</h2>
-        <v-list-item v-for="project in friendsProjects" :key="project.id">
+        <v-btn-toggle rounded class="toggle-group mb-2 mt-5" v-model="friendsData" mandatory>
+            <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86" @click="resetHideReplies()">Projects</v-btn>
+            <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86">Posts</v-btn>
+        </v-btn-toggle>
+        <div v-if="friendsData === 0">
+            <v-list-item v-for="project in friendsProjects" :key="project.id">
                 <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
                 <pre v-if="project.completed === 'incomplete'" class="text-muted ml-1">&emsp;Due: {{project.due}}</pre>
                 <pre v-else class="text-muted ml-1">&emsp;Completed: {{project.completed}}</pre>
@@ -73,6 +108,33 @@
                 </p>
                 <pre v-if="project.completed !== 'incomplete'" class="header-h1 text-center mt-3"><i>COMPLETED!</i></pre>    
             </v-list-item>
+        </div>
+        <div v-else>
+            <!-- SHOW ALL POST TYPES -->
+            <v-list-item v-for="post in friendsPosts" :key="post.id">
+                <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
+                <v-row align="center">
+                    <v-col :class="post.replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
+                        <pre>{{post.datetime}}</pre>
+                        <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.user}}</b>: {{post.text}}</pre>
+                        <div v-if="!post.hideReplies">
+                            <div class="mx-10 my-7" v-for="reply in post.replies" :key="reply.id" >
+                                <pre class="reply-text">{{reply.datetime}}</pre>
+                                <pre class="reply-text" style="white-space: pre-wrap; word-wrap: break-word;"><b>{{reply.user}}</b>: {{reply.text}}</pre>
+                            </div>
+                        </div>
+                        <div v-if="post.replies.length > 0" class="w-100">
+                            <v-btn :class=" post.hideReplies ? 'mr-5 mt-3 mb-1' : 'mr-5 mt-n3 mb-3'" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
+                            <v-btn :class=" post.hideReplies ? 'hide-btn mt-3 mb-1' : 'mt-n3 mb-3 hide-btn'" variant="outlined" size="small" @click="post.hideReplies = !post.hideReplies"><span v-if="!post.hideReplies">Hide</span><span v-else>Show</span>&nbsp;replies</v-btn>
+                        </div>
+                        <div v-else>
+                            <v-btn class="mt-3 mb-n1" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
+                        </div>
+                    </v-col>
+                </v-row>
+            </v-list-item>
+        </div>
+        
     </v-list-item>
     </div>
 </template>
@@ -84,6 +146,29 @@
 .friend-text {
     font-size: 175%;
     font-weight: italic !important;
+}
+.toggle-group {
+    border-radius: 10px !important;
+    height: 100%;
+    border: 3px solid #98FF86;
+    width: calc(100% - 8px);
+}
+.toggle-btn {
+    width: calc(50% - 8px);
+    border-radius: 5px !important;
+    height: 35px !important;
+}
+.text-lg {
+    font-size: 125%;
+}
+.text-muted {
+    color: grey;
+}
+.reply-text {
+    color: rgb(207,255,218);
+}
+.hide-btn {
+    color: rgb(152,255,134);
 }
 </style>
 <script src="./js/Friends.js">
