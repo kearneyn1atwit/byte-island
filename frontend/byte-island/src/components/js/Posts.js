@@ -82,6 +82,7 @@ export default {
             this.newPost = '';
         },
         updateSearch() {
+            // actually call api to get posts here
             // reset hideReplies
             for(let i=0;i<6;i++) {
                 this.posts[i].hideReplies = false;

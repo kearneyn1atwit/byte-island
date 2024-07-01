@@ -7,6 +7,9 @@ export default {
             username: '',
             networkSearch: '',
             userSearch: '',
+            showNewNetwork: false,
+            newNetworkName: '',
+            newNetworkPic: '',
             networkVisited: false,
             userVisited: false,
             networks: [],
@@ -66,6 +69,44 @@ export default {
                     name: 'generic_network_'+(i+1),
                     pfp: 'https://picsum.photos/id/'+(i+500)+'/55/55',
                 });
+            }
+        },
+        newNetwork() {
+            this.showNewNetwork = true;
+        },
+        chooseNetworkPic() {
+            this.$refs.networkPic.click();
+            console.log(document.getElementById('networkPic').files);
+            document.getElementById('networkPic').addEventListener('change', function(e) {
+                if (e.target.files[0]) {
+                  var elem = document.createElement("img");
+                  elem.setAttribute("height", "200");
+                  elem.setAttribute("width", "200");
+                  elem.setAttribute("alt", "Network Picture");
+                  elem.style.border = '2px solid white';
+                  elem.style.borderRadius = '1000px';
+                  var reader = new FileReader();
+                  reader.onload = function() {
+                    elem.src = reader.result;
+                  }
+                  reader.readAsDataURL(e.target.files[0]);
+                  document.getElementById("imagePrev").innerHTML = '';
+                  document.getElementById("imagePrev").appendChild(elem);
+                  // i guess this does *actually* nothing for some reason? cool
+                  // this.newNetworkPic = e.target.files[0].name;
+                }
+            });
+        },  
+        //api call to handle network creation
+        confirmCreation() {
+            if(document.getElementById('networkPic').files.length === 0) {
+                alert('Please select a network image.');
+            }
+            else {
+                this.newNetworkName = '';
+                this.newNetworkPic = '';
+                // this.getNetworks();
+                this.showNewNetwork = false;
             }
         },
         view(network) {

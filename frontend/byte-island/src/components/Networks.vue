@@ -1,5 +1,41 @@
 <template>
     <div>
+        <v-dialog v-model="showNewNetwork" v-if="showNewNetwork" max-width="500">
+            <template v-slot:default="{}">
+                <v-card title="Create New Network">
+                <v-card-text>
+                    <h4 class="mt-3">Enter network name:</h4>
+                    <v-text-field counter="50" persistent-counter maxlength="50" variant="outlined" class="mt-3 mb-n5" placeholder="Network Name" persistent-placeholder v-model="newNetworkName"></v-text-field>
+                    <h4 class="mt-3">Choose network picture:</h4>
+                    <v-btn class="mt-3" variant="outlined" color="primary" @click="chooseNetworkPic()">
+                        Choose file
+                    </v-btn>
+                    <input type="file" accept="image/png, image/jpeg" ref="networkPic" id="networkPic" style="display: none;">
+                    <pre class="mt-5"><b>Image preview:</b></pre>
+                    <div class="mt-5 text-center" id="imagePrev"></div>
+                </v-card-text>
+
+                <v-card-actions class="mb-3 mx-3">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="Cancel"
+                    class="mr-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showNewNetwork = false; newNetworkName = ''; newNetworkPic = ''; networkPicLen = 0"
+                    ></v-btn>
+                    <v-btn
+                    :disabled="!newNetworkName"
+                    text="Create"
+                    variant="outlined"
+                    color="primary"
+                    @click="confirmCreation()"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
         <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
             <template v-slot:default="{}">
                 <v-card :title="'Reply to Post from '+replyPost.user">
@@ -33,6 +69,7 @@
             </template>
         </v-dialog>
         <h1 class="header-h1 ml-2 mt-0 mb-1">My Networks</h1>
+        <v-btn v-if="!networkVisited && !userVisited" variant="outlined" color="success" class="ml-2 custom-btn mb-5 mt-2" @click="newNetwork()">Create New!</v-btn>
         <v-text-field
                 v-model="networkSearch"
                 v-if="!networkVisited && !userVisited"
@@ -127,7 +164,7 @@
         </v-list-item>
         <v-list-item v-if="userVisited">
                     <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
-                    <v-row align="center" class="mt-3">
+                    <v-row align="center" class="mt-0">
                         <v-col cols="auto">
                             <v-avatar size="70" :image="visitedUser.pfp" style="border: 1.5px solid white;"></v-avatar>
                         </v-col>
