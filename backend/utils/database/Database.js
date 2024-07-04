@@ -6,7 +6,6 @@ const { Pool, QueryArrayResult } = require('pg');
 //Import data (maybe move it to one file)
 const sql = require('../../data/sql.json');
 const cypher = require('../../data/cypher.json');
-const { match } = require('assert');
 
 //remove params in data files later?
 /**
@@ -1086,7 +1085,7 @@ module.exports = {
         }
     },
 
-    //Project Related Functions (NEEDS UPDATES)
+    //Project Related Functions
     CreateProject: async function (userid, name, desc, social, career, personal, duedate) { 
         const newProj = await psql.query(fillSQLParams(sql.projects.create, {
             "userid": userid,
@@ -1115,9 +1114,11 @@ module.exports = {
         }
         if(data.hasOwnProperty('desc')) {
             params['desc'] = data['desc'];
-        }else {
+        } else {
             params['desc'] = current['projectdescription'];
         }
+
+
         if(data.hasOwnProperty('social')) {
             params['social'] = parseInt(data['social']);
         } else {
@@ -1133,19 +1134,61 @@ module.exports = {
         } else {
             params['personal'] = current['personalpoints'];
         }
+
+        if(data.hasOwnProperty('duedate')) {
+            params['duedate'] = data['duedate'];
+        } else {
+            params['duedate'] = current['duedate'].toISOString();
+        }
         
         await psql.query(fillSQLParams(sql.projects.modify, params));
 
         return id;
     },
-    SetProjectAsDone: async function (id, datetime) { 
+    AddProjectUpdate: async function(projectid, updatename, updatedesc) {
+        //Get currently existing project data
+        let project = await psql.query(fillSQLParams(sql.projects.select, {
+            "id": projectid
+        }));
+        let projectData = ProcessAndLogRowValues(project,0);
+
+        //Iterate through updates until finding the most recent
+        while(projectData['updateid'] !== null) {
+            project = await psql.query(fillSQLParams(sql.projects.select, {
+                "id": projectData['updateid']
+            }));
+            projectData = ProcessAndLogRowValues(project,0);
+            console.log(projectData);
+        }
+
+        //Now create the new update
+        const newUpdate = await psql.query(fillSQLParams(sql.projects.create, {
+            "userid": projectData['userid'],
+            "name": updatename,
+            "desc": updatedesc,
+            "social": projectData['socialpoints'],
+            "career": projectData['careerpoints'],
+            "personal": projectData['personalpoints'],
+            "duedate": new Date(projectData['duedate']).toISOString()
+        }));
+        const updateId = ProcessData(newUpdate[1].rows[0]['projectid']);
+
+        //Finally change the previous updateId to the "newly created projectid"
+        const setUpdateId = await psql.query(fillSQLParams(sql.projects.setUpdateId, {
+            "projectid": projectData['projectid'],
+            "updateid": updateId
+        }));
+
+        return updateId;
+    },
+    SetProjectAsDone: async function (id) { 
 
         const project = await psql.query(fillSQLParams(sql.projects.select, {
             "id": id
         }));
         data = ProcessAndLogRowValues(project,0);
 
-        ontime = datetime < new Date(current['duedate']).getTime();
+        ontime = new Date().getTime() < new Date(data['duedate']).getTime();
 
         const finishCmd = await psql.query(fillSQLParams(sql.projects.finish, {
             "id": id,
@@ -1157,11 +1200,11 @@ module.exports = {
         }
 
         if(ontime) {
-            const updateUser = await psql.query(fillSQLParams(sql.projects.updatePoints, {
+            const updateUser = await psql.query(fillSQLParams(sql.users.updatePoints, {
                 "id": data['userid'],
                 "social": data['socialpoints'],
-                "career": career['career'],
-                "personal": personal['personal']
+                "career": data['careerpoints'],
+                "personal": data['personalpoints']
             }));
         } else {
             //Add mechanics here later
@@ -1206,6 +1249,12 @@ module.exports = {
             "id": userid
         }));
         return ProcessAndLogTableValues(projects);
+    },
+    GetProjectUpdates: async function (id) {
+        const updates = await psql.query(fillSQLParams(sql.projects.getProjectUpdates, {
+            "id": id
+        }));
+        return ProcessAndLogTableValues(updates);
     },
 
     //Notification Related Functions

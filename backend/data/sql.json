@@ -327,14 +327,19 @@
     },
     "projects": {
         "create": { 
-            "query": "INSERT INTO Projects (UserId, ProjectName, ProjectDescription, SocialPoints, CareerPoints, PersonalPoints, DueDate) VALUES (:userid, ':name', ':desc', :social, :career, :personal, ':duedate'); SELECT ProjectId FROM Projects WHERE UserId = ':userid' AND ProjectName = ':name';",
+            "query": "INSERT INTO Projects (UserId, ProjectName, ProjectDescription, SocialPoints, CareerPoints, PersonalPoints, DueDate) VALUES (:userid, ':name', ':desc', :social, :career, :personal, ':duedate'); SELECT ProjectId FROM Projects WHERE UserId = ':userid' AND ProjectName = ':name' ORDER BY ProjectId DESC;",
             "params": "userid,name,desc,social,career,personal,duedate",
             "desc": "Create project with user, name, desc, points and due date"
         },
         "modify": { 
-            "query": "UPDATE Projects SET ProjectName = ':name', ProjectDescription = ':desc', SocialPoints = :social, CareerPoints = :career, PersonalPoints = :personal WHERE ProjectId = :id;",
-            "params": "id,name,desc,social,career,personal",
+            "query": "UPDATE Projects SET ProjectName = ':name', ProjectDescription = ':desc', SocialPoints = :social, CareerPoints = :career, PersonalPoints = :personal, DueDate = ':duedate' WHERE ProjectId = :id;",
+            "params": "id,name,desc,social,career,personal,duedate",
             "desc": "Modify project description and points values from id"
+        },
+        "setUpdateId": {
+            "query": "UPDATE Projects SET UpdateId = :updateid WHERE ProjectId = :projectid;",
+            "params": "projectid,updateid",
+            "desc": "Set update id for a project/update"
         },
         "finish": { 
             "query": "UPDATE Projects SET OnTime = :ontime WHERE ProjectId = :id;",
@@ -352,7 +357,12 @@
             "desc": "Get a specific project details by projectId"
         },
         "selectByUser": { 
-            "query": "SELECT * FROM Projects WHERE UserId = :id AND Deleted != True;",
+            "query": "SELECT * FROM Projects WHERE UserId = :id AND Deleted != True AND NOT EXISTS (SELECT 1 FROM Projects AS sub WHERE sub.UpdateId = Projects.ProjectId) ORDER BY ProjectId;",
+            "params": "id",
+            "desc": "Get all projects for a given user (Excluding Updates)"
+        }, 
+        "getProjectUpdates": {
+            "query": "WITH RECURSIVE UpdateList AS (SELECT ProjectId, ProjectName, ProjectDescription, UpdateId, CreatedDate FROM Projects WHERE ProjectId = :id UNION ALL SELECT p.ProjectId, p.ProjectName, p.ProjectDescription, p.UpdateId, p.CreatedDate FROM Projects p JOIN UpdateList ul ON p.ProjectId = ul.UpdateId) SELECT ProjectId, ProjectName, ProjectDescription, CreatedDate FROM UpdateList WHERE ProjectId != :id;",
             "params": "id",
             "desc": "Get all projects for a given user"
         }

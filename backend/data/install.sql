@@ -78,9 +78,7 @@ CREATE TABLE Resources (
     ResourceName varchar(50) UNIQUE NOT NULL,
     Category int NOT NULL,
     PointsValue int NOT NULL,
-    Shape int NOT NULL,
-    ImageId int UNIQUE NOT NULL,
-    FOREIGN KEY(ImageId) REFERENCES Images(ImageId)
+    Shape int NOT NULL
 );
 
 CREATE TABLE IslandData (
@@ -114,13 +112,16 @@ CREATE TABLE Projects (
     SocialPoints int DEFAULT 0,
     CareerPoints int DEFAULT 0,
     PersonalPoints int DEFAULT 0,
+    UpdateId int UNIQUE DEFAULT NULL,
     OnTime boolean DEFAULT NULL,
     CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     DueDate timestamp NOT NULL,
     Deleted boolean NOT NULL DEFAULT FALSE,
     DeletedDate timestamp,
     FOREIGN KEY(UserId) REFERENCES Users(UserId),
+    FOREIGN KEY(UpdateId) REFERENCES Projects(ProjectId),
     CHECK (SocialPoints > 0 OR CareerPoints > 0 OR PersonalPoints > 0),
+    CHECK (UpdateId > ProjectId),
     CHECK (EXTRACT(EPOCH FROM (DueDate - CreatedDate)) > 0)
 );
 
