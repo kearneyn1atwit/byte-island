@@ -202,12 +202,12 @@ module.exports = {
             return ProcessAndLogTableValues(miniProfileList);
         }
     },
-    //search is either user's name or tag id
+    //search is either user's name, tag name, friends or networks
     SearchUsers: async function(search, byName) {
 
         let matchingUsers = [];
 
-        if(byName) {
+        if(byName === 0) {
 
             const exactUserMatch = await psql.query(fillSQLParams(sql.users.select, {
                 "name": search
@@ -237,10 +237,62 @@ module.exports = {
                     }
                 })
             }
-        } else { //By Tags
+        } else if(byName === 1) { //By Tags
 
             const userIds = await neo4j.query(fillCypherParams(cypher.select.relatedUsers, {
                 "IDVAR": search
+            }));
+            idlist = []
+            userIds.records.forEach(record => {
+                idlist.push(record.get('u').properties.Id.low);
+            });
+
+            for (const id of idlist) {
+
+                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                    "id": id
+                }));
+
+                matchingUsers.push({
+                    username: userMiniProfile.rows[0]['username'],
+                    userid: id
+                })
+            }
+
+        } else if (byName === 2) { //Friends list for provided user
+
+            const user = await psql.query(fillSQLParams(sql.users.select, {
+                "name": search,
+            }));
+
+            const friendIds = await neo4j.query(fillCypherParams(cypher.select.friendsList, {
+                "IDVAR": user.rows[0]['userid']
+            }));
+            idlist = []
+            friendIds.records.forEach(record => {
+                idlist.push(record.get('f').properties.Id.low);
+            });
+
+            for (const id of idlist) {
+
+                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                    "id": id
+                }));
+
+                matchingUsers.push({
+                    username: userMiniProfile.rows[0]['username'],
+                    userid: id
+                })
+            }
+
+        } else { //byName === 3 | Get users in provided network
+
+            const network = await psql.query(fillSQLParams(sql.networks.select, {
+                "name": search,
+            }));
+
+            const userIds = await neo4j.query(fillCypherParams(cypher.select.usersInNetwork, {
+                "IDVAR": network.rows[0]['networkid']
             }));
             idlist = []
             userIds.records.forEach(record => {

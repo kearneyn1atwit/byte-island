@@ -27,7 +27,7 @@ router.post('/users', async (req, res) => {
   }
 
   //Check input for other requirements
-  if ((searchBy !== 0 && searchBy !== 1) || typeof searchString !== 'string') {
+  if ((searchBy < 0 || searchBy > 3) || typeof searchString !== 'string') {
     return res.status(400).json({ message: 'Invalid search criteria!' });
   }
 
@@ -44,8 +44,13 @@ router.post('/users', async (req, res) => {
         
     }
 
-    //Query database by username (0) or tags (1) based on searchBy
-    const results = await db.SearchUsers(searchString, searchBy === 0);
+    //Query database by username, tags, friends or network members
+    try {
+      const results = await db.SearchUsers(searchString, searchBy);
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json({ message: 'Invalid search!' });
+    }
 
     if(results.length === 0) {
         return res.status(200).json({ message: 'No users were found!' })
