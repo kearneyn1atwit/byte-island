@@ -22,7 +22,7 @@ export default {
       {
           id: "03",
           name: "placer block",
-          RGB: 10101,
+          RGB: 100,
           image: "/blockplace.png",
           inventory: "infinite"
       }]
@@ -76,6 +76,13 @@ export default {
       clearSearch() {
           this.searchString = '';
           this.itemList = [];
+      },
+      getColor(rgb) {
+        console.log(rgb);
+        if(rgb/10000>=1) return "#FF9095";
+        else if(rgb/100%100>=1) return "#A3FFC9";
+        else if(rgb%100>=1) return "#7DAEFF"; 
+        else return "#DDDDDD";
       }
     },
     components: {

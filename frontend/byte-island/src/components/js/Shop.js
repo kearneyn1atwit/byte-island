@@ -25,7 +25,7 @@ export default {
             {
                 id: "03",
                 name: "placer block",
-                RGB: 10101,
+                RGB: 100,
                 image: "/blockplace.png",
                 inventory: 0
             }]
