@@ -5,6 +5,16 @@ const auth = require('../utils/api/Authenticator');
 
 router.post('/users', async (req, res) => {
 
+  let username;
+
+    try {
+        username = req.body.username;
+    }
+    catch(error) {
+        
+        return res.status(401).json({ message: 'Access denied!' }); 
+    }
+
   if(!await auth.verifyJWT(req.headers.authorization)) {
     return res.status(401).json({ message: 'Access denied!' });
   } 
@@ -45,8 +55,9 @@ router.post('/users', async (req, res) => {
     }
 
     //Query database by username, tags, friends or network members
+    let results;
     try {
-      const results = await db.SearchUsers(searchString, searchBy);
+      results = await db.SearchUsers(searchString, searchBy, username);
     } catch (err) {
       console.log(err);
       return res.status(400).json({ message: 'Invalid search!' });

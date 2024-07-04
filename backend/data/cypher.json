@@ -23,7 +23,7 @@
     },
     "add": {
         "usersAsFriends": { 
-            "query": "MATCH (u1:User),(u2:User) WHERE u1.Id = <IDVAR1> AND u2.Id = <IDVAR2> CREATE (u1)-[r:FRIENDS]->(u2) RETURN u1,u2,r;",
+            "query": "MATCH (u1:User),(u2:User) WHERE u1.Id = <IDVAR1> AND u2.Id = <IDVAR2> CREATE (u1)-[r:FRIENDS {SINCE: datetime()}]->(u2) RETURN u1,u2,r;",
             "params": "IDVAR1,IDVAR2",
             "desc": "Match two users based on their ids"
         },
@@ -60,7 +60,7 @@
     },
     "select": {
         "friendsList": { 
-            "query": "MATCH (u:User {Id: <IDVAR> })-[r:FRIENDS]-(f) RETURN f;",
+            "query": "MATCH (u:User {Id: <IDVAR> })-[r:FRIENDS]-(f) RETURN r,f;",
             "params": "IDVAR",
             "desc": "Get friends of user based on their id | TEST ALL THESE / ADD DELETED FILTER"
         },

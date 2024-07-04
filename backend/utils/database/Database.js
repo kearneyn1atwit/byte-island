@@ -203,7 +203,7 @@ module.exports = {
         }
     },
     //search is either user's name, tag name, friends or networks
-    SearchUsers: async function(search, byName) {
+    SearchUsers: async function(search, byName, username) {
 
         let matchingUsers = [];
 
@@ -216,7 +216,8 @@ module.exports = {
                 const id = ProcessAndLogRowValues(exactUserMatch,0);
                 matchingUsers.push({
                     username: search,
-                    userid: id['userid']
+                    userid: id['userid'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING"
                 });
             } catch(e) {
                 console.log("Exact match not found: " + e);
@@ -232,7 +233,8 @@ module.exports = {
                         console.log("Pushing Partial match: " + rowData['username']);
                         matchingUsers.push({
                             username: rowData['username'],
-                            userid: rowData['userid']
+                            userid: rowData['userid'],
+                            pfp: "TEMP_FAKE_IMAGE_STRING"
                         })
                     }
                 })
@@ -255,7 +257,8 @@ module.exports = {
 
                 matchingUsers.push({
                     username: userMiniProfile.rows[0]['username'],
-                    userid: id
+                    userid: id,
+                    pfp: "TEMP_FAKE_IMAGE_STRING"
                 })
             }
 
@@ -269,20 +272,29 @@ module.exports = {
                 "IDVAR": user.rows[0]['userid']
             }));
             idlist = []
+            sincelist = []
             friendIds.records.forEach(record => {
                 idlist.push(record.get('f').properties.Id.low);
+                sincelist.push(record.get('r').properties.SINCE);
             });
 
-            for (const id of idlist) {
+            for (i = 0; i < idlist.length; i++) {
 
-                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+                const id = idlist[i];
+
+                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getProfileInformation, {
                     "id": id
                 }));
 
                 matchingUsers.push({
                     username: userMiniProfile.rows[0]['username'],
-                    userid: id
-                })
+                    userid: id,
+                    pfp: "TEMP_FAKE_IMAGE_STRING",
+                    points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
+                    island: "FAKE_ISLAND_STRING",
+                    friend: true,
+                    friendsSince: sincelist[i].year.low+"-"+String(sincelist[i].month.low).padStart(2, '0')+"-"+String(sincelist[i].day.low).padStart(2, '0')+"T"+String(sincelist[i].hour.low).padStart(2, '0')+":"+String(sincelist[i].minute.low).padStart(2, '0')+":"+String(sincelist[i].second.low).padStart(2, '0'),
+                });
             }
 
         } else { //byName === 3 | Get users in provided network
@@ -299,16 +311,61 @@ module.exports = {
                 idlist.push(record.get('u').properties.Id.low);
             });
 
-            for (const id of idlist) {
+            const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
+                "IDVAR": network.rows[0]['networkid']
+            }));
+            adminlist = []
+            adminIds.records.forEach(record => {
+                idlist.push(record.get('u').properties.Id.low);
+                adminlist.push(record.get('u').properties.Id.low);
+            });
 
-                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getMiniProfile, {
+            //Friends List Check
+            const user = await psql.query(fillSQLParams(sql.users.select, {
+                "name": username,
+            }));
+
+            const friendIds = await neo4j.query(fillCypherParams(cypher.select.friendsList, {
+                "IDVAR": user.rows[0]['userid']
+            }));
+            friendlist = []
+            sincelist = []
+            friendIds.records.forEach(record => {
+                friendlist.push(record.get('f').properties.Id.low);
+                sincelist.push(record.get('r').properties.SINCE);
+            });
+
+            //Back to networks
+
+            for (i = 0; i < idlist.length; i++) {
+
+                const id = idlist[i];
+
+                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getProfileInformation, {
                     "id": id
                 }));
 
-                matchingUsers.push({
-                    username: userMiniProfile.rows[0]['username'],
-                    userid: id
-                })
+                if(friendlist.includes(id)) { //In friends list
+                    matchingUsers.push({
+                        username: userMiniProfile.rows[0]['username'],
+                        userid: id,
+                        pfp: "TEMP_FAKE_IMAGE_STRING",
+                        points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
+                        island: "FAKE_ISLAND_STRING",
+                        friend: true,
+                        admin: adminlist.includes(id)
+                    })
+                } else {
+                    matchingUsers.push({
+                        username: userMiniProfile.rows[0]['username'],
+                        userid: id,
+                        pfp: "TEMP_FAKE_IMAGE_STRING",
+                        points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
+                        island: "FAKE_ISLAND_STRING",
+                        friend: false,
+                        admin: adminlist.includes(id)
+                    })
+                }
             }
         }
 
