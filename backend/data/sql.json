@@ -324,22 +324,22 @@
             "params": "id",
             "desc": "Get request details from the request id"
         },
-        "selectOpenFriendRequests": { 
+        "selectPendingFriendRequests": { 
             "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetUserId > 0 AND Resolved != True AND Deleted != True;",
             "params": "senderid",
             "desc": "Get friend requests being waited on by sender user Id"
         },
-        "selectOpenNetworkRequests": { 
+        "selectPendingNetworkRequests": { 
             "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetNetworkId > 0 AND Resolved != True AND Deleted != True;",
             "params": "senderid",
             "desc": "Get network requests being waited on by sender user Id"
         },
-        "selectPendingFriendRequests": { 
+        "selectOpenFriendRequests": { 
             "query": "SELECT * FROM Requests WHERE TargetUserID = :userid AND Resolved != True AND Deleted != True;",
             "params": "userid",
             "desc": "Get friend requests needing replies by target user id"
         },
-        "selectPendingNetworkRequests": { 
+        "selectOpenNetworkRequests": { 
             "query": "SELECT * FROM Requests WHERE TargetNetworkId = :networkid AND Resolved != True AND Deleted != True;",
             "params": "networkid",
             "desc": "Get network requests needing replies by target user id"

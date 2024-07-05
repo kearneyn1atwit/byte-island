@@ -202,6 +202,16 @@ module.exports = {
             return ProcessAndLogTableValues(miniProfileList);
         }
     },
+    GetUserNetworks: async function(id) {
+        const networkIds = await neo4j.query(fillCypherParams(cypher.select.networksUserIsIn, {
+            "IDVAR": id
+        }));
+        idlist = []
+        networkIds.records.forEach(record => {
+            idlist.push(record.get('n').properties.Id.low);
+        });
+        return idlist;
+    },
     //search is either user's name, tag name, friends or networks
     SearchUsers: async function(search, byName, username) {
 
@@ -558,6 +568,13 @@ module.exports = {
             "name": name
         }));
         return ProcessData(network.rows[0]['networkid']);
+    },
+    GetNetworkName: async function (id) { 
+
+        const network = await psql.query(fillSQLParams(sql.networks.getName, {
+            "id": id
+        }));
+        return network.rows[0]['networkname'];
     },
     SetNetworkName: async function (id,name) { 
         await psql.query(fillSQLParams(sql.networks.updateName, {
@@ -1256,7 +1273,7 @@ module.exports = {
                 "userid": targetid
             }));
             if(friendRequest[0].rowCount != 1) {
-                throw new Error("Error requesting friend!");
+                return -1;
             }
             return friendRequest[1].rows[0]['requestid']
 
@@ -1266,7 +1283,7 @@ module.exports = {
                 "networkid": targetid
             }));
             if(networkRequest[0].rowCount != 1) {
-                throw new Error("Error requesting friend!");
+                return -1;
             }
 
             return networkRequest[1].rows[0]['requestid']
@@ -1323,13 +1340,13 @@ module.exports = {
 
         if(targetIsUser) {
             const openFriendRequests = await psql.query(fillSQLParams(sql.requests.selectOpenFriendRequests,  {
-                "senderid": id,
+                "userid": id,
             }));
             return ProcessAndLogTableValues(openFriendRequests);
 
         } else {
             const openJoinRequests = await psql.query(fillSQLParams(sql.requests.selectOpenNetworkRequests,  {
-                "senderid": id
+                "networkid": id
             }));
             return ProcessAndLogTableValues(openJoinRequests);
         }
@@ -1338,13 +1355,13 @@ module.exports = {
 
         if(targetIsUser) {
             const pendingFriendRequests = await psql.query(fillSQLParams(sql.requests.selectPendingFriendRequests,  {
-                "userid": id,
+                "senderid": id,
             }));
             return ProcessAndLogTableValues(pendingFriendRequests);
 
         } else {
             const pendingJoinRequests = await psql.query(fillSQLParams(sql.requests.selectPendingNetworkRequests,  {
-                "networkid": id
+                "senderid": id
             }));
             return ProcessAndLogTableValues(pendingJoinRequests);
         }
