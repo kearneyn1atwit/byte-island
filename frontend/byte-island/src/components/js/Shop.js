@@ -8,26 +8,34 @@ export default {
             searchTab: 0,
             searchString: "",
             itemList: [],
-            pseudoDatabase: [{
-                id: "01",
-                name: "simple block",
-                RGB: 10000,
-                image: "/01.png",
-                inventory: 0
-            },
-            {
-                id: "02",
-                name: "blue block",
-                RGB: 1,
-                image: "/02.png",
-                inventory: 0
-            },
-            {
-                id: "03",
-                name: "placer block",
-                RGB: 100,
-                image: "/blockplace.png",
-                inventory: 0
+            pseudoDatabase: [
+                {
+                    id: "00",
+                    name: "nil",
+                    RGB: 10000,
+                    image: "/00.png",
+                    inventory: 0
+                },
+                {
+                    id: "01",
+                    name: "simple block",
+                    RGB: 10000,
+                    image: "/01.png",
+                    inventory: 0
+                },
+                {
+                    id: "02",
+                    name: "blue block",
+                    RGB: 1,
+                    image: "/02.png",
+                    inventory: 0
+                },
+                {
+                    id: "03",
+                    name: "placer block",
+                    RGB: 100,
+                    image: "/blockplace.png",
+                    inventory: 0
             }]
         };
     },
@@ -42,7 +50,7 @@ export default {
     },
     methods: {
         fetchDBItems() {
-            return this.pseudoDatabase;
+            return this.pseudoDatabase.slice(1);
         },
         setInv(id,inv) {
             this.pseudoDatabase[Number(id)].inventory++;

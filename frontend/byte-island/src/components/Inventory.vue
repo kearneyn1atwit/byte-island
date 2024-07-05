@@ -29,13 +29,13 @@
         <v-list-item style="padding: 0;">
             <div class="inv-item">
                 <p style="text-transform:capitalize; width: 100%; height: 28px; text-align: center; color: grey;">Dig Up Blocks</p>
-                <v-btn style="background-color: white; width: 84px; height: 84px; border: 3px solid grey; border-radius: 8px; color: black; font-size: 48px; margin: auto; margin-top: 0; margin-bottom: 32px;" icon="mdi-shovel"/>
+                <v-btn style="width: 84px; height: 84px; border: 3px solid grey; border-radius: 8px; color: black; font-size: 48px; margin: auto; margin-top: 0; margin-bottom: 32px;" :style="{'background-color': delBg()}" icon="mdi-shovel" id="DEL" @click="selectDel()"/>
             </div>
         </v-list-item>
         <v-list-item v-for="(item) in itemList" style="padding: 0;">
             <div class="inv-item">
                 <p style="text-transform: capitalize; width: 100%; height: 28px; text-align: center;" :style="{color: getColor(item.RGB)}">{{ item.name }}</p>
-                <v-btn style="background-color: white; width: 84px; height: 84px; margin: auto; margin-top: 2px; border-radius: 8px; color: black; border: solid 3px;" :style="{'border-color': getColor(item.RGB)}">
+                <v-btn style="width: 84px; height: 84px; margin: auto; margin-top: 2px; border-radius: 8px; color: black; border: solid 3px;" :style="{'border-color': getColor(item.RGB), 'background-color': getBg(item.id)}" :id="item.id" @click="selectBlock(item.id)">
                     <img style="width: 64px; height: 64px; margin: auto;" :src="item.image"/>
                 </v-btn>
                 <p style="width: 48px; text-align: center; margin: auto;" :style="{color: getColor(item.RGB)}">x00</p>
