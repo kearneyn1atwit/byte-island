@@ -1087,6 +1087,106 @@ module.exports = {
         }));
         return ProcessAndLogRowValues(island, 0);
     },
+    GetInventory: async function (id) {
+        const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
+            "userid": id
+        }));
+        return inventory.rows[0]['inventorydata'];
+    },
+    GetStock: async function (userid, resourceid) { //dont know if we need this
+        const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
+            "userid": userid
+        }));
+        return inventory.rows[0]['inventorydata']['Item'+resourceid];
+    },
+    SetStock: async function (userid, resourceid, quantity, buying) {
+
+        const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
+            "userid": userid,
+            "resourceid": resourceid
+        }));
+
+        const userData = await psql.query(fillSQLParams(sql.users.getPoints, {
+            "id": userid,
+        }));
+        const points = ProcessAndLogRowValues(userData,0); //Get User Current Points [career,personal,social]
+
+        //User stock of the item
+        const stock = inventory.rows[0]['inventorydata']['Item'+resourceid];
+
+        //Resource data
+        const resource = await psql.query(fillSQLParams(sql.resources.select, {
+            "id": resourceid
+        }));  
+        const resourceData = ProcessAndLogRowValues(resource, 0);
+
+        categories = ['career','personal','social']
+
+        if(buying) {
+
+            //Check that they are capable of buying the quantity of the item, if not return false
+            if(resourceData['pointsvalue']*quantity > points[categories[resourceData['category']]+'points']) {
+                return false;
+            }
+
+            params = {
+                "id": userid,
+                "social": 0,
+                "career": 0,
+                "personal": 0
+            }
+
+            if(resourceData['category'] === 0) { //Career
+                params['career'] = resourceData['pointsvalue']*-quantity;
+            } else if(resourceData['category'] === 1) { //Personal
+                params['personal'] = resourceData['pointsvalue']*-quantity;
+            } else { //Should be social
+                params['social'] = resourceData['pointsvalue']*-quantity;
+            }
+
+            const updateUser = await psql.query(fillSQLParams(sql.users.updatePoints, params));
+
+            //If they have enough points subtract points and add to stock
+            const setStock = await psql.query(fillSQLParams(sql.island.setStock,  {
+                "userid": userid,
+                "resourceid": resourceid,
+                "stock": (stock+quantity) //Increase stock by quantity purchased
+            }));
+
+        } else { //Selling logic
+
+            //Check that they are possess all of the stock they wish to sell, if not return false
+            if(quantity > stock) {
+                return false;
+            }
+
+            //Give back 50% of sell price (rounded up) and reduce stock by amount sold
+            params = {
+                "id": userid,
+                "social": 0,
+                "career": 0,
+                "personal": 0
+            }
+
+            if(resourceData['category'] === 0) { //Career
+                params['career'] = Math.ceil((resourceData['pointsvalue']/2)*quantity);
+            } else if(resourceData['category'] === 1) { //Personal
+                params['personal'] = Math.ceil((resourceData['pointsvalue']/2)*quantity);
+            } else { //Should be social
+                params['social'] = Math.ceil((resourceData['pointsvalue']/2)*quantity);
+            }
+
+            const updateUser = await psql.query(fillSQLParams(sql.users.updatePoints, params));
+
+            const setStock = await psql.query(fillSQLParams(sql.island.setStock,  {
+                "userid": userid,
+                "resourceid": resourceid,
+                "stock": (stock-quantity) //Reduce stock by quantity sold
+            }));
+        }
+
+        return true;
+    },
 
     //Request Related Functions
     CreateRequest: async function (senderid, targetid, targetIsUser) { 

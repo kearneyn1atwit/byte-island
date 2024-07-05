@@ -25,7 +25,7 @@ router.get('/projects/:username', async (req, res) => {
         const id = await db.GetUserId(username);
         console.log(id);
         if (id == -1) {
-        return res.status(400).json({ message: 'User could not be found!' }); 
+            return res.status(400).json({ message: 'User could not be found!' }); 
         }
 
         const projects = await db.GetUsersProjects(id);

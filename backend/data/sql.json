@@ -262,6 +262,21 @@
             "params": "id,path",
             "desc": "Create island with user id."
         },
+        "getWholeInventory": {
+            "query": "SELECT InventoryData FROM IslandData WHERE UserId = :userid;",
+            "params": "userid",
+            "desc": "Get value for specific resource."
+        },
+        "getStock": {
+            "query": "SELECT InventoryData->>'Item:resourceid' AS item FROM IslandData WHERE UserId = :userid;",
+            "params": "resourceid,userid",
+            "desc": "Get value for specific resource. DEPRECATED may use later if performance becomes a problem."
+        },
+        "setStock": {
+            "query": "UPDATE IslandData SET InventoryData = jsonb_set(InventoryData, '{Item:resourceid}', ':stock') WHERE UserId = :userid;",
+            "params": "resourceid,userid,stock",
+            "desc": "Set value for specific resource."
+        },
         "updatePeople": { 
             "query": "UPDATE IslandData SET NumberOfPeople = NumberOfPeople + :people WHERE UserId = :id;",
             "params": "id,people",
