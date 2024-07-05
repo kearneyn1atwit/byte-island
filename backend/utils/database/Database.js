@@ -587,15 +587,17 @@ module.exports = {
 
         let matchingNetworks = [];
 
-        if(byName) {
+        if(byName === 0) { //Get networks list
             const exactNetworkMatch = await psql.query(fillSQLParams(sql.networks.select, {
                 "name": search
             }));
             try {
-                const id = ProcessAndLogRowValues(exactNetworkMatch,0);
+                const networkData = ProcessAndLogRowValues(exactNetworkMatch,0);
                 matchingNetworks.push({
                     networkname: search,
-                    networkid: id['networkid']
+                    networkdesc: networkData['networkdescription'],
+                    networkid: networkData['networkid'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING"
                 });
             } catch(e) {
                 console.log("Exact match not found: " + e);
@@ -608,14 +610,17 @@ module.exports = {
                 partialNetworkMatches.rows.forEach((rowData) => {
                     if(rowData['networkname'] !== search) {
                         console.log("Pushing Partial match: " + rowData['networkname']);
+                        console.log(rowData)
                         matchingNetworks.push({
                             networkname: rowData['networkname'],
-                            networkid: rowData['networkid']
+                            networkdesc: rowData['networkdescription'],
+                            networkid: rowData['networkid'],
+                            pfp: "TEMP_FAKE_IMAGE_STRING"
                         })
                     }
                 })
             }
-        } else { //By Tags
+        } else if(byName === 1) { //Get networks by Tag names
 
             const networkIds = await neo4j.query(fillCypherParams(cypher.select.relatedNetworks, {
                 "IDVAR": search
@@ -633,7 +638,38 @@ module.exports = {
 
                 matchingNetworks.push({
                     networkname: network.rows[0]['networkname'],
-                    networkid: network.rows[0]['networkid']
+                    networkdesc: network.rows[0]['networkdescription'],
+                    networkid: network.rows[0]['networkid'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING"
+                })
+            }
+        } else { //byName === 2 | Get Networks User is currently in
+
+            const user = await psql.query(fillSQLParams(sql.users.select, {
+                "name": search,
+            }));
+
+            const networkIds = await neo4j.query(fillCypherParams(cypher.select.networksUserIsIn, {
+                "IDVAR": user.rows[0]['userid']
+            }));
+            idlist = []
+            networkIds.records.forEach(record => {
+                idlist.push(record.get('n').properties.Id.low);
+            });
+
+            console.log("idlist " + idlist)
+
+            for (const id of idlist) {
+
+                const network = await psql.query(fillSQLParams(sql.networks.getName, {
+                    "id": id
+                }));
+
+                matchingNetworks.push({
+                    networkname: network.rows[0]['networkname'],
+                    networkdesc: network.rows[0]['networkdescription'],
+                    networkid: id,
+                    pfp: "TEMP_FAKE_IMAGE_STRING" //Modify this later
                 })
             }
         }

@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
-router.post('/networks', async (req, res) => {
+router.get('/networks/:searchBy/:searchString', async (req, res) => {
 
   if(!await auth.verifyJWT(req.headers.authorization)) {
     return res.status(401).json({ message: 'Access denied!' });
@@ -14,11 +14,11 @@ router.post('/networks', async (req, res) => {
   //Check all expected input parameters are present
   let searchBy, searchString;
   try {
-    searchBy = req.body.searchBy;
+    searchBy = Number(req.params.searchBy);
     if(searchBy == null) {
         return res.status(400).json({ message: 'Missing id for what to search by!' });
     }
-    searchString = req.body.searchString;
+    searchString = req.params.searchString;
     if(!searchString) {
         return res.status(400).json({ message: 'Missing string to search for!' });
       }
@@ -27,7 +27,7 @@ router.post('/networks', async (req, res) => {
   }
 
   //Check input for other requirements
-  if ((searchBy !== 0 && searchBy !== 1) || typeof searchString !== 'string') {
+  if ((searchBy < 0 || searchBy > 2) || typeof searchString !== 'string') {
     return res.status(400).json({ message: 'Invalid search criteria!' });
   }
 
@@ -44,8 +44,8 @@ router.post('/networks', async (req, res) => {
         
     }
 
-    //Query database by network name (0) or tags (1) based on searchBy
-    const results = await db.SearchNetworks(searchString, searchBy === 0);
+    //Query database by network name (0) or tags (1)  or networks user is in (2) based on searchBy
+    const results = await db.SearchNetworks(searchString, searchBy);
 
     if(results.length === 0) {
         return res.status(200).json({ message: 'No networks were found!' })

@@ -92,17 +92,17 @@ export default {
             }
             else {
                 
+                if(!searchString) { //throws 404 falsely because it needs a non null value
+                    return;
+                }
+
                 //API New Version
-                fetch("http://localhost:5000/networks", {
-                    method: 'POST',
+                fetch("http://localhost:5000/networks/"+searchBy+"/"+searchString, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json', 
                         'Authorization': token
-                    },
-                    body: JSON.stringify({
-                      searchBy: searchBy,
-                      searchString: searchString
-                    }) 
+                    }
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -121,8 +121,8 @@ export default {
                         data.forEach((row) => {
                             this.filteredList.push({
                                 name: row.networkname,
-                                desc: "test description",//swap for networkdesc once added to db
-                                pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
+                                desc: row.networkdesc,
+                                pic: 'https://picsum.photos/id/'+(1000)+'/55/55' //row.pfp
                             })
                         });
                     }

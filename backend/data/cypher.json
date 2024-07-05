@@ -69,6 +69,11 @@
             "params": "IDVAR",
             "desc": "Get all users in network based on network id"
         },
+        "networksUserIsIn": {
+            "query": "MATCH (u:User {Id: <IDVAR> })-[r]->(n) WHERE type(r) IN ['PART_OF', 'ADMIN_OF'] RETURN n;",
+            "params": "IDVAR",
+            "desc": "Get all networks a user is in based on network id"
+        },
         "networkAdmins": {
             "query": "MATCH (n:Network {Id: <IDVAR> })-[r:ADMIN_OF]-(u) RETURN u;",
             "params": "IDVAR",
