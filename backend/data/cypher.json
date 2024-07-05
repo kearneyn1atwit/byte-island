@@ -65,7 +65,7 @@
             "desc": "Get friends of user based on their id | TEST ALL THESE / ADD DELETED FILTER"
         },
         "usersInNetwork": { 
-            "query": "MATCH (n:Network {Id: <IDVAR> })-[r:PART_OF]-(u) RETURN u;",
+            "query": "MATCH (n:Network {Id: <IDVAR> })-[r]-(u) WHERE type(r) IN ['PART_OF', 'ADMIN_OF'] RETURN u;",
             "params": "IDVAR",
             "desc": "Get all users in network based on network id"
         },

@@ -521,7 +521,7 @@ module.exports = {
     },
 
     //Network Related Functions 
-    CreateNetwork: async function (name, private) { 
+    CreateNetwork: async function (name, description, private) { 
 
         //Make sure network doesn't already exist
         const oldNetworkRow = await psql.query(fillSQLParams(sql.networks.select, {
@@ -535,6 +535,7 @@ module.exports = {
         //Create network in Postgres and verify its successfully added to the database
        const newNetworkRow = await psql.query(fillSQLParams(sql.networks.create, {
             "name": name,
+            "desc": description,
             "private": private
         }));
 
@@ -610,7 +611,6 @@ module.exports = {
                 partialNetworkMatches.rows.forEach((rowData) => {
                     if(rowData['networkname'] !== search) {
                         console.log("Pushing Partial match: " + rowData['networkname']);
-                        console.log(rowData)
                         matchingNetworks.push({
                             networkname: rowData['networkname'],
                             networkdesc: rowData['networkdescription'],
@@ -692,19 +692,33 @@ module.exports = {
         }));
     },
     RemoveNetworkMember: async function (userid,networkid) {
-        const deleteCmd = await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
-            "IDVAR1": userid,
-            "IDVAR2": networkid
-        }));  
+        try {
+            const deleteCmd = await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
+                "IDVAR1": userid,
+                "IDVAR2": networkid
+            }));  
 
-        if(deleteCmd === undefined) {
-            throw new Error("Error deleting member from network!");
+            const deleteCmd2 = await neo4j.query(fillCypherParams(cypher.remove.userFromAdmins, {
+                "IDVAR1": userid,
+                "IDVAR2": networkid
+            }));  
+    
+            if(deleteCmd === undefined || deleteCmd2 === undefined) {
+                throw new Error("Error deleting member from network!");
+            }
+    
+            await psql.query(fillSQLParams(sql.networks.modifyMemberCount, {
+                "id": networkid,
+                "count": -1
+            }));
+
+            return true;
         }
-
-        await psql.query(fillSQLParams(sql.networks.modifyMemberCount, {
-            "id": networkid,
-            "count": -1
-        }));
+        catch(err) {
+            console.log(err);
+            return false;
+        }
+        
     },
     GetNetworkAdmins: async function (id) {
         const networkAdmins = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {

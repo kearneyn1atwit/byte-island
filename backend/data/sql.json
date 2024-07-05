@@ -167,12 +167,12 @@
     },
     "networks": {
         "create": { 
-            "query": "INSERT INTO Networks (NetworkName, PrivateNetwork) VALUES (':name',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
-            "params": "name,private",
+            "query": "INSERT INTO Networks (NetworkName, NetworkDescription, PrivateNetwork) VALUES (':name',':desc',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
+            "params": "name,desc,private",
             "desc": "Create network with network name."
         },
         "getName": { 
-            "query": "SELECT NetworkName FROM Networks WHERE NetworkId = ':id' AND Deleted != True;",
+            "query": "SELECT NetworkName, NetworkDescription FROM Networks WHERE NetworkId = ':id' AND Deleted != True;",
             "params": "id",
             "desc": "Select one network name off its id"
         },
@@ -194,7 +194,7 @@
         "delete": { 
             "query": "UPDATE Networks SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE NetworkId = :id;",
             "params": "id",
-            "desc": "Mark network as deleted from their id. NEEDS A CYPHER COUNTERPART"
+            "desc": "Mark network as deleted from their id."
         },
         "selectSome": { 
             "query": "SELECT NetworkId, NetworkName, NetworkDescription FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
