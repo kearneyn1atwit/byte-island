@@ -27,7 +27,7 @@ export default {
         
     },
     methods: {
-      ...mapMutations(['setToken','setUser']),
+      ...mapMutations(['setToken','setUser','setPoints','resetStore']),
       //api call for logging in
       login() {
 
@@ -48,7 +48,7 @@ export default {
                 if(response.status === 401) {
                   //log out
                   this.$router.push('/');
-                  this.setToken(null);
+                  this.resetStore();
                 }
               }
               console.log("Response was okay!");
@@ -57,6 +57,7 @@ export default {
           .then(data => {
             this.setToken(data.token);
             this.setUser(data.username);
+            this.setPoints([data.career,data.personal,data.social]);
             console.log('Login successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: {  
                 id: data.username
@@ -93,7 +94,7 @@ export default {
                 if(response.status === 401) {
                   //log out
                   this.$router.push('/');
-                  this.setToken(null);
+                  this.resetStore();
                 }
               } else {
                 return response.json(); 
@@ -102,6 +103,7 @@ export default {
           .then(data => {
               this.setToken(data.token);
               this.setUser(data.username);
+              this.setPoints([data.career,data.personal,data.social]);
               console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: { 
                 id: data.username

@@ -23,7 +23,7 @@ export default {
         this.username = this.getUsername;
     },
     methods: {
-        ...mapMutations(['setToken']),
+        ...mapMutations(['setToken','resetStore']),
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
             const token = this.getToken;
@@ -48,7 +48,7 @@ export default {
                         if(response.status === 401) {
                             //log out
                             this.$router.push('/');
-                            this.setToken(null);
+                            this.resetStore();
                           }
                     }
                     console.log("Response was okay!");
@@ -56,12 +56,14 @@ export default {
                 })
                 .then(data => {
                     this.filteredList.length = 0;
-                    data.forEach((row) => {
-                        this.filteredList.push({
-                            name: row.username,
-                            pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
-                        })
-                    });
+                    if(!data.message) {
+                        data.forEach((row) => {
+                            this.filteredList.push({
+                                name: row.username,
+                                pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
+                            })
+                        });
+                    }
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
@@ -107,7 +109,7 @@ export default {
                         if(response.status === 401) {
                             //log out
                             this.$router.push('/');
-                            this.setToken(null);
+                            this.resetStore();
                           }
                     }
                     console.log("Response was okay!");
@@ -115,13 +117,15 @@ export default {
                 })
                 .then(data => {
                     this.filteredList.length = 0;
-                    data.forEach((row) => {
-                        this.filteredList.push({
-                            name: row.networkname,
-                            desc: "test description",//swap for networkdesc once added to db
-                            pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
-                        })
-                    });
+                    if(!data.message) {
+                        data.forEach((row) => {
+                            this.filteredList.push({
+                                name: row.networkname,
+                                desc: "test description",//swap for networkdesc once added to db
+                                pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
+                            })
+                        });
+                    }
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
@@ -177,9 +181,6 @@ export default {
         //api call to handle joining network
         askToJoin(network) {
             this.$emit('user-network-success','A request to join network \"'+network.name+'\" has been successfully sent.');
-        },
-        wip() {
-            alert("Feature not yet implemented.");
         }
     },
     components: {

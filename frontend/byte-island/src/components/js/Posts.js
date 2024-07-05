@@ -103,10 +103,7 @@ export default {
             this.showReplyToPost = false;
             this.reply = '';
             // this.getPosts();
-        },
-        wip() {
-            alert('Work in progress.');
-        }    
+        }
     },
     components: {
       

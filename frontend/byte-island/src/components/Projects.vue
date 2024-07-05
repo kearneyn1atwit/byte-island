@@ -17,32 +17,40 @@
                 single-line
                 class="mx-3 mb-3 italic-search"
             ></v-text-field>
-            <v-list-item v-for="project in filteredProjects" :key="project.id">
+             
+            <v-list-item v-for="project in filteredProjects" :key="project.Id">
                 <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
-                <pre class="text-muted ml-1">&emsp;Due: {{project.due}}</pre>
-                <pre class="text-muted ml-1">&emsp;Points: <span style="color: rgb(215,0,0);">{{project.points[0]}}</span>, <span style="color: rgb(151,255,45);">{{project.points[1]}}</span>, <span style="color: rgb(101,135,231);">{{project.points[2]}}</span></pre>
-                <h1 class="ml-3">{{project.title}}</h1>
-                <p class="ml-3" v-for="update in project.updates" :key="update.id">
+                <pre class="text-muted ml-1">&emsp;Due: {{convertDate(project.Due)}}</pre>
+                <pre class="text-muted ml-1">&emsp;Points: <span style="color: rgb(215,0,0);">{{project.Points[0]}}</span>, <span style="color: rgb(151,255,45);">{{project.Points[1]}}</span>, <span style="color: rgb(101,135,231);">{{project.Points[2]}}</span></pre>
+                <h1 class="ml-3">{{project.Title}}</h1>
+                <p class="ml-3" v-for="update in project.Updates" :key="update.Id">
                     <br>
-                    <h3 class="text-muted">{{update.name}} [{{update.date}}]:</h3>
-                    <span class="text-muted">{{update.desc}}</span>
+                    <h3 class="text-muted">{{update.Name}} [{{update.Date}}]:</h3>
+                    <span class="text-muted">{{update.Desc}}</span>
                     <br>
                 </p>
-                <p v-if="project.updates.length === 0" class="ml-3">
+                <p v-if="project.Updates.length === 0" class="ml-3">
                     <br>
                     <h3 class="text-muted"><i>This project has no updates.</i></h3>
                     <br>
                 </p>    
-                <v-row class="my-0 mb-3" justify="space-around">
+                <v-row class="my-0 mb-3" justify="space-around" v-if="project.Completed === 'incomplete'">
                     <v-col cols="12">
                         <v-btn color="success" class="ml-3" variant="outlined" size="small" @click="done(project)">Done!</v-btn>
                         <v-btn color="primary" class="ml-3" variant="outlined" size="small" @click="edit(project)">Edit</v-btn>
                         <v-btn color="red" class="ml-3" variant="outlined" size="small" @click="showDelDialog(project)">Delete</v-btn>
                     </v-col>
                 </v-row>
+                <v-row class="my-0 mb-3" justify="space-around" v-else>
+                    <pre class="header-h1 text-center"><i>COMPLETED!</i></pre>    
+                </v-row>
 
             </v-list-item>
-            <v-list-item v-if="filteredProjects.length === 0">
+            <v-list-item v-if="!loaded">
+                <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
+                <h1 class="ml-3"><i>Loading...</i></h1>
+            </v-list-item>
+            <v-list-item v-if="filteredProjects.length === 0 && loaded">
                 <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
                 <h1 class="ml-3"><i>No projects found...</i></h1>
             </v-list-item>
@@ -60,7 +68,7 @@
             <pre class="ml-5"><b>AI Feedback</b>: {{aiFeedbackText}}</pre>
             <pre class="ml-5 text-muted mt-2">Points you'll gain: <span style="color: rgb(215,0,0);">{{newRPoints}}</span>, <span style="color: rgb(151,255,45);">{{newGPoints}}</span>, <span style="color: rgb(101,135,231);">{{newBPoints}}</span></pre>
             <pre class="ml-5 text-muted mt-1">Automatic Due Date:</pre>
-            <pre class="ml-5">{{newDueDate}}</pre>
+            <pre class="ml-5">{{convertDate(newDueDate)}}</pre>
             <pre class="ml-5 text-muted mt-2">Override Due Date:</pre>
             <v-text-field :min="todayDate" type="date" v-model="overrideDueDate" variant="outlined" class="mx-5 mt-1" label="Due Date">
 
@@ -72,7 +80,7 @@
                 </v-row>
         </div>
         <div v-else-if="projectView === 'edit'">
-            <h1 class="header-h1 ml-2 mb-5">Edit Project: <span style="color: white;">{{editProject.title}}</span></h1>
+            <h1 class="header-h1 ml-2 mb-5">Edit Project: <span style="color: white;">{{editProject.Title}}</span></h1>
             <h3 class="ml-5">Project title:</h3>
             <v-text-field maxlength="30" counter persistent-counter v-model="editProjectTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
 
@@ -104,7 +112,7 @@
     
     <v-dialog v-model="showDel" max-width="500">
         <template v-slot:default="{}">
-            <v-card :title="'Delete Project: ' + delProject.title">
+            <v-card :title="'Delete Project: ' + delProject.Title">
             <v-card-text>
                 Are you sure you want to delete this project?
             </v-card-text>

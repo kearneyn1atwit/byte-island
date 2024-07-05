@@ -29,7 +29,7 @@ export default {
         this.getNotifications();
     },
     methods: {
-        ...mapMutations(['setToken']),
+        ...mapMutations(['setToken','resetStore']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;
@@ -48,7 +48,7 @@ export default {
                     if(response.status === 401) {
                         //log out
                         this.$router.push('/');
-                        this.setToken(null);
+                        this.resetStore();
                       }
                 }
                 return response.json(); 

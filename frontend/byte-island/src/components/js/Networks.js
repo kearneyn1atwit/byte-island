@@ -76,7 +76,6 @@ export default {
         },
         chooseNetworkPic() {
             this.$refs.networkPic.click();
-            console.log(document.getElementById('networkPic').files);
             document.getElementById('networkPic').addEventListener('change', function(e) {
                 if (e.target.files[0]) {
                   var elem = document.createElement("img");
@@ -100,7 +99,7 @@ export default {
         //api call to handle network creation
         confirmCreation() {
             if(document.getElementById('networkPic').files.length === 0) {
-                alert('Please select a network image.');
+                this.$emit('network-warning','Please select a network image.');
             }
             else {
                 this.newNetworkName = '';
