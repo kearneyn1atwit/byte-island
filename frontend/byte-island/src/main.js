@@ -22,6 +22,7 @@ const store = createStore({
             dashboardCreateCount: 0,
             user: null,
             token: null,
+            points: [0,0,0],
             pseudoDatabase: [{
                 id: "01",
                 name: "simple block",
@@ -52,6 +53,9 @@ const store = createStore({
         setToken(state, token) {
             state.token = token;
         },
+        setPoints(state, points) {
+            state.points = points;
+        },
         setInv(state,id,inv) {
             console.log(id);
             console.log(Number(id));
@@ -62,6 +66,12 @@ const store = createStore({
         },
         resetDashboardVisit(state){
             state.dashboardCreateCount = 0;
+        },
+        resetStore(state) {
+            state.dashboardCreateCount = 0;
+            state.user = null;
+            state.token = null;
+            state.points = [0,0,0];
         }
     },
     actions: {},
@@ -74,6 +84,9 @@ const store = createStore({
         },
         getToken(state) {
             return state.token;
+        },
+        getPoints(state) {
+            return state.points;
         },
         getDashboardCreateCount(state) {
             return state.dashboardCreateCount;

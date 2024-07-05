@@ -1,6 +1,11 @@
+import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
+
 export default {
     data() {
       return {
+        username: '',
+        token: null,
         projects: [],
         projectSearch: '',
         projectView: 'all',
@@ -23,70 +28,79 @@ export default {
         editProjectDueDate: '',
         editProjectUpdateTitle: '',
         editProjectUpdateDesc: '',
-        delProject: null
+        delProject: null,
+        loaded: false
       };
     },
     async created() {
       
     },
     computed: {
+      ...mapGetters(['getToken','getUsername','getPoints']),
       filteredProjects() {
+        if(!this.projects) {
+            return [];
+        }
+        if(!this.projectSearch) {
+            return this.projects;
+        }
         return this.projects.filter(project => {
-            return project.title.toLowerCase().includes(this.projectSearch.toLowerCase()) 
-        });
+            return project.Title.toLowerCase().includes(this.projectSearch.toLowerCase()) 
+        }).sort((a,b) => (a.Completed === 'incomplete' ? 0 : 1) - (b.Completed === 'incomplete' ? 0 : 1) );
       }
     },
     mounted() {
-        this.todayDate = new Date().toISOString();
+        this.getUserDetails();
+        this.todayDate = this.convertDate(new Date().toISOString());
         this.getProjects();
     },
     methods: {
+        ...mapMutations(['setToken','setPoints','resetStore']),
+        getUserDetails() {
+            this.token = this.getToken;
+            this.username = this.getUsername;
+        },
         // convert date to text field model friendly
         convertDate(date) {
-            let todayArray = date.split("/");
-            let year = todayArray[2];
-            let month = todayArray[0];
-            let day = todayArray[1];
-            if(parseInt(month) < 10) {
-                month = '0' + month;
+            if(date === 'N/A') {
+                return date;
             }
-            if (parseInt(day) < 10) {
-                day = '0' + day;
-            }
+            let todayArray = date.split("-");
+            let year = todayArray[0];
+            let month = todayArray[1];
+            let day = todayArray[2].split('T')[0];
             return year+'-'+month+'-'+day;
         },
         //api call to get user projects
         getProjects() {
-            for(let i=0;i<5;i++) {
-                this.projects.push({
-                    id: i,
-                    due: new Date().toISOString(),
-                    points: [i,i+12,i+3],
-                    title: "Project "+(i+1),
-                    desc: 'Project description for project '+(i+1),
-                    updates: [
-                        {
-                            id: i,
-                            name: 'First update',
-                            date: new Date().toISOString(),
-                            desc: 'This is update '+(3*i+1)+'.'
-                        },
-                        {
-                            id: i+1,
-                            name: 'Update #2',
-                            date: new Date().toISOString(),
-                            desc: 'Update 2 here. And I have to admit, this is quite a long update description, let\'s see if it looks good on the website?'
-                        },
-                        {
-                            id: i+2,
-                            name: 'Most recent',
-                            date: new Date().toISOString(),
-                            desc: 'The final update.'
-                        }
-                    ],
-                    completed: 'incomplete'
-                });
-            }
+            fetch("http://localhost:5000/projects/"+this.username, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+              this.projects = [];
+              if (!data.message) {
+                this.projects = data;
+              }  
+              this.loaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Projects API:', error);
+                this.loaded = true;
+            });
         },
         resetData() {
             this.projectSearch = '';
@@ -134,9 +148,9 @@ export default {
         },
         // api call to handle project creation
         createProject() {
-            // handle if project name already exists
+            //handle if project name already exists
             for(let i=0;i<this.projects.length;i++) {
-                if(this.newTitle === this.projects[i].title) {
+                if(this.newTitle === this.projects[i].Title) {
                     this.$emit('project-error','Error: A project with name \"'+this.newTitle+'\" already exists.');
                     return;
                 }
@@ -144,35 +158,86 @@ export default {
             let finalDate = this.newDueDate;
             if(this.overrideDueDate) {
                 finalDate = new Date(this.overrideDueDate);
-                finalDate.setDate(finalDate.getDate() + 1);
                 finalDate = finalDate.toISOString();
             }
-            this.projects.push({
-                id: this.projects.length,
-                due: finalDate,
-                points: [this.newRPoints,this.newGPoints,this.newBPoints],
-                title: this.newTitle,
-                desc: this.newDesc,
-                updates: [],
-                completed: 'incomplete'
+            fetch("http://localhost:5000/projects/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    due: finalDate,
+                    points: [this.newRPoints,this.newGPoints,this.newBPoints],
+                    title: this.newTitle,
+                    desc: this.newDesc
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.projects = [];
+                this.loaded = false;
+                this.$emit('project-success',this.newTitle + ' successfully created.');
+                this.resetData();
+                this.getProjects();
+            })
+            .catch(error => {
+                this.$emit('project-error',error);
+                console.error('Error with Projects API:', error);
             });
-            this.$emit('project-success',this.newTitle + ' successfully created.');
-            this.resetData();
         },
         // api call to handle done project
         done(project) {
-            this.$emit('project-completed',project.title+' has been marked as complete!',project.points[0],project.points[1],project.points[2]);
-            project.completed = new Date().toISOString();
-            this.projects = this.projects.filter((item) => item !== project);
+            fetch("http://localhost:5000/projects/", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    projectId: project.Id,
+                    markAsDone: true,
+                    due: project.Due,
+                    points: project.Points,
+                    title: project.Title,
+                    desc: project.Desc,
+                    updateTitle: '',
+                    updateDesc: ''
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.setPoints([this.getPoints[0]+project.Points[0],this.getPoints[1]+project.Points[1],this.getPoints[2]+project.Points[2]]);
+                this.getProjects();
+                this.$emit('project-completed',project.Title+' has been marked as complete!');
+            })
+            .catch(error => {
+                this.$emit('project-error',error);
+                console.error('Error with Projects API:', error);
+            });
         },
         edit(project) {
             this.editProject = project;
-            this.editProjectTitle = project.title;
-            this.editProjectDesc = project.desc;
-            this.newRPoints = project.points[0];
-            this.newGPoints = project.points[1];
-            this.newBPoints = project.points[2];
-            this.editProjectDueDate = this.convertDate(project.due);
+            this.editProjectTitle = project.Title;
+            this.editProjectDesc = project.Desc;
+            this.newRPoints = project.Points[0];
+            this.newGPoints = project.Points[1];
+            this.newBPoints = project.Points[2];
+            this.editProjectDueDate = this.convertDate(project.Due);
             //have AI decide what the description is here
             this.aiFeedbackText = 'This description is adequate!';
             this.projectView = 'edit';
@@ -181,31 +246,54 @@ export default {
         confirmEdit(project) {
             // handle if project name already exists
             for(let i=0;i<this.projects.length;i++) {
-                if(this.editProjectTitle === this.projects[i].title && this.editProjectTitle !== project.title) {
+                if(this.editProjectTitle === this.projects[i].Title && this.editProjectTitle !== project.Title) {
                     this.$emit('project-error','Error: A project with name \"'+this.editProjectTitle+'\" already exists.');
                     return;
                 }
             }
             let finalDate = new Date(this.editProjectDueDate);
-            finalDate.setDate(finalDate.getDate() + 1);
             finalDate = finalDate.toISOString();
             // if no updates have actually been made to project fields
-            if(this.editProjectTitle === project.title && this.editProjectDesc === project.desc && finalDate === project.due) {
+            if(this.editProjectTitle === project.Title && this.editProjectDesc === project.Desc && this.convertDate(finalDate) === this.convertDate(project.Due)) {
                 this.$emit('project-warning','Warning: No project details have changed.');
                 return;
             }
-            project.title = this.editProjectTitle;
-            project.desc = this.editProjectDesc;
-            project.points = [this.newRPoints,this.newGPoints,this.newBPoints];
-            project.due = finalDate;
-            project.updates.push({
-                id: project.updates.length,
-                name: this.editProjectUpdateTitle,
-                date: new Date().toISOString(),
-                desc: this.editProjectUpdateDesc
+            fetch("http://localhost:5000/projects/", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    projectId: project.Id,
+                    markAsDone: false,
+                    due: finalDate,
+                    points: [this.newRPoints,this.newGPoints,this.newBPoints],
+                    title: this.editProjectTitle,
+                    desc: this.editProjectDesc,
+                    updateTitle: this.editProjectUpdateTitle,
+                    updateDesc: this.editProjectUpdateDesc
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.projects = [];
+                this.loaded = false;
+                this.getProjects();
+                this.$emit('project-success',this.editProjectTitle + ' has been successfully updated.');
+                this.resetData();
+            })
+            .catch(error => {
+                this.$emit('project-error',error);
+                console.error('Error with Projects API:', error);
             });
-            this.$emit('project-success',this.editProjectTitle + ' has been successfully updated.');
-            this.resetData();
         },
         showDelDialog(project) {
             this.showDel = true;
@@ -213,11 +301,36 @@ export default {
         },
         // api call to handle delete project
         del (project) {
-            this.showDel = false;
-            this.$emit('project-completed',project.title+' has been successfully deleted',0,0,0);    
-            this.projects = this.projects.filter((item) => item !== project);
+            fetch("http://localhost:5000/projects/", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    projectId: project.Id
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.showDel = false;
+                this.getProjects();
+                this.$emit('project-completed',project.Title+' has been successfully deleted');
+            })
+            .catch(error => {
+                this.$emit('project-error',error);
+                console.error('Error with Projects API:', error);
+            });
         }
     },
+    emits: ['project-error','project-success','project-completed','project-warning'],
     components: {
       
     },

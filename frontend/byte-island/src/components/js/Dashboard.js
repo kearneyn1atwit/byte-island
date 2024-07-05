@@ -56,7 +56,7 @@ export default {
       
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getDashboardCreateCount'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount'])
     },
     mounted() {
       this.visitDashboard();
@@ -68,7 +68,7 @@ export default {
       }
     },
     methods: {
-        ...mapMutations(['setToken','visitDashboard','resetDashboardVisit']),
+        ...mapMutations(['setToken','setPoints','visitDashboard','resetDashboardVisit','resetStore']),
         //api call to get user data upon login
         getUserDetails() {
           this._isLoggedIn = this.isLoggedIn;
@@ -76,9 +76,9 @@ export default {
           this.username = this.getUsername;
           this.visitedUsername = this.username;
           this.pfp = 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250';
-          this.rPoints = 0;
-          this.gPoints = 12;
-          this.bPoints = 6;
+          this.rPoints = this.getPoints[0];
+          this.gPoints = this.getPoints[1];
+          this.bPoints = this.getPoints[2];
           // get island data
           this.island = null;
         },
@@ -91,15 +91,14 @@ export default {
               }
           })
           .then(response => {
-            console.log(response);
               if (!response.ok) {
                 if(response.status === 401) {
                   //log out
                   this.$router.push('/');
-                  this.setToken(null);
+                  this.resetStore();
                 }
               }
-              console.log("Response was okay!");
+              //console.log("Response was okay!");
               return response.json(); 
           })
           .then(data => {
@@ -142,9 +141,8 @@ export default {
         },
         signOut() {
           // expire token
-          this.resetDashboardVisit();
-          this.setToken(null);
           this.$router.push('/');
+          this.resetStore();
         },
         // could get complicated with nested menus, be sure to have a reference to each widget
         toWidget(widget) {
@@ -219,11 +217,11 @@ export default {
           this.showWarningAlert = false;
           this.warningAlertText = '';
         },
-        projectCompleted(text,rPoints,gPoints,bPoints) {
+        projectCompleted(text) {
           this.showSuccessAlertFunc(text);
-          this.rPoints += rPoints;
-          this.gPoints += gPoints;
-          this.bPoints += bPoints;
+          this.rPoints = this.getPoints[0];
+          this.gPoints = this.getPoints[1];
+          this.bPoints = this.getPoints[2];
         },
         visitFriend(friend) {
           this.friendRPoints = friend.points[0];
@@ -236,9 +234,6 @@ export default {
         return() {
           this.friendRPoints = -1;
           this.getUserDetails();
-        },
-        wip() {
-            alert("Feature not yet implemented.");
         }
     },
     components: {
