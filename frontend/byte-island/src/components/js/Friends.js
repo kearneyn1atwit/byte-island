@@ -147,6 +147,7 @@ export default {
             this.friends = this.friends.filter((item) => item !== friend);  
         }
     },
+    emits: ['visited-friend','unfriend-friend'],
     components: {
       
     },

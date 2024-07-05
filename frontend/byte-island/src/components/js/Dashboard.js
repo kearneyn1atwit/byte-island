@@ -98,7 +98,7 @@ export default {
                   this.resetStore();
                 }
               }
-              console.log("Response was okay!");
+              //console.log("Response was okay!");
               return response.json(); 
           })
           .then(data => {

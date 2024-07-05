@@ -38,6 +38,12 @@ export default {
     computed: {
       ...mapGetters(['getToken','getUsername','getPoints']),
       filteredProjects() {
+        if(!this.projects) {
+            return [];
+        }
+        if(!this.projectSearch) {
+            return this.projects;
+        }
         return this.projects.filter(project => {
             return project.Title.toLowerCase().includes(this.projectSearch.toLowerCase()) 
         }).sort((a,b) => (a.Completed === 'incomplete' ? 0 : 1) - (b.Completed === 'incomplete' ? 0 : 1) );
@@ -85,7 +91,10 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-              this.projects = data;
+              this.projects = [];
+              if (!data.message) {
+                this.projects = data;
+              }  
               this.loaded = true;
             })
             .catch(error => {
@@ -321,6 +330,7 @@ export default {
             });
         }
     },
+    emits: ['project-error','project-success','project-completed','project-warning'],
     components: {
       
     },

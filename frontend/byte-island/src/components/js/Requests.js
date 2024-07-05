@@ -57,6 +57,7 @@ export default {
             this.requests = this.requests.filter((item) => item !== request);  
         }
     },
+    emits: ['request-success','remove-request'],
     components: {
       
     },

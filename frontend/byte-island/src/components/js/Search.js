@@ -51,7 +51,7 @@ export default {
                             this.resetStore();
                           }
                     }
-                    console.log("Response was okay!");
+                    //console.log("Response was okay!");
                     return response.json(); 
                 })
                 .then(data => {
@@ -112,7 +112,7 @@ export default {
                             this.resetStore();
                           }
                     }
-                    console.log("Response was okay!");
+                    //console.log("Response was okay!");
                     return response.json(); 
                 })
                 .then(data => {
@@ -183,6 +183,7 @@ export default {
             this.$emit('user-network-success','A request to join network \"'+network.name+'\" has been successfully sent.');
         }
     },
+    emits: ['user-network-success'],
     components: {
       
     },
