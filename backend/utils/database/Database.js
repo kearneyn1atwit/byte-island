@@ -472,10 +472,16 @@ module.exports = {
         return idlist;
     },
     RemoveUserFromFriendsList: async function(userId, formerFriendId) { 
-        await neo4j.query(fillCypherParams(cypher.remove.usersFromFriends, {
-            "IDVAR1": userId,
-            "IDVAR2": formerFriendId
-        }));
+        try {
+            await neo4j.query(fillCypherParams(cypher.remove.usersFromFriends, {
+                "IDVAR1": userId,
+                "IDVAR2": formerFriendId
+            }));
+            return true;
+        } catch(err) {
+            console.log(err);
+            return false;
+        }
     },
     DeleteUser: async function(username) { 
 
