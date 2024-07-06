@@ -794,7 +794,7 @@ module.exports = {
     },
 
     //Post Related Functions
-    CreatePost: async function(userid,text,imageid,replyid,networkid) { 
+    CreatePost: async function(userid,text,imageid,parentid,networkid,private) { 
 
         if(userid === undefined || (text === undefined && image === undefined)) {
             throw new Error("Invalid data to create a post!");
@@ -807,10 +807,10 @@ module.exports = {
         } else {
             params['networkid'] = null;
         }
-        if(replyid !== undefined) {
-            params['replyid'] = replyid;
+        if(parentid !== undefined) {
+            params['parentid'] = parentid;
         } else {
-            params['replyid'] = null;
+            params['parentid'] = null;
         }
         if(text !== undefined) { //Fix this later
             params['text'] = text;
@@ -822,13 +822,19 @@ module.exports = {
         } else {
             params['imageid'] = null;
         }
+        if(imageid !== undefined) {
+            params['private'] = private;
+        } else {
+            params['private'] = false;
+        }
 
         //Create post in Postgres and verify its successfully added to the database
         const newPostRow = await psql.query(fillSQLParams(sql.posts.create, params));
 
+        console.log(newPostRow[1]);
         const postId = newPostRow[1].rows[0]['postid'];
         console.log("New post is created with id: " + postId);
-        console.log(newPostRow[1].rows[0])
+        
 
         //Use PostId returned back by Postgres to create corresponding Cypher node
         const newPostNode = await neo4j.query(fillCypherParams(cypher.create.post, {
@@ -856,8 +862,13 @@ module.exports = {
         return id;
     },
     GetUserPosts: async function(id) { 
-
         const userPosts = await psql.query(fillSQLParams(sql.posts.getByUser, {
+            "id":id
+        }));
+        return ProcessAndLogTableValues(userPosts);
+    },
+    GetReplies: async function(id) { 
+        const userPosts = await psql.query(fillSQLParams(sql.posts.getPostReplies, {
             "id":id
         }));
         return ProcessAndLogTableValues(userPosts);
@@ -867,6 +878,18 @@ module.exports = {
             "id":id
         }));
         return ProcessAndLogTableValues(networkPosts);
+    },
+    GetPostDetails: async function(id) { 
+        try {
+            const postDetails = await psql.query(fillSQLParams(sql.posts.select, {
+                "id":id
+            }));
+            return ProcessAndLogRowValues(postDetails, 0);
+        }
+        catch(err) {
+            console.log(err);
+            return undefined;
+        }
     },
     LikePost: async function(postid,userid) {
 

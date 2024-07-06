@@ -54,6 +54,7 @@ CREATE TABLE Posts (
     ImageId int,
     Likes int NOT NULL DEFAULT 0,
     ParentId int,
+    PrivatePost boolean NOT NULL,
     CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     EditedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     DeletedDate timestamp,

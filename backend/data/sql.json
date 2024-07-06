@@ -98,8 +98,8 @@
     },
     "posts": {
         "create": { 
-            "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId, ParentId) VALUES (:userid,:networkid,':text',:imageid,:replyid); SELECT PostId FROM Posts WHERE UserId = 1 ORDER BY CreatedDate DESC LIMIT 1;",
-            "params": "userid,networkid,text,imageid,replyid",
+            "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId, ParentId, PrivatePost) VALUES (:userid,:networkid,':text',:imageid,:parentid,:private); SELECT PostId FROM Posts WHERE UserId = :userid ORDER BY CreatedDate DESC LIMIT 1;",
+            "params": "userid,networkid,text,imageid,parentid,private",
             "desc": "Create posts with all post data."
         },
         "like": { 
@@ -128,14 +128,24 @@
             "desc": "Mark post as deleted from their id."
         },
         "getByUser": { 
-            "query": "SELECT PostId, UserId, NetworkId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE UserId = :id AND Deleted != True ORDER BY PostId;",
+            "query": "SELECT * FROM Posts WHERE UserId = :id AND ParentId IS NULL AND Deleted != True ORDER BY PostId;",
             "params": "id",
-            "desc": "Grabs all posts from a user. FIGURE OUT REPLIES"
+            "desc": "Grabs all posts from a user but not replies."
+        },
+        "getPostReplies": { 
+            "query": "SELECT * FROM Posts WHERE ParentId = :id AND Deleted != True ORDER BY PostId;",
+            "params": "id",
+            "desc": "Get all replies to a post."
         },
         "getByNetwork": { 
             "query": "SELECT PostId, UserId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE NetworkId = :id AND Deleted != True ORDER BY PostId;",
             "params": "id",
             "desc": "Grabs all posts in a network"
+        },
+        "select": {
+            "query": "SELECT * FROM Posts WHERE PostId = :id AND Deleted != True;",
+            "params": "id",
+            "desc": "Grabs post details"
         },
         "SEARCHING": { 
             "query": "",
