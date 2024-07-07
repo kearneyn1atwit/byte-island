@@ -1,63 +1,234 @@
+import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
+
 export default {
     props: ['requestCount'],
     data() {
       return {
+        username: '',
+        token: null,
         searchTab: 0,
-        friendRequests: 0,
-        networkRequests: 0,
-        requests: []
+        searchTab2: 0,
+        requests: [],
+        loaded: false
       };
     },
     async created() {
       
     },
     computed: {
-      
+        ...mapGetters(['getToken','getUsername']),
     },
     mounted() {
-        this.getRequests(this.searchTab);
+        this.getUserDetails();
+        this.getRequests(this.searchTab,this.searchTab2);
     },
     methods: {
+        ...mapMutations(['resetStore']),
+        getUserDetails() {
+            this.token = this.getToken;
+            this.username = this.getUsername;
+        },
         // api call to get user requests
-        getRequests(type) {
+        getRequests(type,type2) {
+            this.loaded = false;
             this.requests = [];
-            this.friendRequests = this.requestCount;
-            this.networkRequests = 0;
-            //friends
-            if(type === 0) {
-                for(let i=0;i<this.friendRequests;i++) {
-                    this.requests.push({
-                        id: i,
-                        message: 'User '+i+' sent a friend request',
-                        datetime: new Date().toISOString(),
-                        acceptMessage: 'Friend request accepted!'
+            if(type2 === 0) {
+                // open user
+                if(type === 0) {
+                    fetch("http://localhost:5000/requests/"+this.username+"/user/open", {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json', 
+                            'Authorization': this.token
+                        }
                     })
+                    .then(response => {
+                        if (!response.ok) {
+                          if(response.status === 401) {
+                            //log out
+                            this.$router.push('/');
+                            this.resetStore();
+                          }
+                        }
+                        //console.log("Response was okay!");
+                        return response.json(); 
+                    })
+                    .then(data => {
+                      console.log(data);
+                      if(!data.message) {
+                        this.requests = data;
+                      }
+                      this.loaded = true;
+                    })
+                    .catch(error => {
+                      this.loaded = true;
+                      console.error('Error with Requests API:', error);
+                    });
+                } 
+                // open network
+                else {
+                    fetch("http://localhost:5000/requests/"+this.username+"/network/open", {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json', 
+                            'Authorization': this.token
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                          if(response.status === 401) {
+                            //log out
+                            this.$router.push('/');
+                            this.resetStore();
+                          }
+                        }
+                        //console.log("Response was okay!");
+                        return response.json(); 
+                    })
+                    .then(data => {
+                      console.log(data);
+                      if(!data.message) {
+                        this.requests = data;
+                      }
+                      this.loaded = true;
+                    })
+                    .catch(error => {
+                      this.loaded = true;
+                      console.error('Error with Requests API:', error);
+                    });
                 }
-            }
-            //networks
+            } 
             else {
-                for(let i=0;i<this.networkRequests;i++) {
-                    this.requests.push({
-                        id: i,
-                        message: 'User '+i+' wants to join your network: Network '+(i+1),
-                        datetime: new Date().toISOString(),
-                        acceptMessage: 'User '+i+' has now joined your network: Network '+(i+1)+'!'
+                // pending user
+                if(type === 0) {
+                    fetch("http://localhost:5000/requests/"+this.username+"/user/pending", {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json', 
+                            'Authorization': this.token
+                        }
                     })
+                    .then(response => {
+                        if (!response.ok) {
+                          if(response.status === 401) {
+                            //log out
+                            this.$router.push('/');
+                            this.resetStore();
+                          }
+                        }
+                        //console.log("Response was okay!");
+                        return response.json(); 
+                    })
+                    .then(data => {
+                      console.log(data);
+                      if(!data.message) {
+                        this.requests = data;
+                      }
+                      this.loaded = true;
+                    })
+                    .catch(error => {
+                      this.loaded = true;
+                      console.error('Error with Requests API:', error);
+                    });
+                } 
+                // pending network
+                else {
+                    fetch("http://localhost:5000/requests/"+this.username+"/network/pending", {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json', 
+                            'Authorization': this.token
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                          if(response.status === 401) {
+                            //log out
+                            this.$router.push('/');
+                            this.resetStore();
+                          }
+                        }
+                        //console.log("Response was okay!");
+                        return response.json(); 
+                    })
+                    .then(data => {
+                      console.log(data);
+                      if(!data.message) {
+                        this.requests = data;
+                      }
+                      this.loaded = true;
+                    })
+                    .catch(error => {
+                      this.loaded = true;
+                      console.error('Error with Requests API:', error);
+                    });
                 }
             }
         },
         accept(request) {
-            // api call to accept request
-            this.ignore(request);
-            this.$emit('request-success',request.acceptMessage);
+            // api call to accept request (PUT)
+            fetch("http://localhost:5000/requests/", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    requestid: request.Id
+                  }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                  if(response.status === 401) {
+                    //log out
+                    this.$router.push('/');
+                    this.resetStore();
+                  }
+                }
+                //console.log("Response was okay!");
+                console.log(response);
+                this.$emit('request-success',request.AcceptMessage);
+                this.$emit('get-requests');
+                this.getRequests(this.searchTab,this.searchTab2);
+            })
+            .catch(error => {
+              console.error('Error with Requests API:', error);
+            });
         },
         ignore(request) {
-            // api call to remove request
-            this.$emit('remove-request');
-            this.requests = this.requests.filter((item) => item !== request);  
+            // api call to remove request (DELETE)
+            fetch("http://localhost:5000/requests/", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    requestid: request.Id
+                  }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                  if(response.status === 401) {
+                    //log out
+                    this.$router.push('/');
+                    this.resetStore();
+                  }
+                }
+                //console.log("Response was okay!");
+                console.log(response);
+                this.$emit('get-requests');
+                this.getRequests(this.searchTab,this.searchTab2);  
+            })
+            .catch(error => {
+              console.error('Error with Requests API:', error);
+            });
         }
     },
-    emits: ['request-success','remove-request'],
+    emits: ['request-success','get-requests'],
     components: {
       
     },

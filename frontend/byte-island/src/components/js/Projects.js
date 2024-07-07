@@ -55,7 +55,7 @@ export default {
         this.getProjects();
     },
     methods: {
-        ...mapMutations(['setToken','setPoints','resetStore']),
+        ...mapMutations(['setPoints','resetStore']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;

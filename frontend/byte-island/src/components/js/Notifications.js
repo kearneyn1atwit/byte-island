@@ -29,7 +29,7 @@ export default {
         this.getNotifications();
     },
     methods: {
-        ...mapMutations(['setToken','resetStore']),
+        ...mapMutations(['resetStore']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;

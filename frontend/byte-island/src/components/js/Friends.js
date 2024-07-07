@@ -1,4 +1,5 @@
 import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 
 export default {
     data() {
@@ -15,6 +16,9 @@ export default {
             showReplyToPost: false,
             replyPost: null,
             reply: '',
+            loaded: false,
+            friendProjectsLoaded: false,
+            friendPostsLoaded: false
         }
     },
     async created() {
@@ -39,6 +43,7 @@ export default {
         this.getFriends();
     },
     methods: {
+        ...mapMutations(['resetStore']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;
@@ -46,17 +51,38 @@ export default {
         //api call to get list of friends
         getFriends() {
             this.friends = [];
-            for(let i=0; i<10; i++) {
-                this.friends.push({
-                    id: i,
-                    username: 'Xx_coolguy93'+i+'_xX',
-                    pfp: 'http://placebeard.it/250/250',
-                    points: [i+45,i,i+27],
-                    // friend island data for visiting them
-                    island: 'island image',
-                    friendsSince: new Date(new Date().setDate(new Date().getDate() - (42 * i))).toISOString()
-                });
-            }
+            fetch("http://localhost:5000/users", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  searchBy: 2,
+                  searchString: this.username
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                //console.log("Response was okay!");
+                return response.json(); 
+            })
+            .then(data => {
+                if(!data.message) {
+                    this.friends = data;
+                }
+                this.loaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Users API:', error);
+                this.loaded = true;
+            });
         },
         //api call to handle visiting friend
         visit(friend) {
@@ -64,61 +90,72 @@ export default {
             this.visitedFriend = friend;
             this.$emit('visited-friend',friend);
             this.friendSearch = '';
-            this.friendsProjects = [];
-            // api call to get friends projects
-            for(let i=0;i<8;i++) {
-                this.friendsProjects.push({
-                    id: i,
-                    due: new Date().toISOString(),
-                    points: [i+4,i,i+12],
-                    title: "Friend project "+(i+1),
-                    desc: 'Project description for friend project '+(i+1),
-                    updates: [
-                        {
-                            id: i,
-                            name: 'First update',
-                            date: new Date().toISOString(),
-                            desc: 'This is update '+(3*i+1)+'.'
-                        },
-                        {
-                            id: i+1,
-                            name: 'Update #2',
-                            date: new Date().toISOString(),
-                            desc: 'Update 2 here. And I have to admit, this is quite a long update description, let\'s see if it looks good on the website?'
-                        }
-                    ],
-                    completed: i%2 === 0 ? 'incomplete' : new Date().toISOString()
-                });
-            }
+            this.getFriendsProjects();
             this.getFriendsPosts();
+        },
+        // api call to get friends projects
+        getFriendsProjects() {
+            this.friendProjectsLoaded = false;
+            this.friendsProjects = [];
+            fetch("http://localhost:5000/projects/"+this.visitedFriend.username, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+              if (!data.message) {
+                this.friendsProjects = data;
+              }  
+              this.friendProjectsLoaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Projects API:', error);
+                this.friendProjectsLoaded = true;
+            });
         },
         // api call to get friends posts
         getFriendsPosts() {
+            this.friendPostsLoaded = false;
             this.friendsPosts = [];
-            for(let i=0;i<6;i++) {
-                this.friendsPosts.push({
-                    id: i,
-                    type: i%3 === 0 ? 'public' : 'friends',
-                    hideReplies: false,
-                    datetime: new Date().toISOString(),
-                    user: this.visitedFriend.username,
-                    text: i%3 === 0 ? 'This is a public post '+(i+1) : 'This is a friend post '+(i+1),
-                    replies: i%2 === 0 ? [] : [
-                        {
-                            id: 0,
-                            datetime: new Date().toISOString(),
-                            user: 'DifferentUser'+(i+5),
-                            text: 'This is a reply to the post '+(i+1)
-                        },
-                        {
-                            id: 1,
-                            datetime: new Date().toISOString(),
-                            user: 'AnotherUser'+(i+54),
-                            text: 'This is a different response to this post'
-                        }
-                    ]
-                });
-            }
+            fetch("http://localhost:5000/posts/"+this.visitedFriend.username+"/all", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+              if (!data.message) {
+                this.friendsPosts = data;
+              }  
+              this.friendPostsLoaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.friendPostsLoaded = true;
+            });
         },
         replyToPost(post) {
             this.replyPost = post;
@@ -126,25 +163,66 @@ export default {
         },
         // api call to reply to post
         confirmReply(post) {
-            post.replies.push({
-                id: post.replies.length,
-                datetime: new Date().toISOString(),
-                user: this.username,
-                text: this.reply
+            fetch("http://localhost:5000/posts", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    text: this.reply,
+                    postid: post.Id
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.showReplyToPost = false;
+                this.reply = '';
+                this.getFriendsPosts(); 
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.showReplyToPost = false;
+                this.reply = '';
+                this.getFriendsPosts();
             });
-            this.showReplyToPost = false;
-            this.reply = '';
-            // this.getFriendsPosts();
-        },
-        resetHideReplies() {
-            for(let i=0;i<this.friendsPosts.length;i++) {
-                this.friendsPosts[i].hideReplies = false;
-            }
         },
         //api call to handle unfriending friend
         unfriend(friend) {
-            this.$emit('unfriend-friend','Removed user from friend list: '+friend.username+'.');
-            this.friends = this.friends.filter((item) => item !== friend);  
+            fetch("http://localhost:5000/friends", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username1: this.username,
+                  username2: friend.username
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                //console.log("Response was okay!");
+                this.$emit('unfriend-friend','Removed user from friend list: '+friend.username+'.'); 
+                this.loaded = false;
+                this.getFriends();
+            })
+            .catch(error => {
+                console.error('Error with Users API:', error);
+            });
         }
     },
     emits: ['visited-friend','unfriend-friend'],

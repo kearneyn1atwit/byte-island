@@ -25,9 +25,10 @@
                 class="ml-2 my-5 italic-search"
                 @input="getUsersNetworks(searchTab,searchByTab,search)"
         ></v-text-field>
-        <h2 v-if="!search" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
+        <h2 v-if="!loaded" class="text-center mt-5"><i>Loading...</i></h2>
+        <h2 v-if="!search && loaded" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
         <div v-else>
-            <h2 v-if="filteredList.length === 0" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
+            <h2 v-if="filteredList.length === 0 && loaded" class="text-center mt-5"><i>No {{searchFor}}s found...</i></h2>
             <v-list-item v-for="(userNetwork,index) in filteredList" :key="userNetwork.id">
                 <hr v-if="index > 0" style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
                 <v-row align="center">

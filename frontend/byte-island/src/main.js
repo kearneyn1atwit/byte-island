@@ -23,6 +23,7 @@ const store = createStore({
             user: null,
             token: null,
             points: [0,0,0],
+            counts: [0,0,0],
             pseudoDatabase: [{
                 id: "01",
                 name: "simple block",
@@ -61,6 +62,9 @@ const store = createStore({
             console.log(Number(id));
             state.pseudoDatabase[Number(id)].inventory=inv;
         },
+        setCounts(state,counts) {
+            state.counts = counts;
+        },
         visitDashboard(state){
             state.dashboardCreateCount++;
         },
@@ -72,6 +76,7 @@ const store = createStore({
             state.user = null;
             state.token = null;
             state.points = [0,0,0];
+            state.counts = [0,0,0];
         }
     },
     actions: {},
@@ -90,6 +95,9 @@ const store = createStore({
         },
         getDashboardCreateCount(state) {
             return state.dashboardCreateCount;
+        },
+        getCounts(state) {
+            return state.counts;
         }
     },
     plugins: [createPersistedState()]

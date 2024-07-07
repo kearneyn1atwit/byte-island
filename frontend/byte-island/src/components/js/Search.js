@@ -10,7 +10,9 @@ export default {
             searchBy: 'name',
             search: '',
             filteredList: [],
-            username: ''
+            token: null,
+            username: '',
+            loaded: true
         }
     },
     async created() {
@@ -20,15 +22,23 @@ export default {
         ...mapGetters(['getToken','getUsername'])
     },
     mounted() {
-        this.username = this.getUsername;
+        this.getUserDetails();
     },
     methods: {
-        ...mapMutations(['setToken','resetStore']),
+        ...mapMutations(['resetStore']),
+        getUserDetails() {
+            this.username = this.getUsername;
+            this.token = this.getToken;
+        },
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
+            if(!searchString) {
+                this.loaded = true;
+                return;
+            }
             const token = this.getToken;
             this.filteredList = [];
-
+            this.loaded = false;
             if(searchFor === 0) {
 
                 //API New Version
@@ -64,9 +74,11 @@ export default {
                             })
                         });
                     }
+                    this.loaded = true;
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
+                    this.loaded = true;
                 });
 
                 /*DEPRECATED*/
@@ -126,9 +138,11 @@ export default {
                             })
                         });
                     }
+                    this.loaded = true;
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
+                    this.loaded = true;
                 });
 
                 /*Deprecated*/
@@ -174,16 +188,74 @@ export default {
             }
             this.getUsersNetworks(this.searchTab,this.searchByTab,this.search);
         },
-        //api call to handle friending user
+        //api call to handle friending user (/requests POST)
         friend(user) {
-            this.$emit('user-network-success','A friend request has been sent to '+user.name);
+            fetch("http://localhost:5000/requests", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    type: 'user',
+                    target: user.name
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                  if (response.status === 400) {
+                    this.$emit('user-network-error','A friend request has already been sent to '+user.name+'!');
+                    return;
+                  }
+                  else if(response.status === 401) {
+                    //log out
+                    this.$router.push('/');
+                    this.resetStore();
+                  }
+                }
+                //console.log("Response was okay!");
+                this.$emit('user-network-success','A friend request has been sent to '+user.name);
+            })
+            .catch(error => {
+              console.error('Error with Requests API:', error);
+            });
         },
-        //api call to handle joining network
+        //api call to handle joining network (/requests POST)
         askToJoin(network) {
-            this.$emit('user-network-success','A request to join network \"'+network.name+'\" has been successfully sent.');
+            fetch("http://localhost:5000/requests", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    type: 'network',
+                    target: network.name
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                  if (response.status === 400) {
+                    this.$emit('user-network-error','You have already requested to join \"'+network.name+'\"!');
+                    return;
+                  }
+                  else if(response.status === 401) {
+                    //log out
+                    this.$router.push('/');
+                    this.resetStore();
+                  }
+                }
+                //console.log("Response was okay!");
+                this.$emit('user-network-success','A request to join network \"'+network.name+'\" has been successfully sent.');
+            })
+            .catch(error => {
+              console.error('Error with Requests API:', error);
+            });
         }
     },
-    emits: ['user-network-success'],
+    emits: ['user-network-success','user-network-error'],
     components: {
       
     },

@@ -1,4 +1,5 @@
 import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
 
 export default {
     data() {
@@ -12,81 +13,101 @@ export default {
             replyPost: null,
             reply: '',
             token: null,
-            username: ''
+            username: '',
+            loaded: false
         }
     },
     async created() {
       
     },
     computed: {
-        ...mapGetters(['getToken','getUsername']),
-        publicPosts() {
-            if(!this.posts) {
-                return []
-            }
-            return this.posts.filter(post => {
-                return post.type === 'public' 
-            });
-        },
-        friendsPosts() {
-            if(!this.posts) {
-                return []
-            }
-            return this.posts.filter(post => {
-                return post.type === 'friends' 
-            });
-        }
+        ...mapGetters(['getToken','getUsername'])
     },
     mounted() {
         this.getUserDetails();
         this.getPosts();
     },
     methods: {
+        ...mapMutations(['resetStore']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;
         },
         //api call to get all posts
         getPosts() {
+            this.loaded = false;
             this.posts = [];
-            for(let i=0;i<6;i++) {
-                this.posts.push({
-                    id: i,
-                    type: i%3 === 0 ? 'public' : 'friends',
-                    hideReplies: false,
-                    datetime: new Date().toISOString(),
-                    user: this.username,
-                    text: i%3 === 0 ? 'This is a public post '+(i+1) : 'This is a friend post '+(i+1),
-                    replies: i%2 === 0 ? [] : [
-                        {
-                            id: 0,
-                            datetime: new Date().toISOString(),
-                            user: 'DifferentUser'+(i+5),
-                            text: 'This is a reply to the post '+(i+1)
-                        },
-                        {
-                            id: 1,
-                            datetime: new Date().toISOString(),
-                            user: 'AnotherUser'+(i+54),
-                            text: 'This is a different response to this post'
-                        }
-                    ]
-                });
+            let category = 'all';
+            if(this.postsTabs === 1) {
+                category = 'public';
             }
+            else if(this.postsTabs === 2) {
+                category = 'friends';
+            }
+            fetch("http://localhost:5000/posts/"+this.username+"/"+category, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+              if (!data.message) {
+                this.posts = data;
+              }  
+              this.loaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.loaded = true;
+            });
         },
         // api call to post
         post() {
-            this.showNewPost = false;
-            this.newPostTab = 0;
-            //this.getPosts();
-            this.newPost = '';
-        },
-        updateSearch() {
-            // actually call api to get posts here
-            // reset hideReplies
-            for(let i=0;i<6;i++) {
-                this.posts[i].hideReplies = false;
-            }
+            fetch("http://localhost:5000/posts/", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    type: this.newPostTab === 0 ? 'public' : 'friends',
+                    text: this.newPost
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.showNewPost = false;
+                this.loaded = false;
+                this.getPosts();
+                this.newPostTab = 0;
+                this.newPost = '';
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.showNewPost = false;
+                this.loaded = false;
+                this.getPosts();
+                this.newPostTab = 0;
+                this.newPost = '';
+            });
         },
         replyToPost(post) {
             this.replyPost = post;
@@ -94,15 +115,36 @@ export default {
         },
         // api call to reply to post
         confirmReply(post) {
-            post.replies.push({
-                id: post.replies.length,
-                datetime: new Date().toISOString(),
-                user: this.username,
-                text: this.reply
+            fetch("http://localhost:5000/posts", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    text: this.reply,
+                    postid: post.Id
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.showReplyToPost = false;
+                this.reply = '';
+                this.getPosts(); 
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.showReplyToPost = false;
+                this.reply = '';
+                this.getPosts();
             });
-            this.showReplyToPost = false;
-            this.reply = '';
-            // this.getPosts();
         }
     },
     components: {

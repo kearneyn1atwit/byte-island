@@ -2,10 +2,10 @@
     <div>
         <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
             <template v-slot:default="{}">
-                <v-card :title="'Reply to Post from '+replyPost.user">
+                <v-card :title="'Reply to Post from '+replyPost.User">
                 <v-card-text>
                     <h1 class="mt-3">Enter your reply to:</h1>
-                    <pre class="mx-5 mt-3" style="white-space: pre-wrap; word-wrap: break-word;">{{replyPost.text}}</pre>
+                    <pre class="mx-5 mt-3" style="white-space: pre-wrap; word-wrap: break-word;">{{replyPost.Text}}</pre>
                     
                     <v-textarea counter="200" persistent-counter maxlength="200" clearable no-resize v-model="reply" rows="10" variant="outlined" placeholder="Enter reply..." bg-color="white" class="mb-n5 mt-5"></v-textarea>
 
@@ -66,11 +66,13 @@
                 </v-row>
             </v-list-item>
         </div>
-        
-    <v-list-item v-if="friends.length === 0 && !friendVisited">
+    <v-list-item v-if="!loaded">
+        <h1 class="ml-0"><i>Loading...</i></h1>
+    </v-list-item>    
+    <v-list-item v-if="friends.length === 0 && !friendVisited && loaded">
         <h1 class="ml-0"><i>You have no friends</i></h1>
     </v-list-item>
-    <v-list-item v-else-if="filteredFriends.length === 0 && !friendVisited">
+    <v-list-item v-else-if="filteredFriends.length === 0 && !friendVisited && loaded">
         <h1 class="ml-0"><i>No friends found</i></h1>
     </v-list-item>
     <v-list-item v-if="friendVisited">
@@ -85,47 +87,59 @@
             </v-col>    
         </v-row>
         <v-btn-toggle rounded class="toggle-group mb-2 mt-5" v-model="friendsData" mandatory>
-            <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86" @click="resetHideReplies()">Projects</v-btn>
-            <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86">Posts</v-btn>
+            <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86" @click="getFriendsProjects()">Projects</v-btn>
+            <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86" @click="getFriendsPosts()">Posts</v-btn>
         </v-btn-toggle>
         <div v-if="friendsData === 0">
-            <v-list-item v-for="project in friendsProjects" :key="project.id">
+            <v-list-item v-if="!friendProjectsLoaded">
+                <h1 class="ml-0"><i>Loading...</i></h1>
+            </v-list-item>
+            <v-list-item v-if="friendProjectsLoaded && friendsProjects.length === 0">
+                <h1 class="ml-0"><i>No projects found</i></h1>
+            </v-list-item>  
+            <v-list-item v-else v-for="project in friendsProjects" :key="project.Id">
                 <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
-                <pre v-if="project.completed === 'incomplete'" class="text-muted ml-1">&emsp;Due: {{project.due}}</pre>
-                <pre v-else class="text-muted ml-1">&emsp;Completed: {{project.completed}}</pre>
-                <pre class="text-muted ml-1">&emsp;Points: <span style="color: rgb(215,0,0);">{{project.points[0]}}</span>, <span style="color: rgb(151,255,45);">{{project.points[1]}}</span>, <span style="color: rgb(101,135,231);">{{project.points[2]}}</span></pre>
-                <h1 class="ml-3">{{project.title}}</h1>
-                <p class="ml-3" v-for="update in project.updates" :key="update.id">
+                <pre v-if="project.Completed === 'incomplete'" class="text-muted ml-1">&emsp;Due: {{project.Due}}</pre>
+                <pre v-else class="text-muted ml-1">&emsp;Completed: {{project.Completed}}</pre>
+                <pre class="text-muted ml-1">&emsp;Points: <span style="color: rgb(215,0,0);">{{project.Points[0]}}</span>, <span style="color: rgb(151,255,45);">{{project.Points[1]}}</span>, <span style="color: rgb(101,135,231);">{{project.Points[2]}}</span></pre>
+                <h1 class="ml-3">{{project.Title}}</h1>
+                <p class="ml-3" v-for="update in project.Updates" :key="update.Id">
                     <br>
-                    <h3 class="text-muted">{{update.name}} [{{update.date}}]:</h3>
-                    <span class="text-muted">{{update.desc}}</span>
+                    <h3 class="text-muted">{{update.Name}} [{{update.Date}}]:</h3>
+                    <span class="text-muted">{{update.Desc}}</span>
                     <br>
                 </p>
-                <p v-if="project.updates.length === 0" class="ml-3">
+                <p v-if="project.Updates.length === 0" class="ml-3">
                     <br>
                     <h3 class="text-muted"><i>This project has no updates.</i></h3>
                     <br>
                 </p>
-                <pre v-if="project.completed !== 'incomplete'" class="header-h1 text-center mt-3"><i>COMPLETED!</i></pre>    
+                <pre v-if="project.Completed !== 'incomplete'" class="header-h1 text-center mt-3"><i>COMPLETED!</i></pre>    
             </v-list-item>
         </div>
         <div v-else>
             <!-- SHOW ALL POST TYPES -->
-            <v-list-item v-for="post in friendsPosts" :key="post.id">
+            <v-list-item v-if="!friendPostsLoaded">
+                <h1 class="ml-0"><i>Loading...</i></h1>
+            </v-list-item>
+            <v-list-item v-if="friendPostsLoaded && friendsPosts.length === 0">
+                <h1 class="ml-0"><i>No posts found</i></h1>
+            </v-list-item> 
+            <v-list-item v-for="post in friendsPosts" :key="post.Id">
                 <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
                 <v-row align="center">
-                    <v-col :class="post.replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
-                        <pre>{{post.datetime}}</pre>
-                        <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.user}}</b>: {{post.text}}</pre>
-                        <div v-if="!post.hideReplies">
-                            <div class="mx-10 my-7" v-for="reply in post.replies" :key="reply.id" >
-                                <pre class="reply-text">{{reply.datetime}}</pre>
-                                <pre class="reply-text" style="white-space: pre-wrap; word-wrap: break-word;"><b>{{reply.user}}</b>: {{reply.text}}</pre>
+                    <v-col :class="post.Replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
+                        <pre>{{post.Datetime}}</pre>
+                        <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.User}}</b>: {{post.Text}}</pre>
+                        <div v-if="!post.HideReplies">
+                            <div class="mx-10 my-7" v-for="reply in post.Replies" :key="reply.Id" >
+                                <pre class="reply-text">{{reply.Datetime}}</pre>
+                                <pre class="reply-text" style="white-space: pre-wrap; word-wrap: break-word;"><b>{{reply.User}}</b>: {{reply.Text}}</pre>
                             </div>
                         </div>
-                        <div v-if="post.replies.length > 0" class="w-100">
-                            <v-btn :class=" post.hideReplies ? 'mr-5 mt-3 mb-1' : 'mr-5 mt-n3 mb-3'" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
-                            <v-btn :class=" post.hideReplies ? 'hide-btn mt-3 mb-1' : 'mt-n3 mb-3 hide-btn'" variant="outlined" size="small" @click="post.hideReplies = !post.hideReplies"><span v-if="!post.hideReplies">Hide</span><span v-else>Show</span>&nbsp;replies</v-btn>
+                        <div v-if="post.Replies.length > 0" class="w-100">
+                            <v-btn :class=" post.HideReplies ? 'mr-5 mt-3 mb-1' : 'mr-5 mt-n3 mb-3'" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
+                            <v-btn :class=" post.HideReplies ? 'hide-btn mt-3 mb-1' : 'mt-n3 mb-3 hide-btn'" variant="outlined" size="small" @click="post.HideReplies = !post.HideReplies"><span v-if="!post.HideReplies">Hide</span><span v-else>Show</span>&nbsp;replies</v-btn>
                         </div>
                         <div v-else>
                             <v-btn class="mt-3 mb-n1" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
