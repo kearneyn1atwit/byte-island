@@ -326,7 +326,6 @@ module.exports = {
             }));
             adminlist = []
             adminIds.records.forEach(record => {
-                idlist.push(record.get('u').properties.Id.low);
                 adminlist.push(record.get('u').properties.Id.low);
             });
 
@@ -347,6 +346,8 @@ module.exports = {
 
             //Back to networks
 
+            console.log(idlist);
+
             for (i = 0; i < idlist.length; i++) {
 
                 const id = idlist[i];
@@ -355,27 +356,15 @@ module.exports = {
                     "id": id
                 }));
 
-                if(friendlist.includes(id)) { //In friends list
-                    matchingUsers.push({
-                        username: userMiniProfile.rows[0]['username'],
-                        userid: id,
-                        pfp: "TEMP_FAKE_IMAGE_STRING",
-                        points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
-                        island: "FAKE_ISLAND_STRING",
-                        friend: true,
-                        admin: adminlist.includes(id)
-                    })
-                } else {
-                    matchingUsers.push({
-                        username: userMiniProfile.rows[0]['username'],
-                        userid: id,
-                        pfp: "TEMP_FAKE_IMAGE_STRING",
-                        points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
-                        island: "FAKE_ISLAND_STRING",
-                        friend: false,
-                        admin: adminlist.includes(id)
-                    })
-                }
+                matchingUsers.push({
+                    username: userMiniProfile.rows[0]['username'],
+                    userid: id,
+                    pfp: "TEMP_FAKE_IMAGE_STRING",
+                    points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
+                    island: "FAKE_ISLAND_STRING",
+                    friend: friendlist.includes(id),
+                    admin: adminlist.includes(id)
+                });
             }
         }
 
