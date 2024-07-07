@@ -82,32 +82,24 @@ export default {
       else if(this.$route.params.id !== this.username) {
         this.$router.push('/not-found');
       }
-      else {
-        this.loaded = true;
-      }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getCounts','getIslandData'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData'])
     },
     async mounted() {
       await this.getNotifications();
       await this.getUserRequests();
       await this.getNetworkRequests();
+      this.loaded = true;
       // only show welcome message when the user visited the dashboard after login
       if(!this.getDashboardCreateCount) {
-        // this is slow, look into later?
+        // this is VERY slow, look into later
         this.handleBadge();
       }
       this.visitDashboard();
     },
     methods: {
-        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','setCounts','updateIsland','resetIsland']),
-        // get notifications/requests from store (faster)
-        getCountFromStore() {
-          this.notificationCount = this.getCounts[0];
-          this.readCount = this.getCounts[1];
-          this.requestCount = this.getCounts[2];
-        },
+        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland']),
         //api call to get user data upon login
         genIsland() {
           let blockArray = document.getElementsByClassName("islandBlock");
@@ -188,13 +180,11 @@ export default {
                 this.readCount++;
               }
             }
-            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           })
           .catch(error => {
             this.notificationCount = 0;
             this.readCount = 0;
             console.error('Error with Notifications API:', error);
-            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           });
         },
         async getUserRequests() {
@@ -222,11 +212,9 @@ export default {
             if(!data.message) {
               this.requestCount = data.length;
             }
-            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           })
           .catch(error => {
             console.error('Error with Requests API:', error);
-            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           });
         },
         async getNetworkRequests() {
@@ -252,11 +240,9 @@ export default {
             if(!data.message) {
               this.requestCount += data.length;
             }
-            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           })
           .catch(error => {
             console.error('Error with Requests API:', error);
-            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           });
         },
         getAllRequests() {
@@ -264,18 +250,23 @@ export default {
           this.getNetworkRequests();
         },
         handleBadge() {
-          if(this.notificationCount > 0 && this.requestCount > 0) {
-            this.showSuccessAlertFunc('Welcome, '+this.username+'! You have '+this.notificationCount+' notification(s) and '+this.requestCount+' request(s).');
-          }
-          else if(this.notificationCount > 0 && this.requestCount === 0) {
-            this.showSuccessAlertFunc('Welcome, '+this.username+'! You have '+this.notificationCount+' notifcation(s).');
-          }
-          else if(this.notificationCount === 0 && this.requestCount > 0) {
-            this.showSuccessAlertFunc('Welcome, '+this.username+'! You have '+this.requestCount+' request(s).');
-          }
-          else {
-            this.showSuccessAlertFunc('Welcome, '+this.username+'!');
-          }
+          // wait half a second so transition is smoother
+          let wait = 500;
+          let self = this;
+          setTimeout(function() {
+            if(self.notificationCount > 0 && self.requestCount > 0) {
+              self.showSuccessAlertFunc('Welcome, '+self.username+'! You have '+self.notificationCount+' notification(s) and '+self.requestCount+' request(s).');
+            }
+            else if(self.notificationCount > 0 && self.requestCount === 0) {
+              self.showSuccessAlertFunc('Welcome, '+self.username+'! You have '+self.notificationCount+' notifcation(s).');
+            }
+            else if(self.notificationCount === 0 && self.requestCount > 0) {
+              self.showSuccessAlertFunc('Welcome, '+self.username+'! You have '+self.requestCount+' request(s).');
+            }
+            else {
+              self.showSuccessAlertFunc('Welcome, '+self.username+'!');
+            }
+          }, wait);
         },
         signOut() {
           // expire token
