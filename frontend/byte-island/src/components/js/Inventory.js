@@ -8,33 +8,35 @@ export default {
             itemList: [],
             pseudoDatabase: [
                 {
-                    id: "00",
+                    id: "000",
                     name: "nil",
-                    RGB: 10000,
-                    image: "/00.png",
-                    inventory: "infinite"
+                    RGB: 1,
+                    image: "/000.png",
                 },
                 {
-                    id: "01",
+                    id: "001",
+                    name: "air",
+                    RGB: 1,
+                    image: "/001.png",
+                },
+                {
+                    id: "002",
                     name: "simple block",
                     RGB: 10000,
-                    image: "/01.png",
-                    inventory: "infinite"
+                    image: "/002.png",
                 },
                 {
-                    id: "02",
+                    id: "003",
                     name: "blue block",
                     RGB: 1,
-                    image: "/02.png",
-                    inventory: "infinite"
+                    image: "/003.png",
                 },
                 {
-                    id: "03",
-                    name: "placer block",
+                    id: "004",
+                    name: "green block",
                     RGB: 100,
-                    image: "/blockplace.png",
-                    inventory: "infinite"
-            }]
+                    image: "/004.png"
+                }]
         };
     },
     async created() {
@@ -48,7 +50,7 @@ export default {
     },
     methods: {
       fetchDBItems() {
-        return this.pseudoDatabase.slice(1);
+        return this.pseudoDatabase.slice(2);
       },
       setInv(id,inv) {
           this.pseudoDatabase[Number(id)].inventory++;
@@ -87,7 +89,6 @@ export default {
           this.itemList = [];
       },
       getColor(rgb) {
-        console.log(rgb);
         if(rgb/10000>=1) return "#FF9095";
         else if(rgb/100%100>=1) return "#A3FFC9";
         else if(rgb%100>=1) return "#7DAEFF"; 

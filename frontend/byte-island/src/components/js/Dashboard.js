@@ -38,7 +38,39 @@ export default {
         showWarningAlert: false,
         warningAlertText: '',
         _isLoggedIn: false,
-        token: null
+        token: null,
+        islandData: null,
+        pseudoDatabase: [
+          {
+              id: "000",
+              name: "nil",
+              RGB: 1,
+              image: "/000.png",
+          },
+          {
+              id: "001",
+              name: "air",
+              RGB: 1,
+              image: "/001.png",
+          },
+          {
+              id: "002",
+              name: "simple block",
+              RGB: 10000,
+              image: "/002.png",
+          },
+          {
+              id: "003",
+              name: "blue block",
+              RGB: 1,
+              image: "/003.png",
+          },
+          {
+              id: "004",
+              name: "green block",
+              RGB: 100,
+              image: "/004.png"
+          }]
       };
     },
     async created() {
@@ -53,10 +85,9 @@ export default {
       else {
         this.loaded = true;
       }
-      
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData'])
     },
     mounted() {
       this.visitDashboard();
@@ -68,8 +99,43 @@ export default {
       }
     },
     methods: {
-        ...mapMutations(['setToken','setPoints','visitDashboard','resetDashboardVisit','resetStore']),
+        ...mapMutations(['setToken','setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland']),
         //api call to get user data upon login
+        genIsland() {
+          let blockArray = document.getElementsByClassName("islandBlock");
+          let islandDiv = document.getElementById("islandHolder");
+          for(let x = 0;x<blockArray.length;x++) {
+              let block = blockArray[x];
+              block.remove();
+          }
+          this.resetIsland();
+          let counter = 0;
+          const scale = 1.5;
+          const space = 32;
+          const sideLength = 8;
+          const xStart = 450;
+          const yStart = 340;
+          for(var index in this.getIslandData) {
+              let block = this.getIslandData[index];
+              let id = Number(block);
+              let thisBlock = document.createElement('img');
+              let style = thisBlock.style;
+              style.position = 'absolute';
+              const control = counter%(sideLength*sideLength);
+              const offset = -1*(scale*space)*Math.floor(counter/(sideLength*sideLength))+(Math.floor(counter/(sideLength*sideLength)))+1;
+              const left = xStart + ((scale*space)*((control%sideLength*-1)+Math.floor(control/sideLength)));
+              const top = yStart + offset + ((scale*space/2)*((control%sideLength)+Math.floor(control/sideLength)));
+              style.left = left.toString()+"px";
+              style.top = top.toString()+"px";
+              style.transform = `scale(${scale})`;
+              thisBlock.setAttribute('src',this.pseudoDatabase[id].image);
+              thisBlock.setAttribute('alt',block+'-'+counter.toString());
+              thisBlock.setAttribute('id',block+'-'+counter.toString());
+              islandDiv.appendChild(thisBlock);
+              counter++;
+          }
+          
+        },
         getUserDetails() {
           this._isLoggedIn = this.isLoggedIn;
           this.token = this.getToken;
@@ -234,7 +300,7 @@ export default {
         return() {
           this.friendRPoints = -1;
           this.getUserDetails();
-        }
+        },
     },
     components: {
       Notifications,

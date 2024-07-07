@@ -1,6 +1,6 @@
 {
     "users": {
-        "create": { 
+        "create": {
             "query": "INSERT INTO Users (Username, Email, PasswordHash, ProfileImageId) VALUES (':username',':email',':hash',:image);",
             "params": "username,email,hash,image",
             "desc": "Create user with username, email, password & profile image id. Autofill the rest. NEEDS A CYPHER COUNTERPART."

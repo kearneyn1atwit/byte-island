@@ -123,6 +123,7 @@
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{rPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{gPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{bPoints}}</li>
+                <li><v-btn @click="genIsland()">Click to gen Island</v-btn></li>
             </ul>
             <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-else>
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{friendRPoints}}</li>
@@ -134,7 +135,10 @@
         <v-row class="mt-n5 mx-1">
           <!-- replace with friends island when friend is visited -->
           <v-col cols="8" class="text-center mt-0">
-              <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island">
+              <!-- <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island"> -->
+              <div id="islandHolder"> 
+                
+              </div>
           </v-col>
         </v-row>
     </div>    
