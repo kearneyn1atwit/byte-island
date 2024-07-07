@@ -27,8 +27,22 @@
           </v-form>
 
         </v-col>
-        <div class="mx-5 ml-auto mt-5"><b><i>V 1.11.2.0</i></b></div>
-        
+        <div class="mx-5 ml-auto mt-5"><b><i>V 1.11.3.0</i></b></div>
+        <!-- 
+        Louie Z.
+        TODO (off the top of my head): 
+          - fix network joining requests
+          - try to make dashboard loading faster?
+          - settings/api
+          - sign up pfp upload (signup api change)
+          - loading proper island data/images
+          - projects AI feedback integration
+          - webhooks for real time notifications/requests
+          - island editor/api
+          - mobile client completion/UI changes
+          - obviously unit testing any and everything
+          - any additional frontend/backend/api changes that may come along during the development phase
+        -->
       </v-row>
     </v-responsive>
   </v-container>

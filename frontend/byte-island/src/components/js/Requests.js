@@ -93,6 +93,10 @@ export default {
                     this.$router.push('/');
                     this.resetStore();
                   }
+                  else {
+                    this.$emit('request-error',response.statusText);
+                    return;
+                  }
                 }
                 //console.log("Response was okay!");
                 this.$emit('request-success',request.AcceptMessage);
@@ -133,7 +137,7 @@ export default {
             });
         }
     },
-    emits: ['request-success','get-requests'],
+    emits: ['request-success','request-error','get-requests'],
     components: {
       
     },

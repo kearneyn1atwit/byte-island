@@ -91,7 +91,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 if(!data.message) {
                     this.networks = data;
                 }
@@ -203,7 +203,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-                console.log(data);
+                // console.log(data);
                 if(!data.message) {
                     this.networkUsers = data;
                     //find if user is admin of network
@@ -241,7 +241,11 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
-                      }
+                    }
+                    else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                    }
                 }
                 //console.log("Response was okay!");
                 this.$emit('network-left','Successfully left network: '+network.name+'.');
@@ -383,13 +387,17 @@ export default {
             .then(response => {
                 if (!response.ok) {
                   if (response.status === 400) {
-                    this.$emit('user-error','A friend request has already been sent to '+user.username+'!');
+                    this.$emit('user-network-error','A friend request has already been sent to '+user.username+'!');
                     return;
                   }
                   else if(response.status === 401) {
                     //log out
                     this.$router.push('/');
                     this.resetStore();
+                  }
+                  else {
+                    this.$emit('user-network-error',response.statusText);
+                    return;
                   }
                 }
                 //console.log("Response was okay!");
@@ -418,7 +426,11 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
-                      }
+                    }
+                    else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                    }
                 }
                 //console.log("Response was okay!");
                 this.$emit('friend-user','Removed user from friend list: '+user.username+'.'); 
@@ -429,7 +441,7 @@ export default {
             });
         }
     },
-    emits: ['network-left','visited-user','friend-user','user-error'],
+    emits: ['network-left','visited-user','friend-user','user-network-error'],
     components: {
       
     },

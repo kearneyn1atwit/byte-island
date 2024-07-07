@@ -169,6 +169,10 @@ export default {
                     this.$router.push('/');
                     this.resetStore();
                   }
+                  else {
+                    this.$emit('user-network-error',response.statusText);
+                    return;
+                  }
                 }
                 //console.log("Response was okay!");
                 this.$emit('user-network-success','A friend request has been sent to '+user.name);
@@ -201,6 +205,10 @@ export default {
                     //log out
                     this.$router.push('/');
                     this.resetStore();
+                  }
+                  else {
+                    this.$emit('user-network-error',response.statusText);
+                    return;
                   }
                 }
                 //console.log("Response was okay!");

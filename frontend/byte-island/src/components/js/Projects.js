@@ -180,7 +180,11 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
-                      }
+                    }
+                    else {
+                        this.$emit('project-error',response.statusText);
+                        return;
+                    }
                 }
                 this.projects = [];
                 this.loaded = false;
@@ -220,6 +224,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('project-error',response.statusText);
+                        return;
+                    }
                 }
                 this.setPoints([this.getPoints[0]+project.Points[0],this.getPoints[1]+project.Points[1],this.getPoints[2]+project.Points[2]]);
                 this.getProjects();
@@ -282,7 +290,11 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
-                      }
+                    }
+                    else {
+                        this.$emit('project-error',response.statusText);
+                        return;
+                    }
                 }
                 this.projects = [];
                 this.loaded = false;
@@ -318,7 +330,11 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
-                      }
+                    }
+                    else {
+                        this.$emit('project-error',response.statusText);
+                        return;
+                    }
                 }
                 this.showDel = false;
                 this.getProjects();
