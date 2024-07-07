@@ -90,18 +90,15 @@ export default {
       ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getCounts','getIslandData'])
     },
     async mounted() {
-      this.visitDashboard();
+      await this.getNotifications();
+      await this.getUserRequests();
+      await this.getNetworkRequests();
       // only show welcome message when the user visited the dashboard after login
-      if(this.getDashboardCreateCount === 1) {
-        await this.getNotifications();
-        await this.getUserRequests();
-        await this.getNetworkRequests();
+      if(!this.getDashboardCreateCount) {
         // this is slow, look into later?
         this.handleBadge();
       }
-      else {
-        this.getCountFromStore();
-      }
+      this.visitDashboard();
     },
     methods: {
         ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','setCounts','updateIsland','resetIsland']),
@@ -320,12 +317,13 @@ export default {
               this.$refs.networksRef.userSearch = '';
               this.$refs.networksRef.userVisited = false;
               this.$refs.networksRef.usersData = 0;
-              this.$refs.networksRef.networkVisited = true;
+              this.$refs.networksRef.view(this.$refs.networksRef.viewedNetwork);
               this.return();
             }
             else if(this.$refs.networksRef.networkVisited) {
               this.$refs.networksRef.networkVisited = false;
               this.$refs.networksRef.userSearch = '';
+              this.$refs.networksRef.getNetworks();
             } else {
               this.widget = widget;
             }

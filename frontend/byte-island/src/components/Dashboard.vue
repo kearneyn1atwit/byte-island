@@ -100,7 +100,7 @@
           <Posts ref="postsRef" v-if="widget === 'posts'">
 
           </Posts>
-          <Networks ref="networksRef" @network-left="showSuccessAlertFunc" @network-warning="showWarningAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" v-if="widget === 'networks'">
+          <Networks ref="networksRef" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-error="showErrorAlertFunc" v-if="widget === 'networks'">
 
           </Networks>
           <Settings ref="settingsRef" v-if="widget === 'settings'">
@@ -148,7 +148,7 @@
   </v-app>
 
 
-  <v-dialog v-model="showSignOut" max-width="500">
+  <v-dialog persistent v-model="showSignOut" max-width="500">
   <template v-slot:default="{}">
     <v-card title="Sign Out">
       <v-card-text>

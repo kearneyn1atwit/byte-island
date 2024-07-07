@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-dialog v-model="showNewPost" max-width="500">
+        <v-dialog v-model="showNewPost" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="New Post">
                 <v-card-text>
@@ -34,7 +34,7 @@
                 </v-card>
             </template>
         </v-dialog>
-        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
+        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card :title="'Reply to Post from '+replyPost.User">
                 <v-card-text>
