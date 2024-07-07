@@ -288,7 +288,7 @@ router.put('/requests', async (req, res) => {
 
          const userNetworks = await db.GetUserNetworks(id); //Change this to admins later
 
-         for(i = 0; i < userNetworks.length; i++) {
+         for(i = 0; i < joinRequests.length; i++) {
             if(userNetworks.includes(joinRequests[i][3])) {
                 await db.ResolveRequest(requestid);
                 return res.status(200).send();
