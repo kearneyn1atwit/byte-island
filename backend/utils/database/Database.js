@@ -1357,10 +1357,34 @@ module.exports = {
             return ProcessAndLogTableValues(openFriendRequests);
 
         } else {
-            const openJoinRequests = await psql.query(fillSQLParams(sql.requests.selectOpenNetworkRequests,  {
-                "networkid": id
+
+            const networkIds = await neo4j.query(fillCypherParams(cypher.select.networksUserIsIn, {
+                "IDVAR": id
             }));
-            return ProcessAndLogTableValues(openJoinRequests);
+            idlist = []
+            networkIds.records.forEach(record => {
+                idlist.push(record.get('n').properties.Id.low);
+            });
+
+            let result = []
+
+            //Iterate through networks user is a part of and then return them
+            for(i = 0; i < idlist.length; i++) {
+
+                const openJoinRequests = await psql.query(fillSQLParams(sql.requests.selectOpenNetworkRequests,  {
+                    "networkid": idlist[i]
+                }));
+
+                let temp = ProcessAndLogTableValues(openJoinRequests)
+
+                if(i !== 0) {
+                    temp.shift();
+                }
+
+                result = result.concat(temp)
+            };
+
+            return result;
         }
     },
     GetUserPendingRequests: async function (id, targetIsUser) { 
@@ -1372,6 +1396,7 @@ module.exports = {
             return ProcessAndLogTableValues(pendingFriendRequests);
 
         } else {
+            //Might need a change
             const pendingJoinRequests = await psql.query(fillSQLParams(sql.requests.selectPendingNetworkRequests,  {
                 "senderid": id
             }));
