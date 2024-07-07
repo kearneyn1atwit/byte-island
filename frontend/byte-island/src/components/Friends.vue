@@ -67,13 +67,13 @@
             </v-list-item>
         </div>
     <v-list-item v-if="!loaded">
-        <h1 class="ml-0"><i>Loading...</i></h1>
+        <h1 class="text-center mt-3"><i>Loading...</i></h1>
     </v-list-item>    
     <v-list-item v-if="friends.length === 0 && !friendVisited && loaded">
-        <h1 class="ml-0"><i>You have no friends</i></h1>
+        <h1 class="text-center mt-3"><i>You have no friends...</i></h1>
     </v-list-item>
     <v-list-item v-else-if="filteredFriends.length === 0 && !friendVisited && loaded">
-        <h1 class="ml-0"><i>No friends found</i></h1>
+        <h1 class="text-center mt-3"><i>No friends found...</i></h1>
     </v-list-item>
     <v-list-item v-if="friendVisited">
         <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">

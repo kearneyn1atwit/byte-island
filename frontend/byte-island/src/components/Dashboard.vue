@@ -50,9 +50,10 @@
               <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
             </v-badge>
           </div>   
-          <div v-else-if="widget === 'editor'">
+          <!-- Not sure why this is here, i'll comment in case it's needed later -->
+          <!-- <div v-else-if="widget === 'editor'">
             
-          </div>
+          </div> -->
           <div v-else>
             <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard')"></v-icon>
           </div>

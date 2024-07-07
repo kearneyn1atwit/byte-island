@@ -14,7 +14,8 @@
         </v-btn-toggle>
     </v-row>
     
-    <v-list-item v-for="(request,index) in requests" :key="request.Id">
+    <v-list-item v-for="request in requests" :key="request.Id">
+        <hr class="mb-3" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
         <pre class="text-muted">{{request.Datetime}}</pre>
         {{request.Message}}
         <v-row class="my-0" justify="space-around" v-if="searchTab2 === 0">
@@ -23,13 +24,12 @@
                 <v-btn color="secondary" class="ml-3" variant="outlined" size="small" @click="ignore(request)">Ignore</v-btn>
             </v-col>
         </v-row>
-        <hr v-if="index !== requests.length-1" :class="searchTab2 !== 0 ? 'mt-5' : ''" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
     </v-list-item>
     <v-list-item v-if="!loaded">
-        <h1 class="ml-0"><i>Loading...</i></h1>
+        <h1 class="text-center mt-3"><i>Loading...</i></h1>
     </v-list-item>
     <v-list-item v-if="requests.length === 0 && loaded">
-        <h1 class="ml-0"><i>No requests</i></h1>
+        <h1 class="text-center mt-3"><i>No new requests...</i></h1>
     </v-list-item>
     </div>
 </template>

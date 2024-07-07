@@ -36,6 +36,7 @@ export default {
         },
         // api call to get user notifications
         getNotifications() {
+            this.loaded = false;
             fetch("http://localhost:5000/notifications/"+this.username, {
                 method: 'GET',
                 headers: {

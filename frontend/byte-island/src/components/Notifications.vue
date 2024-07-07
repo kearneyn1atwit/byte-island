@@ -8,9 +8,9 @@
         <v-btn :disabled="readCount === notifications.length" color="primary" variant="outlined" @click="markAllRead()">Mark all as read</v-btn>
         <v-btn color="red" variant="outlined" class="ml-3" @click="deleteAll()">Delete all</v-btn>
     </v-row>
-    <v-row class="mb-3 mt-n3 ml-2" v-else-if="!loaded">
+    <div class="mt-5 text-center" v-else-if="!loaded">
         <h1><i>Loading...</i></h1>
-    </v-row>
+    </div>
     
     <v-list-item v-for="notification in filteredNotifications" :key="notification.Id" :class="{ '': notification.Read, 'new-notif': !notification.Read }">
         <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;">
@@ -23,8 +23,8 @@
             </v-col>
         </v-row>
     </v-list-item>
-    <v-list-item v-if="notifications.message !== undefined">
-        <h1 class="ml-0"><i>No new notifications</i></h1>
+    <v-list-item v-if="notifications.message !== undefined && loaded">
+        <h1 class="text-center mt-5"><i>No new notifications...</i></h1>
     </v-list-item>
     </div>
 </template>
