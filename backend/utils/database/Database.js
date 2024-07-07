@@ -1315,7 +1315,7 @@ module.exports = {
             "id": id
         }));
 
-        if(requestData.rows[0]['targetuserid'] !== undefined) { //Friend Request
+        if(requestData.rows[0]['targetuserid'] !== null) { //Friend Request
             const makeFriends = await neo4j.query(fillCypherParams(cypher.add.usersAsFriends, {
                 "IDVAR1": requestData.rows[0]['senderid'],
                 "IDVAR2": requestData.rows[0]['targetuserid']

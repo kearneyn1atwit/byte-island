@@ -208,8 +208,6 @@ router.post('/requests', async (req, res) => {
             
         }
         
-        
-
         //If not duplicates and everything is valid than create the request
         const requestId = await db.CreateRequest(id,target,type === 'user')
 
@@ -260,7 +258,7 @@ router.put('/requests', async (req, res) => {
         return res.status(400).json({ message: 'Invalid request id!' });
     }
   
-    console.log("PUT Notifications API Starts!");
+    console.log("PUT Requests API Starts!");
 
     try {
   
