@@ -202,6 +202,16 @@ module.exports = {
             return ProcessAndLogTableValues(miniProfileList);
         }
     },
+    GetUserNetworks: async function(id) {
+        const networkIds = await neo4j.query(fillCypherParams(cypher.select.networksUserIsIn, {
+            "IDVAR": id
+        }));
+        idlist = []
+        networkIds.records.forEach(record => {
+            idlist.push(record.get('n').properties.Id.low);
+        });
+        return idlist;
+    },
     //search is either user's name, tag name, friends or networks
     SearchUsers: async function(search, byName, username) {
 
@@ -472,10 +482,16 @@ module.exports = {
         return idlist;
     },
     RemoveUserFromFriendsList: async function(userId, formerFriendId) { 
-        await neo4j.query(fillCypherParams(cypher.remove.usersFromFriends, {
-            "IDVAR1": userId,
-            "IDVAR2": formerFriendId
-        }));
+        try {
+            await neo4j.query(fillCypherParams(cypher.remove.usersFromFriends, {
+                "IDVAR1": userId,
+                "IDVAR2": formerFriendId
+            }));
+            return true;
+        } catch(err) {
+            console.log(err);
+            return false;
+        }
     },
     DeleteUser: async function(username) { 
 
@@ -515,7 +531,7 @@ module.exports = {
     },
 
     //Network Related Functions 
-    CreateNetwork: async function (name, private) { 
+    CreateNetwork: async function (name, description, private) { 
 
         //Make sure network doesn't already exist
         const oldNetworkRow = await psql.query(fillSQLParams(sql.networks.select, {
@@ -529,6 +545,7 @@ module.exports = {
         //Create network in Postgres and verify its successfully added to the database
        const newNetworkRow = await psql.query(fillSQLParams(sql.networks.create, {
             "name": name,
+            "desc": description,
             "private": private
         }));
 
@@ -551,6 +568,13 @@ module.exports = {
             "name": name
         }));
         return ProcessData(network.rows[0]['networkid']);
+    },
+    GetNetworkName: async function (id) { 
+
+        const network = await psql.query(fillSQLParams(sql.networks.getName, {
+            "id": id
+        }));
+        return network.rows[0]['networkname'];
     },
     SetNetworkName: async function (id,name) { 
         await psql.query(fillSQLParams(sql.networks.updateName, {
@@ -581,15 +605,17 @@ module.exports = {
 
         let matchingNetworks = [];
 
-        if(byName) {
+        if(byName === 0) { //Get networks list
             const exactNetworkMatch = await psql.query(fillSQLParams(sql.networks.select, {
                 "name": search
             }));
             try {
-                const id = ProcessAndLogRowValues(exactNetworkMatch,0);
+                const networkData = ProcessAndLogRowValues(exactNetworkMatch,0);
                 matchingNetworks.push({
                     networkname: search,
-                    networkid: id['networkid']
+                    networkdesc: networkData['networkdescription'],
+                    networkid: networkData['networkid'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING"
                 });
             } catch(e) {
                 console.log("Exact match not found: " + e);
@@ -604,12 +630,14 @@ module.exports = {
                         console.log("Pushing Partial match: " + rowData['networkname']);
                         matchingNetworks.push({
                             networkname: rowData['networkname'],
-                            networkid: rowData['networkid']
+                            networkdesc: rowData['networkdescription'],
+                            networkid: rowData['networkid'],
+                            pfp: "TEMP_FAKE_IMAGE_STRING"
                         })
                     }
                 })
             }
-        } else { //By Tags
+        } else if(byName === 1) { //Get networks by Tag names
 
             const networkIds = await neo4j.query(fillCypherParams(cypher.select.relatedNetworks, {
                 "IDVAR": search
@@ -627,7 +655,38 @@ module.exports = {
 
                 matchingNetworks.push({
                     networkname: network.rows[0]['networkname'],
-                    networkid: network.rows[0]['networkid']
+                    networkdesc: network.rows[0]['networkdescription'],
+                    networkid: network.rows[0]['networkid'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING"
+                })
+            }
+        } else { //byName === 2 | Get Networks User is currently in
+
+            const user = await psql.query(fillSQLParams(sql.users.select, {
+                "name": search,
+            }));
+
+            const networkIds = await neo4j.query(fillCypherParams(cypher.select.networksUserIsIn, {
+                "IDVAR": user.rows[0]['userid']
+            }));
+            idlist = []
+            networkIds.records.forEach(record => {
+                idlist.push(record.get('n').properties.Id.low);
+            });
+
+            console.log("idlist " + idlist)
+
+            for (const id of idlist) {
+
+                const network = await psql.query(fillSQLParams(sql.networks.getName, {
+                    "id": id
+                }));
+
+                matchingNetworks.push({
+                    networkname: network.rows[0]['networkname'],
+                    networkdesc: network.rows[0]['networkdescription'],
+                    networkid: id,
+                    pfp: "TEMP_FAKE_IMAGE_STRING" //Modify this later
                 })
             }
         }
@@ -650,19 +709,33 @@ module.exports = {
         }));
     },
     RemoveNetworkMember: async function (userid,networkid) {
-        const deleteCmd = await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
-            "IDVAR1": userid,
-            "IDVAR2": networkid
-        }));  
+        try {
+            const deleteCmd = await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
+                "IDVAR1": userid,
+                "IDVAR2": networkid
+            }));  
 
-        if(deleteCmd === undefined) {
-            throw new Error("Error deleting member from network!");
+            const deleteCmd2 = await neo4j.query(fillCypherParams(cypher.remove.userFromAdmins, {
+                "IDVAR1": userid,
+                "IDVAR2": networkid
+            }));  
+    
+            if(deleteCmd === undefined || deleteCmd2 === undefined) {
+                throw new Error("Error deleting member from network!");
+            }
+    
+            await psql.query(fillSQLParams(sql.networks.modifyMemberCount, {
+                "id": networkid,
+                "count": -1
+            }));
+
+            return true;
         }
-
-        await psql.query(fillSQLParams(sql.networks.modifyMemberCount, {
-            "id": networkid,
-            "count": -1
-        }));
+        catch(err) {
+            console.log(err);
+            return false;
+        }
+        
     },
     GetNetworkAdmins: async function (id) {
         const networkAdmins = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
@@ -721,7 +794,7 @@ module.exports = {
     },
 
     //Post Related Functions
-    CreatePost: async function(userid,text,imageid,replyid,networkid) { 
+    CreatePost: async function(userid,text,imageid,parentid,networkid,private) { 
 
         if(userid === undefined || (text === undefined && image === undefined)) {
             throw new Error("Invalid data to create a post!");
@@ -734,10 +807,10 @@ module.exports = {
         } else {
             params['networkid'] = null;
         }
-        if(replyid !== undefined) {
-            params['replyid'] = replyid;
+        if(parentid !== undefined) {
+            params['parentid'] = parentid;
         } else {
-            params['replyid'] = null;
+            params['parentid'] = null;
         }
         if(text !== undefined) { //Fix this later
             params['text'] = text;
@@ -749,13 +822,19 @@ module.exports = {
         } else {
             params['imageid'] = null;
         }
+        if(imageid !== undefined) {
+            params['private'] = private;
+        } else {
+            params['private'] = false;
+        }
 
         //Create post in Postgres and verify its successfully added to the database
         const newPostRow = await psql.query(fillSQLParams(sql.posts.create, params));
 
+        console.log(newPostRow[1]);
         const postId = newPostRow[1].rows[0]['postid'];
         console.log("New post is created with id: " + postId);
-        console.log(newPostRow[1].rows[0])
+        
 
         //Use PostId returned back by Postgres to create corresponding Cypher node
         const newPostNode = await neo4j.query(fillCypherParams(cypher.create.post, {
@@ -783,8 +862,13 @@ module.exports = {
         return id;
     },
     GetUserPosts: async function(id) { 
-
         const userPosts = await psql.query(fillSQLParams(sql.posts.getByUser, {
+            "id":id
+        }));
+        return ProcessAndLogTableValues(userPosts);
+    },
+    GetReplies: async function(id) { 
+        const userPosts = await psql.query(fillSQLParams(sql.posts.getPostReplies, {
             "id":id
         }));
         return ProcessAndLogTableValues(userPosts);
@@ -794,6 +878,18 @@ module.exports = {
             "id":id
         }));
         return ProcessAndLogTableValues(networkPosts);
+    },
+    GetPostDetails: async function(id) { 
+        try {
+            const postDetails = await psql.query(fillSQLParams(sql.posts.select, {
+                "id":id
+            }));
+            return ProcessAndLogRowValues(postDetails, 0);
+        }
+        catch(err) {
+            console.log(err);
+            return undefined;
+        }
     },
     LikePost: async function(postid,userid) {
 
@@ -1087,6 +1183,106 @@ module.exports = {
         }));
         return ProcessAndLogRowValues(island, 0);
     },
+    GetInventory: async function (id) {
+        const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
+            "userid": id
+        }));
+        return inventory.rows[0]['inventorydata'];
+    },
+    GetStock: async function (userid, resourceid) { //dont know if we need this
+        const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
+            "userid": userid
+        }));
+        return inventory.rows[0]['inventorydata']['Item'+resourceid];
+    },
+    SetStock: async function (userid, resourceid, quantity, buying) {
+
+        const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
+            "userid": userid,
+            "resourceid": resourceid
+        }));
+
+        const userData = await psql.query(fillSQLParams(sql.users.getPoints, {
+            "id": userid,
+        }));
+        const points = ProcessAndLogRowValues(userData,0); //Get User Current Points [career,personal,social]
+
+        //User stock of the item
+        const stock = inventory.rows[0]['inventorydata']['Item'+resourceid];
+
+        //Resource data
+        const resource = await psql.query(fillSQLParams(sql.resources.select, {
+            "id": resourceid
+        }));  
+        const resourceData = ProcessAndLogRowValues(resource, 0);
+
+        categories = ['career','personal','social']
+
+        if(buying) {
+
+            //Check that they are capable of buying the quantity of the item, if not return false
+            if(resourceData['pointsvalue']*quantity > points[categories[resourceData['category']]+'points']) {
+                return false;
+            }
+
+            params = {
+                "id": userid,
+                "social": 0,
+                "career": 0,
+                "personal": 0
+            }
+
+            if(resourceData['category'] === 0) { //Career
+                params['career'] = resourceData['pointsvalue']*-quantity;
+            } else if(resourceData['category'] === 1) { //Personal
+                params['personal'] = resourceData['pointsvalue']*-quantity;
+            } else { //Should be social
+                params['social'] = resourceData['pointsvalue']*-quantity;
+            }
+
+            const updateUser = await psql.query(fillSQLParams(sql.users.updatePoints, params));
+
+            //If they have enough points subtract points and add to stock
+            const setStock = await psql.query(fillSQLParams(sql.island.setStock,  {
+                "userid": userid,
+                "resourceid": resourceid,
+                "stock": (stock+quantity) //Increase stock by quantity purchased
+            }));
+
+        } else { //Selling logic
+
+            //Check that they are possess all of the stock they wish to sell, if not return false
+            if(quantity > stock) {
+                return false;
+            }
+
+            //Give back 50% of sell price (rounded up) and reduce stock by amount sold
+            params = {
+                "id": userid,
+                "social": 0,
+                "career": 0,
+                "personal": 0
+            }
+
+            if(resourceData['category'] === 0) { //Career
+                params['career'] = Math.ceil((resourceData['pointsvalue']/2)*quantity);
+            } else if(resourceData['category'] === 1) { //Personal
+                params['personal'] = Math.ceil((resourceData['pointsvalue']/2)*quantity);
+            } else { //Should be social
+                params['social'] = Math.ceil((resourceData['pointsvalue']/2)*quantity);
+            }
+
+            const updateUser = await psql.query(fillSQLParams(sql.users.updatePoints, params));
+
+            const setStock = await psql.query(fillSQLParams(sql.island.setStock,  {
+                "userid": userid,
+                "resourceid": resourceid,
+                "stock": (stock-quantity) //Reduce stock by quantity sold
+            }));
+        }
+
+        return true;
+    },
 
     //Request Related Functions
     CreateRequest: async function (senderid, targetid, targetIsUser) { 
@@ -1100,7 +1296,7 @@ module.exports = {
                 "userid": targetid
             }));
             if(friendRequest[0].rowCount != 1) {
-                throw new Error("Error requesting friend!");
+                return -1;
             }
             return friendRequest[1].rows[0]['requestid']
 
@@ -1110,7 +1306,7 @@ module.exports = {
                 "networkid": targetid
             }));
             if(networkRequest[0].rowCount != 1) {
-                throw new Error("Error requesting friend!");
+                return -1;
             }
 
             return networkRequest[1].rows[0]['requestid']
@@ -1167,13 +1363,13 @@ module.exports = {
 
         if(targetIsUser) {
             const openFriendRequests = await psql.query(fillSQLParams(sql.requests.selectOpenFriendRequests,  {
-                "senderid": id,
+                "userid": id,
             }));
             return ProcessAndLogTableValues(openFriendRequests);
 
         } else {
             const openJoinRequests = await psql.query(fillSQLParams(sql.requests.selectOpenNetworkRequests,  {
-                "senderid": id
+                "networkid": id
             }));
             return ProcessAndLogTableValues(openJoinRequests);
         }
@@ -1182,13 +1378,13 @@ module.exports = {
 
         if(targetIsUser) {
             const pendingFriendRequests = await psql.query(fillSQLParams(sql.requests.selectPendingFriendRequests,  {
-                "userid": id,
+                "senderid": id,
             }));
             return ProcessAndLogTableValues(pendingFriendRequests);
 
         } else {
             const pendingJoinRequests = await psql.query(fillSQLParams(sql.requests.selectPendingNetworkRequests,  {
-                "networkid": id
+                "senderid": id
             }));
             return ProcessAndLogTableValues(pendingJoinRequests);
         }

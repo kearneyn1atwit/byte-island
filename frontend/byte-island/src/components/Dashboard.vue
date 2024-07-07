@@ -84,10 +84,10 @@
           <Projects ref="projectsRef" @project-success="showSuccessAlertFunc" @project-warning="showWarningAlertFunc" @project-error="showErrorAlertFunc" @project-completed="projectCompleted" v-if="widget === 'projects'">
             
           </Projects>
-          <Search ref="searchRef" @user-network-success="showSuccessAlertFunc" v-if="widget === 'search'">
+          <Search ref="searchRef" @user-network-success="showSuccessAlertFunc" @user-network-error="showErrorAlertFunc" v-if="widget === 'search'">
 
           </Search>  
-          <Requests ref="requestsRef" :requestCount="requestCount" @request-success="showSuccessAlertFunc" @remove-request="requestCount--" v-if="widget === 'requests'">
+          <Requests ref="requestsRef" @request-success="showSuccessAlertFunc" @get-requests="getAllRequests" v-if="widget === 'requests'">
 
           </Requests>
           <Editor ref="editorRef" v-if="widget === 'editor'">

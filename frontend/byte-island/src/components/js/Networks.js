@@ -228,6 +228,7 @@ export default {
             user.friend = false;
         }
     },
+    emits: ['network-warning','network-left','visited-user','friend-user'],
     components: {
       
     },

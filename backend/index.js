@@ -6,9 +6,11 @@ const cors = require('cors');
 const {initializeSwaggerUI} = require('./utils/api/SwaggerWrapper');
 
 //Routes
+const v1Friends = require('./routes/Friends');
 const v1Login = require('./routes/Login');
 const v1Networks = require('./routes/Networks');
 const v1Notifications = require('./routes/Notifications');
+const v1Posts = require('./routes/Posts');
 const v1Projects = require('./routes/Projects');
 const v1Requests = require('./routes/Requests');
 const v1Shop = require('./routes/Shop');
@@ -28,11 +30,13 @@ app.use(cors({ //Needs CORS enabled for 5000->3000
 app.use('/api', router);
 
 //Define the route paths and their corresponding definitions | Turn this into a dictionary later
+app.use('/', v1Friends);
 app.use('/', v1Login);
 app.use('/', v1Networks);
 app.use('/', v1Notifications);
-app.use('/',v1Projects);
-//app.use('/',v1Requests);
+app.use('/', v1Posts);
+app.use('/', v1Projects);
+app.use('/', v1Requests);
 app.use('/', v1Shop);
 app.use('/', v1Signup);
 app.use('/', v1Users);

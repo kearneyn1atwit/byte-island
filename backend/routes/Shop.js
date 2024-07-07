@@ -68,8 +68,7 @@ router.get('/shop/:username/:category', async (req, res) => {
 
         console.log(shop);
 
-        //GET USER INVENTORY AND THEN RETURN IT WITH SHOP
-        let userData = ['100','100','100','100','100','100','100','100','100','100'];
+        let userData = await db.GetInventory(id);
 
         //Format results and return
         let results = [];
@@ -81,7 +80,7 @@ router.get('/shop/:username/:category', async (req, res) => {
                 Points: rowData[3],
                 Shape: rowData[4],
                 ImageId: rowData[5],
-                Inventory: userData[rowData[0]] //Based on resource id
+                Inventory: userData['Item'+rowData[0]] //Based on resource id
             })
         });
 
@@ -104,30 +103,32 @@ router.put('/shop', async (req, res) => {
         return res.status(401).json({ message: 'Access denied!' }); 
     }
 
-    if(!auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid and token matches username
+    if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid and token matches username
         return res.status(401).json({ message: 'Access denied!' });
     } 
 
     console.log("PUT Shop API Starts!");
 
-    let resourceid, buying;
+    let resourceid, buying, quantity;
     try {
         resourceid = req.body.id; 
-        console.log(resourceid)
-        if(!resourceid) {
+        if(typeof resourceid !== 'number') {
             return res.status(400).json({ message: 'Missing id for what to buy/sell!' });
         }
         buying = req.body.buy; 
         if(typeof buying !== 'boolean') {
             return res.status(400).json({ message: 'Missing buy/sell parameter!' });
         }
+        quantity = req.body.quantity; 
+        if(typeof quantity !== 'number') {
+            return res.status(400).json({ message: 'Missing quantity parameter!' });
+        }
     } catch {
         return res.status(400).json({ message: 'Bad Request' });
     }
 
-    //Check input for other requirements
-    if (typeof resourceid !== 'number' || resourceid < 0) {
-        return res.status(400).json({ message: 'Invalid resource id!' });
+    if (quantity <= 0) {
+        return res.status(400).json({ message: 'Invalid quantity!' });
     }
 
     try {
@@ -147,18 +148,16 @@ router.put('/shop', async (req, res) => {
             console.log(err);
             return res.status(400).json({ message: 'Invalid resource id!' })
         }
-        
-        const userPoints = await db.GetUserPoints(userid);
-        console.log(userPoints)
 
-        //await db.Buy/Sell
-
-
-        // if(shop.length <= 0) {
-        //     return res.status(500).json({ message: 'Error loading shop!' })
-        // }
-
-        return res.status(200).send();
+        try {
+            const successfulTransaction = await db.SetStock(userid,resourceid,quantity,buying);
+            const points = await db.GetUserPoints(userid);
+            return res.status(200).json({ success: successfulTransaction, points: points }) //Return transaction success & new point values
+        }
+        catch(err) {
+            console.log(err);
+            return res.status(500).json({ message: 'Error trying to perform transaction!' })
+        }
 
     } catch (error) {
         console.error(error);

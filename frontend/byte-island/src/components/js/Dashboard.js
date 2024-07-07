@@ -87,19 +87,30 @@ export default {
       }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getCounts','getIslandData'])
     },
-    mounted() {
+    async mounted() {
       this.visitDashboard();
-      this.getNotifications();
-      this.getRequests();
       // only show welcome message when the user visited the dashboard after login
       if(this.getDashboardCreateCount === 1) {
+        await this.getNotifications();
+        await this.getUserRequests();
+        await this.getNetworkRequests();
+        // this is slow, look into later?
         this.handleBadge();
+      }
+      else {
+        this.getCountFromStore();
       }
     },
     methods: {
-        ...mapMutations(['setToken','setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland']),
+        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','setCounts','updateIsland','resetIsland']),
+        // get notifications/requests from store (faster)
+        getCountFromStore() {
+          this.notificationCount = this.getCounts[0];
+          this.readCount = this.getCounts[1];
+          this.requestCount = this.getCounts[2];
+        },
         //api call to get user data upon login
         genIsland() {
           let blockArray = document.getElementsByClassName("islandBlock");
@@ -148,8 +159,8 @@ export default {
           // get island data
           this.island = null;
         },
-        getNotifications() {
-          fetch("http://localhost:5000/notifications/"+this.username, {
+        async getNotifications() {
+          return fetch("http://localhost:5000/notifications/"+this.username, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json', 
@@ -164,7 +175,7 @@ export default {
                   this.resetStore();
                 }
               }
-              console.log("Response was okay!");
+              //console.log("Response was okay!");
               return response.json(); 
           })
           .then(data => {
@@ -180,16 +191,80 @@ export default {
                 this.readCount++;
               }
             }
+            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           })
           .catch(error => {
             this.notificationCount = 0;
             this.readCount = 0;
-              console.error('Error with Notifications API:', error);
+            console.error('Error with Notifications API:', error);
+            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
           });
         },
-        getRequests() {
+        async getUserRequests() {
+          this.requestCount = 0;
           // api call to get requests (get just list length)
-          this.requestCount = 8;
+          return fetch("http://localhost:5000/requests/"+this.username+"/user/open", {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json', 
+                  'Authorization': this.token
+              }
+          })
+          .then(response => {
+              if (!response.ok) {
+                if(response.status === 401) {
+                  //log out
+                  this.$router.push('/');
+                  this.resetStore();
+                }
+              }
+              //console.log("Response was okay!");
+              return response.json(); 
+          })
+          .then(data => {
+            if(!data.message) {
+              this.requestCount = data.length;
+            }
+            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
+          })
+          .catch(error => {
+            console.error('Error with Requests API:', error);
+            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
+          });
+        },
+        async getNetworkRequests() {
+          return fetch("http://localhost:5000/requests/"+this.username+"/network/open", {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json', 
+                  'Authorization': this.token
+              }
+          })
+          .then(response => {
+              if (!response.ok) {
+                if(response.status === 401) {
+                  //log out
+                  this.$router.push('/');
+                  this.resetStore();
+                }
+              }
+              //console.log("Response was okay!");
+              return response.json(); 
+          })
+          .then(data => {
+            if(!data.message) {
+              this.requestCount += data.length;
+            }
+            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
+          })
+          .catch(error => {
+            console.error('Error with Requests API:', error);
+            this.setCounts([this.notificationCount,this.readCount,this.requestCount]);
+          });
+        },
+        getAllRequests() {
+          this.getUserRequests();
+          this.getNetworkRequests();
         },
         handleBadge() {
           if(this.notificationCount > 0 && this.requestCount > 0) {

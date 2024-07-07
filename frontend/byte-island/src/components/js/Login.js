@@ -51,14 +51,14 @@ export default {
                   this.resetStore();
                 }
               }
-              console.log("Response was okay!");
+              //console.log("Response was okay!");
               return response.json(); 
           })
           .then(data => {
             this.setToken(data.token);
             this.setUser(data.username);
             this.setPoints([data.career,data.personal,data.social]);
-            console.log('Login successful:', data.token); //This is the authorization token that must be stored
+            //console.log('Login successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: {  
                 id: data.username
               }});
@@ -104,7 +104,7 @@ export default {
               this.setToken(data.token);
               this.setUser(data.username);
               this.setPoints([data.career,data.personal,data.social]);
-              console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
+              //console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: { 
                 id: data.username
                }});

@@ -98,8 +98,8 @@
     },
     "posts": {
         "create": { 
-            "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId, ParentId) VALUES (:userid,:networkid,':text',:imageid,:replyid); SELECT PostId FROM Posts WHERE UserId = 1 ORDER BY CreatedDate DESC LIMIT 1;",
-            "params": "userid,networkid,text,imageid,replyid",
+            "query": "INSERT INTO Posts (UserId, NetworkId, TextContent, ImageId, ParentId, PrivatePost) VALUES (:userid,:networkid,':text',:imageid,:parentid,:private); SELECT PostId FROM Posts WHERE UserId = :userid ORDER BY CreatedDate DESC LIMIT 1;",
+            "params": "userid,networkid,text,imageid,parentid,private",
             "desc": "Create posts with all post data."
         },
         "like": { 
@@ -128,14 +128,24 @@
             "desc": "Mark post as deleted from their id."
         },
         "getByUser": { 
-            "query": "SELECT PostId, UserId, NetworkId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE UserId = :id AND Deleted != True ORDER BY PostId;",
+            "query": "SELECT * FROM Posts WHERE UserId = :id AND ParentId IS NULL AND Deleted != True ORDER BY PostId;",
             "params": "id",
-            "desc": "Grabs all posts from a user. FIGURE OUT REPLIES"
+            "desc": "Grabs all posts from a user but not replies."
+        },
+        "getPostReplies": { 
+            "query": "SELECT * FROM Posts WHERE ParentId = :id AND Deleted != True ORDER BY PostId;",
+            "params": "id",
+            "desc": "Get all replies to a post."
         },
         "getByNetwork": { 
             "query": "SELECT PostId, UserId, TextContent, ImageId, Likes, ParentId FROM Posts WHERE NetworkId = :id AND Deleted != True ORDER BY PostId;",
             "params": "id",
             "desc": "Grabs all posts in a network"
+        },
+        "select": {
+            "query": "SELECT * FROM Posts WHERE PostId = :id AND Deleted != True;",
+            "params": "id",
+            "desc": "Grabs post details"
         },
         "SEARCHING": { 
             "query": "",
@@ -167,9 +177,14 @@
     },
     "networks": {
         "create": { 
-            "query": "INSERT INTO Networks (NetworkName, PrivateNetwork) VALUES (':name',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
-            "params": "name,private",
+            "query": "INSERT INTO Networks (NetworkName, NetworkDescription, PrivateNetwork) VALUES (':name',':desc',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
+            "params": "name,desc,private",
             "desc": "Create network with network name."
+        },
+        "getName": { 
+            "query": "SELECT NetworkName, NetworkDescription FROM Networks WHERE NetworkId = ':id' AND Deleted != True;",
+            "params": "id",
+            "desc": "Select one network name off its id"
         },
         "updateName": { 
             "query": "UPDATE Networks SET NetworkName = ':name' WHERE NetworkId = :id AND Deleted != True;",
@@ -189,10 +204,10 @@
         "delete": { 
             "query": "UPDATE Networks SET Deleted = TRUE, DeletedDate = CURRENT_TIMESTAMP WHERE NetworkId = :id;",
             "params": "id",
-            "desc": "Mark network as deleted from their id. NEEDS A CYPHER COUNTERPART"
+            "desc": "Mark network as deleted from their id."
         },
         "selectSome": { 
-            "query": "SELECT NetworkId, NetworkName FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
+            "query": "SELECT NetworkId, NetworkName, NetworkDescription FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select networks based off matching names"
         },
@@ -262,6 +277,21 @@
             "params": "id,path",
             "desc": "Create island with user id."
         },
+        "getWholeInventory": {
+            "query": "SELECT InventoryData FROM IslandData WHERE UserId = :userid;",
+            "params": "userid",
+            "desc": "Get value for specific resource."
+        },
+        "getStock": {
+            "query": "SELECT InventoryData->>'Item:resourceid' AS item FROM IslandData WHERE UserId = :userid;",
+            "params": "resourceid,userid",
+            "desc": "Get value for specific resource. DEPRECATED may use later if performance becomes a problem."
+        },
+        "setStock": {
+            "query": "UPDATE IslandData SET InventoryData = jsonb_set(InventoryData, '{Item:resourceid}', ':stock') WHERE UserId = :userid;",
+            "params": "resourceid,userid,stock",
+            "desc": "Set value for specific resource."
+        },
         "updatePeople": { 
             "query": "UPDATE IslandData SET NumberOfPeople = NumberOfPeople + :people WHERE UserId = :id;",
             "params": "id,people",
@@ -304,22 +334,22 @@
             "params": "id",
             "desc": "Get request details from the request id"
         },
-        "selectOpenFriendRequests": { 
+        "selectPendingFriendRequests": { 
             "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetUserId > 0 AND Resolved != True AND Deleted != True;",
             "params": "senderid",
             "desc": "Get friend requests being waited on by sender user Id"
         },
-        "selectOpenNetworkRequests": { 
+        "selectPendingNetworkRequests": { 
             "query": "SELECT * FROM Requests WHERE SenderId = :senderid AND TargetNetworkId > 0 AND Resolved != True AND Deleted != True;",
             "params": "senderid",
             "desc": "Get network requests being waited on by sender user Id"
         },
-        "selectPendingFriendRequests": { 
+        "selectOpenFriendRequests": { 
             "query": "SELECT * FROM Requests WHERE TargetUserID = :userid AND Resolved != True AND Deleted != True;",
             "params": "userid",
             "desc": "Get friend requests needing replies by target user id"
         },
-        "selectPendingNetworkRequests": { 
+        "selectOpenNetworkRequests": { 
             "query": "SELECT * FROM Requests WHERE TargetNetworkId = :networkid AND Resolved != True AND Deleted != True;",
             "params": "networkid",
             "desc": "Get network requests needing replies by target user id"

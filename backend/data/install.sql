@@ -54,6 +54,7 @@ CREATE TABLE Posts (
     ImageId int,
     Likes int NOT NULL DEFAULT 0,
     ParentId int,
+    PrivatePost boolean NOT NULL,
     CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     EditedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     DeletedDate timestamp,
@@ -85,6 +86,28 @@ CREATE TABLE IslandData (
     UserId int PRIMARY KEY,
     NumberOfPeople int NOT NULL DEFAULT 0,
     DataPath varchar(256) UNIQUE NOT NULL,
+    InventoryData JSONB DEFAULT
+    '{
+        "Item0": 0, "Item1": 0, "Item2": 0, "Item3": 0, "Item4": 0, "Item5": 0, "Item6": 0, "Item7": 0, 
+        "Item8": 0, "Item9": 0, "Item10": 0, "Item11": 0, "Item12": 0, "Item13": 0, "Item14": 0, 
+        "Item15": 0, "Item16": 0, "Item17": 0, "Item18": 0, "Item19": 0, "Item20": 0, "Item21": 0, 
+        "Item22": 0, "Item23": 0, "Item24": 0, "Item25": 0, "Item26": 0, "Item27": 0, "Item28": 0, 
+        "Item29": 0, "Item30": 0, "Item31": 0, "Item32": 0, "Item33": 0, "Item34": 0, "Item35": 0, 
+        "Item36": 0, "Item37": 0, "Item38": 0, "Item39": 0, "Item40": 0, "Item41": 0, "Item42": 0, 
+        "Item43": 0, "Item44": 0, "Item45": 0, "Item46": 0, "Item47": 0, "Item48": 0, "Item49": 0, 
+        "Item50": 0, "Item51": 0, "Item52": 0, "Item53": 0, "Item54": 0, "Item55": 0, "Item56": 0, 
+        "Item57": 0, "Item58": 0, "Item59": 0, "Item60": 0, "Item61": 0, "Item62": 0, "Item63": 0, 
+        "Item64": 0, "Item65": 0, "Item66": 0, "Item67": 0, "Item68": 0, "Item69": 0, "Item70": 0, 
+        "Item71": 0, "Item72": 0, "Item73": 0, "Item74": 0, "Item75": 0, "Item76": 0, "Item77": 0, 
+        "Item78": 0, "Item79": 0, "Item80": 0, "Item81": 0, "Item82": 0, "Item83": 0, "Item84": 0, 
+        "Item85": 0, "Item86": 0, "Item87": 0, "Item88": 0, "Item89": 0, "Item90": 0, "Item91": 0, 
+        "Item92": 0, "Item93": 0, "Item94": 0, "Item95": 0, "Item96": 0, "Item97": 0, "Item98": 0, 
+        "Item99": 0, "Item100": 0, "Item101": 0, "Item102": 0, "Item103": 0, "Item104": 0, "Item105": 0, 
+        "Item106": 0, "Item107": 0, "Item108": 0, "Item109": 0, "Item110": 0, "Item111": 0, "Item112": 0, 
+        "Item113": 0, "Item114": 0, "Item115": 0, "Item116": 0, "Item117": 0, "Item118": 0, "Item119": 0, 
+        "Item120": 0, "Item121": 0, "Item122": 0, "Item123": 0, "Item124": 0, "Item125": 0, "Item126": 0, 
+        "Item127": 0
+    }'
     FOREIGN KEY(UserId) REFERENCES Users(UserId)
 );
 
@@ -264,4 +287,3 @@ INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) V
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (125,'Factory',2,96,1);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (126,'Wind Turbine',2,32,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (127,'Solar Panel',2,32,0);
-INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (128,'Nuclear Plant',2,128,2);
