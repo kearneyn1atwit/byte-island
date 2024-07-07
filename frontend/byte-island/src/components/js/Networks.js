@@ -8,7 +8,9 @@ export default {
             networkSearch: '',
             userSearch: '',
             showNewNetwork: false,
+            newNetworkType: 0,
             newNetworkName: '',
+            newNetworkDesc: '',
             newNetworkPic: '',
             networkVisited: false,
             userVisited: false,
@@ -22,6 +24,11 @@ export default {
             showReplyToPost: false,
             replyPost: null,
             reply: '',
+            networksLoaded: false,
+            usersLoaded: false,
+            currentUserAdmin: false,
+            userProjectsLoaded: false,
+            userPostsLoaded: false
         }
     },
     async created() {
@@ -63,19 +70,44 @@ export default {
         },
         //api call to get networks
         getNetworks() {
-            for(let i=0;i<10;i++) {
-                this.networks.push({
-                    id: i,
-                    name: 'generic_network_'+(i+1),
-                    pfp: 'https://picsum.photos/id/'+(i+500)+'/55/55',
-                });
-            }
+            this.networksLoaded = false;
+            this.networks = [];
+            fetch("http://localhost:5000/networks/2/"+this.username, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                //console.log("Response was okay!");
+                return response.json(); 
+            })
+            .then(data => {
+                console.log(data);
+                if(!data.message) {
+                    this.networks = data;
+                }
+                this.networksLoaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Networks API:', error);
+                this.networksLoaded = true;
+            });
         },
         newNetwork() {
             this.showNewNetwork = true;
         },
         chooseNetworkPic() {
             this.$refs.networkPic.click();
+            let self = this;
             document.getElementById('networkPic').addEventListener('change', function(e) {
                 if (e.target.files[0]) {
                   var elem = document.createElement("img");
@@ -91,111 +123,211 @@ export default {
                   reader.readAsDataURL(e.target.files[0]);
                   document.getElementById("imagePrev").innerHTML = '';
                   document.getElementById("imagePrev").appendChild(elem);
-                  // i guess this does *actually* nothing for some reason? cool
-                  // this.newNetworkPic = e.target.files[0].name;
+                  self.newNetworkPic = e.target.files[0].name;
                 }
             });
         },  
         //api call to handle network creation
         confirmCreation() {
-            if(document.getElementById('networkPic').files.length === 0) {
-                this.$emit('network-warning','Please select a network image.');
-            }
-            else {
+            fetch("http://localhost:5000/networks", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    networkname: this.newNetworkName,
+                    networkdescription: this.newNetworkDesc,
+                    networkpicture: this.newNetworkPic,
+                    private: this.newNetworkType === 0 ? false : true
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                //console.log("Response was okay!");
+                this.newNetworkType = 0;
                 this.newNetworkName = '';
+                this.newNetworkDesc = '';
                 this.newNetworkPic = '';
-                // this.getNetworks();
+                this.networksLoaded = false;
+                this.getNetworks();
                 this.showNewNetwork = false;
-            }
+            })
+            .catch(error => {
+                console.error('Error with Networks API:', error);
+                this.newNetworkType = 0;
+                this.newNetworkName = '';
+                this.newNetworkDesc = '';
+                this.newNetworkPic = '';
+                this.networksLoaded = false;
+                this.getNetworks();
+                this.showNewNetwork = false;
+            });
         },
         view(network) {
             //api call to get users in network
-            this.networkUsers = [];
-            for(let i=network.id;i<network.id+8;i++) {
-                this.networkUsers.push({
-                    id: i,
-                    username: 'User_'+i,
-                    pfp: 'http://placebeard.it/250/250',
-                    points: [i+33,i+100,i+2],
-                    // friend island data for visiting them
-                    island: 'island image',
-                    //check if user is current user's friend
-                    friend: i%2 === 0 ? true : false,
-                    friendsSince: i%2 === 0 ? new Date(new Date().setDate(new Date().getDate() - (42 * i))).toISOString() : '',
-                    admin: i <= network.id+2 ? true : false
-                });
-            }
+            this.currentUserAdmin = false;
             this.viewedNetwork = network;
             this.networkSearch = '';
             this.networkVisited = true;
+            this.usersLoaded = false;
+            this.networkUsers = [];
+            fetch("http://localhost:5000/users", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username: this.username,
+                  searchBy: 3,
+                  searchString: network.networkname
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                //console.log("Response was okay!");
+                return response.json(); 
+            })
+            .then(data => {
+                console.log(data);
+                if(!data.message) {
+                    this.networkUsers = data;
+                    //find if user is admin of network
+                    for(let i=0;i<data.length;i++) {
+                        if(data[i].admin && data[i].username === this.username) {
+                            this.currentUserAdmin = true;
+                            break;
+                        }
+                    }
+                }
+                this.usersLoaded = true;
+                
+            })
+            .catch(error => {
+                console.error('Error with Users API:', error);
+                this.usersLoaded = true;
+            });
         },
         //api call to leave network
-        leave(network) {
-            this.$emit('network-left','Successfully left network: '+network.name+'.');
-            this.networks = this.networks.filter((item) => item !== network);  
+        leave(network,username) {
+            fetch("http://localhost:5000/networks", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  network: network.networkname,
+                  username: username
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                //console.log("Response was okay!");
+                this.$emit('network-left','Successfully left network: '+network.name+'.');
+                this.networksLoaded = false;
+                this.getNetworks(); 
+            })
+            .catch(error => {
+                console.error('Error with Networks API:', error);
+                // network error alert?
+                this.networksLoaded = false;
+                this.getNetworks(); 
+            });
         },
-        //api call to handle visiting user
         visit(user) {
             this.visitedUser = user;
             this.networkVisited = false;
             this.userVisited = true;
             this.$emit('visited-user',user);
             this.userSearch = '';
-            this.userProjects = [];
-            // api call to get users projects
-            for(let i=0;i<8;i++) {
-                this.userProjects.push({
-                    id: i,
-                    due: new Date().toISOString(),
-                    points: [i+4,i,i+12],
-                    title: "User project "+(i+1),
-                    desc: 'Project description for friend project '+(i+1),
-                    updates: [
-                        {
-                            id: i,
-                            name: 'First update',
-                            date: new Date().toISOString(),
-                            desc: 'This is update '+(3*i+1)+'.'
-                        },
-                        {
-                            id: i+1,
-                            name: 'Update #2',
-                            date: new Date().toISOString(),
-                            desc: 'Update 2 here. And I have to admit, this is quite a long update description, let\'s see if it looks good on the website?'
-                        }
-                    ],
-                    completed: i%2 === 0 ? 'incomplete' : new Date().toISOString()
-                });
-            }
+            this.getUsersProjects();
             this.getUsersPosts();
+        },
+        //api call to get users projects
+        getUsersProjects() {
+            this.userProjectsLoaded = false;
+            this.usersProjects = [];
+            fetch("http://localhost:5000/projects/"+this.visitedUser.username, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+              if (!data.message) {
+                this.usersProjects = data;
+              }  
+              this.userProjectsLoaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Projects API:', error);
+                this.userProjectsLoaded = true;
+            });
         },
         //api call to get users posts
         getUsersPosts() {
+            this.userPostsLoaded = false;
             this.usersPosts = [];
-            for(let i=0;i<4;i++) {
-                this.usersPosts.push({
-                    id: i,
-                    type: 'public',
-                    hideReplies: false,
-                    datetime: new Date().toISOString(),
-                    user: this.visitedUser.username,
-                    text: 'This is a public post '+(i+1),
-                    replies: i%2 === 0 ? [] : [
-                        {
-                            id: 0,
-                            datetime: new Date().toISOString(),
-                            user: 'DifferentUser'+(i+5),
-                            text: 'This is a reply to the post '+(i+1)
-                        },
-                        {
-                            id: 1,
-                            datetime: new Date().toISOString(),
-                            user: 'AnotherUser'+(i+54),
-                            text: 'This is a different response to this post'
-                        }
-                    ]
-                });
-            }
+            let type = this.visitedUser.friend? 'all' : 'public'
+            fetch("http://localhost:5000/posts/"+this.visitedUser.username+"/"+type, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+              if (!data.message) {
+                this.usersPosts = data;
+              }  
+              this.userPostsLoaded = true;
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.userPostsLoaded = true;
+            });
         },
         replyToPost(post) {
             this.replyPost = post;
@@ -203,32 +335,101 @@ export default {
         },
         // api call to reply to post
         confirmReply(post) {
-            post.replies.push({
-                id: post.replies.length,
-                datetime: new Date().toISOString(),
-                user: this.username,
-                text: this.reply
+            fetch("http://localhost:5000/posts", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    text: this.reply,
+                    postid: post.Id
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                this.showReplyToPost = false;
+                this.reply = '';
+                this.getUsersPosts(); 
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.showReplyToPost = false;
+                this.reply = '';
+                this.getUsersPosts();
             });
-            this.showReplyToPost = false;
-            this.reply = '';
-            // this.getUsersPosts();
-        },
-        resetHideReplies() {
-            for(let i=0;i<this.usersPosts.length;i++) {
-                this.usersPosts[i].hideReplies = false;
-            }
         },
         //api call to handle friending user
         friend(user) {
-            this.$emit('friend-user','A friend request has been sent to '+user.username);
+            fetch("http://localhost:5000/requests", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    type: 'user',
+                    target: user.username
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                  if (response.status === 400) {
+                    this.$emit('user-error','A friend request has already been sent to '+user.username+'!');
+                    return;
+                  }
+                  else if(response.status === 401) {
+                    //log out
+                    this.$router.push('/');
+                    this.resetStore();
+                  }
+                }
+                //console.log("Response was okay!");
+                this.$emit('friend-user','A friend request has been sent to '+user.username);
+            })
+            .catch(error => {
+              console.error('Error with Requests API:', error);
+            });
         },
         //api call to handle unfriending user
         unfriend(user) {
-            this.$emit('friend-user','Removed user from friend list: '+user.username+'.');
-            user.friend = false;
+            fetch("http://localhost:5000/friends", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username1: this.username,
+                  username2: user.username
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                }
+                //console.log("Response was okay!");
+                this.$emit('friend-user','Removed user from friend list: '+user.username+'.'); 
+                this.view(this.viewedNetwork);
+            })
+            .catch(error => {
+                console.error('Error with Users API:', error);
+            });
         }
     },
-    emits: ['network-warning','network-left','visited-user','friend-user'],
+    emits: ['network-left','visited-user','friend-user','user-error'],
     components: {
       
     },

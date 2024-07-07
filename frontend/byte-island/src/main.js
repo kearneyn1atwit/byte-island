@@ -30,7 +30,7 @@ const store = createStore({
             islandData.push("00000001");
         }
         return {
-            dashboardCreateCount: 0,
+            dashboardCreateCount: false,
             user: null,
             token: null,
             points: [0,0,0],
@@ -88,13 +88,13 @@ const store = createStore({
             state.counts = counts;
         },
         visitDashboard(state){
-            state.dashboardCreateCount++;
+            state.dashboardCreateCount = true;
         },
         resetDashboardVisit(state){
-            state.dashboardCreateCount = 0;
+            state.dashboardCreateCount = false;
         },
         resetStore(state) {
-            state.dashboardCreateCount = 0;
+            state.dashboardCreateCount = false;
             state.user = null;
             state.token = null;
             state.points = [0,0,0];

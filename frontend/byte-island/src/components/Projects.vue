@@ -1,8 +1,8 @@
 <template>
     
         <div v-if="projectView === 'all'">
-            <h1 class="header-h1 ml-2 mb-5">My Projects</h1>
-            <v-btn variant="outlined" color="success" class="ml-2 custom-btn mb-5" @click="newProject()">Add New!</v-btn>
+            <h1 class="header-h1 ml-2 mb-1">My Projects</h1>
+            <v-btn variant="outlined" color="success" class="ml-2 custom-btn mb-5 mt-2" @click="newProject()">Add New!</v-btn>
             <v-text-field
                 v-model="projectSearch"
                 density="compact"
@@ -108,7 +108,7 @@
                 </v-row>
         </div>   
     
-    <v-dialog v-model="showDel" max-width="500">
+    <v-dialog v-model="showDel" max-width="500" persistent>
         <template v-slot:default="{}">
             <v-card :title="'Delete Project: ' + delProject.Title">
             <v-card-text>

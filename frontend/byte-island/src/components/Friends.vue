@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
+        <v-dialog persistent v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
             <template v-slot:default="{}">
                 <v-card :title="'Reply to Post from '+replyPost.User">
                 <v-card-text>

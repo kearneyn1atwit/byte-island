@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- CHANGE USERNAME -->
-        <v-dialog v-model="showUsername" max-width="500">
+        <v-dialog v-model="showUsername" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="Change Username">
                 <v-card-text>
@@ -31,7 +31,7 @@
             </template>
         </v-dialog>
         <!-- CHANGE PASSWORD -->
-        <v-dialog v-model="showPassword" max-width="500">
+        <v-dialog v-model="showPassword" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="Change Password">
                 <v-card-text>
@@ -63,7 +63,7 @@
             </template>
         </v-dialog>
         <!-- CONFIRM PRIVATE ACCOUNT -->
-        <v-dialog v-model="showPrivateDialog" max-width="500">
+        <v-dialog v-model="showPrivateDialog" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="Private Account">
                 <v-card-text>
@@ -92,7 +92,7 @@
             </template>
         </v-dialog>
         <!-- CONFIRM PUBLICIZE ACCOUNT -->
-        <v-dialog v-model="showPublicDialog" max-width="500">
+        <v-dialog v-model="showPublicDialog" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="Publicize Account">
                 <v-card-text>
@@ -121,7 +121,7 @@
             </template>
         </v-dialog>
         <!-- CONFIRM RESET DATA -->
-        <v-dialog v-model="showReset" max-width="500">
+        <v-dialog v-model="showReset" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="Reset Data">
                 <v-card-text>
@@ -154,7 +154,7 @@
             </template>
         </v-dialog>
         <!-- CONFIRM DELETE ACCOUNT -->
-        <v-dialog v-model="showDelete" max-width="500">
+        <v-dialog v-model="showDelete" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="Reset Data">
                 <v-card-text>
