@@ -459,6 +459,14 @@ export default {
             .catch(error => {
                 console.error('Error with Users API:', error);
             });
+        },
+        //api call to make user admin
+        admin(user) {
+            alert('Work in progress.');
+        },
+        //api call to remove user admin
+        unadmin(user) {
+            alert('Work in progress.');
         }
     },
     emits: ['network-left','visited-user','friend-user','user-network-error'],
