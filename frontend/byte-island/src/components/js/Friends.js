@@ -213,6 +213,10 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
+                      } 
+                      else {
+                        this.$emit('friend-error',response.statusText);
+                        return;
                       }
                 }
                 //console.log("Response was okay!");
@@ -225,7 +229,7 @@ export default {
             });
         }
     },
-    emits: ['visited-friend','unfriend-friend'],
+    emits: ['visited-friend','unfriend-friend','friend-error'],
     components: {
       
     },

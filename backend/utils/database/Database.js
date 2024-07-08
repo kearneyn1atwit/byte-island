@@ -326,7 +326,6 @@ module.exports = {
             }));
             adminlist = []
             adminIds.records.forEach(record => {
-                idlist.push(record.get('u').properties.Id.low);
                 adminlist.push(record.get('u').properties.Id.low);
             });
 
@@ -347,6 +346,8 @@ module.exports = {
 
             //Back to networks
 
+            console.log(idlist);
+
             for (i = 0; i < idlist.length; i++) {
 
                 const id = idlist[i];
@@ -355,27 +356,15 @@ module.exports = {
                     "id": id
                 }));
 
-                if(friendlist.includes(id)) { //In friends list
-                    matchingUsers.push({
-                        username: userMiniProfile.rows[0]['username'],
-                        userid: id,
-                        pfp: "TEMP_FAKE_IMAGE_STRING",
-                        points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
-                        island: "FAKE_ISLAND_STRING",
-                        friend: true,
-                        admin: adminlist.includes(id)
-                    })
-                } else {
-                    matchingUsers.push({
-                        username: userMiniProfile.rows[0]['username'],
-                        userid: id,
-                        pfp: "TEMP_FAKE_IMAGE_STRING",
-                        points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
-                        island: "FAKE_ISLAND_STRING",
-                        friend: false,
-                        admin: adminlist.includes(id)
-                    })
-                }
+                matchingUsers.push({
+                    username: userMiniProfile.rows[0]['username'],
+                    userid: id,
+                    pfp: "TEMP_FAKE_IMAGE_STRING",
+                    points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
+                    island: "FAKE_ISLAND_STRING",
+                    friend: friendlist.includes(id),
+                    admin: adminlist.includes(id)
+                });
             }
         }
 
@@ -1326,7 +1315,7 @@ module.exports = {
             "id": id
         }));
 
-        if(requestData.rows[0]['targetuserid'] !== undefined) { //Friend Request
+        if(requestData.rows[0]['targetuserid'] !== null) { //Friend Request
             const makeFriends = await neo4j.query(fillCypherParams(cypher.add.usersAsFriends, {
                 "IDVAR1": requestData.rows[0]['senderid'],
                 "IDVAR2": requestData.rows[0]['targetuserid']
@@ -1368,10 +1357,34 @@ module.exports = {
             return ProcessAndLogTableValues(openFriendRequests);
 
         } else {
-            const openJoinRequests = await psql.query(fillSQLParams(sql.requests.selectOpenNetworkRequests,  {
-                "networkid": id
+
+            const networkIds = await neo4j.query(fillCypherParams(cypher.select.networksUserIsIn, {
+                "IDVAR": id
             }));
-            return ProcessAndLogTableValues(openJoinRequests);
+            idlist = []
+            networkIds.records.forEach(record => {
+                idlist.push(record.get('n').properties.Id.low);
+            });
+
+            let result = []
+
+            //Iterate through networks user is a part of and then return them
+            for(i = 0; i < idlist.length; i++) {
+
+                const openJoinRequests = await psql.query(fillSQLParams(sql.requests.selectOpenNetworkRequests,  {
+                    "networkid": idlist[i]
+                }));
+
+                let temp = ProcessAndLogTableValues(openJoinRequests)
+
+                if(i !== 0) {
+                    temp.shift();
+                }
+
+                result = result.concat(temp)
+            };
+
+            return result;
         }
     },
     GetUserPendingRequests: async function (id, targetIsUser) { 
@@ -1383,6 +1396,7 @@ module.exports = {
             return ProcessAndLogTableValues(pendingFriendRequests);
 
         } else {
+            //Might need a change
             const pendingJoinRequests = await psql.query(fillSQLParams(sql.requests.selectPendingNetworkRequests,  {
                 "senderid": id
             }));

@@ -27,8 +27,21 @@
           </v-form>
 
         </v-col>
-        <div class="mx-5 ml-auto mt-5"><b><i>V 1.10.2.0</i></b></div>
-        
+        <div class="mx-5 ml-auto mt-5"><b><i>V 1.11.4.0</i></b></div>
+        <!-- 
+        Louie Z.
+        TODO (off the top of my head): 
+          - try to make dashboard loading faster?
+          - settings/api
+          - loading proper island data/images
+          - projects AI feedback integration
+          - webhooks for real time notifications/requests
+          - island editor/api
+          - mobile client completion/UI changes
+          - delete network button if admin of network (network list) and delete posts functionality (/networks DELETE, /posts DELETE)
+          - obviously unit testing any and everything
+          - any additional frontend/backend/api changes that may come along during the development phase
+        -->
       </v-row>
     </v-responsive>
   </v-container>

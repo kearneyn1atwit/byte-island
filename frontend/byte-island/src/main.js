@@ -30,11 +30,10 @@ const store = createStore({
             islandData.push("00000001");
         }
         return {
-            dashboardCreateCount: 0,
+            dashboardCreateCount: false,
             user: null,
             token: null,
             points: [0,0,0],
-            counts: [0,0,0],
             islandData,
             pseudoDatabase: [
                 {
@@ -84,21 +83,17 @@ const store = createStore({
             console.log(Number(id));
             state.pseudoDatabase[Number(id)].inventory=inv;
         },
-        setCounts(state,counts) {
-            state.counts = counts;
-        },
         visitDashboard(state){
-            state.dashboardCreateCount++;
+            state.dashboardCreateCount = true;
         },
         resetDashboardVisit(state){
-            state.dashboardCreateCount = 0;
+            state.dashboardCreateCount = false;
         },
         resetStore(state) {
-            state.dashboardCreateCount = 0;
+            state.dashboardCreateCount = false;
             state.user = null;
             state.token = null;
             state.points = [0,0,0];
-            state.counts = [0,0,0];
         },
         updateIsland(state,index,newData) {
             state.islandData[index]=newData;
@@ -142,9 +137,6 @@ const store = createStore({
         },
         getDashboardCreateCount(state) {
             return state.dashboardCreateCount;
-        },
-        getCounts(state) {
-            return state.counts;
         },
         getIslandData(state) {
             return state.islandData;

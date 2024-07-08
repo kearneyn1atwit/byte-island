@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-dialog v-model="showNewPost" max-width="500">
+        <v-dialog v-model="showNewPost" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card title="New Post">
                 <v-card-text>
@@ -34,7 +34,7 @@
                 </v-card>
             </template>
         </v-dialog>
-        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
+        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500" persistent>
             <template v-slot:default="{}">
                 <v-card :title="'Reply to Post from '+replyPost.User">
                 <v-card-text>
@@ -91,10 +91,12 @@
                             </div>
                             <div v-if="post.Replies.length > 0" class="w-100">
                                 <v-btn :class=" post.HideReplies ? 'mr-5 mt-3 mb-1' : 'mr-5 mt-n3 mb-3'" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
-                                <v-btn :class=" post.HideReplies ? 'hide-btn mt-3 mb-1' : 'mt-n3 mb-3 hide-btn'" variant="outlined" size="small" @click="post.HideReplies = !post.HideReplies"><span v-if="!post.HideReplies">Hide</span><span v-else>Show</span>&nbsp;replies</v-btn>
+                                <v-btn :class=" post.HideReplies ? 'mr-5 hide-btn mt-3 mb-1' : 'mr-5 mt-n3 mb-3 hide-btn'" variant="outlined" size="small" @click="post.HideReplies = !post.HideReplies"><span v-if="!post.HideReplies">Hide</span><span v-else>Show</span>&nbsp;replies</v-btn>
+                                <v-btn :class=" post.HideReplies ? 'mt-3 mb-1' : 'mt-n3 mb-3'" size="small" variant="outlined" @click="del(post)" color="red">Delete</v-btn>
                             </div>
                             <div v-else>
-                                <v-btn class="mt-3 mb-n1" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
+                                <v-btn class="mt-3 mb-n1 mr-5" size="small" variant="outlined" @click='replyToPost(post)'>Reply</v-btn>
+                                <v-btn class="mt-3 mb-n1" size="small" variant="outlined" @click='del(post)' color="red">Delete</v-btn>
                             </div>
                         </v-col>
                     </v-row>

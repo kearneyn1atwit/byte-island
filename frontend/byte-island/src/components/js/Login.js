@@ -30,7 +30,7 @@ export default {
       ...mapMutations(['setToken','setUser','setPoints','resetStore']),
       //api call for logging in
       login() {
-
+          this.resetStore();
           const hashedPassword = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
 
           fetch("http://localhost:5000/login", {
@@ -70,6 +70,7 @@ export default {
       },
       //api call for signing up
       signup() {
+        this.resetStore();
         if(!this.showUsername) {
           this.showUsername = true;
         }

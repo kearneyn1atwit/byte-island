@@ -86,11 +86,16 @@ export default {
                   }) 
             })
             .then(response => {
+              // console.log(response);
                 if (!response.ok) {
                   if(response.status === 401) {
                     //log out
                     this.$router.push('/');
                     this.resetStore();
+                  }
+                  else {
+                    this.$emit('request-error',response.statusText);
+                    return;
                   }
                 }
                 //console.log("Response was okay!");
@@ -132,7 +137,7 @@ export default {
             });
         }
     },
-    emits: ['request-success','get-requests'],
+    emits: ['request-success','request-error','get-requests'],
     components: {
       
     },

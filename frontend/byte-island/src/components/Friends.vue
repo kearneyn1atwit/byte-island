@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-dialog v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
+        <v-dialog persistent v-model="showReplyToPost" v-if="showReplyToPost" max-width="500">
             <template v-slot:default="{}">
                 <v-card :title="'Reply to Post from '+replyPost.User">
                 <v-card-text>
@@ -67,13 +67,13 @@
             </v-list-item>
         </div>
     <v-list-item v-if="!loaded">
-        <h1 class="text-center mt-3"><i>Loading...</i></h1>
+        <h1 class="text-center mt-5"><i>Loading...</i></h1>
     </v-list-item>    
     <v-list-item v-if="friends.length === 0 && !friendVisited && loaded">
-        <h1 class="text-center mt-3"><i>You have no friends...</i></h1>
+        <h1 class="text-center mt-5"><i>You have no friends...</i></h1>
     </v-list-item>
     <v-list-item v-else-if="filteredFriends.length === 0 && !friendVisited && loaded">
-        <h1 class="text-center mt-3"><i>No friends found...</i></h1>
+        <h1 class="text-center mt-5"><i>No friends found...</i></h1>
     </v-list-item>
     <v-list-item v-if="friendVisited">
         <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
@@ -92,10 +92,10 @@
         </v-btn-toggle>
         <div v-if="friendsData === 0">
             <v-list-item v-if="!friendProjectsLoaded">
-                <h1 class="ml-0"><i>Loading...</i></h1>
+                <h1 class="text-center mt-5"><i>Loading...</i></h1>
             </v-list-item>
             <v-list-item v-if="friendProjectsLoaded && friendsProjects.length === 0">
-                <h1 class="ml-0"><i>No projects found</i></h1>
+                <h1 class="text-center mt-5"><i>No projects found</i></h1>
             </v-list-item>  
             <v-list-item v-else v-for="project in friendsProjects" :key="project.Id">
                 <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
@@ -120,10 +120,10 @@
         <div v-else>
             <!-- SHOW ALL POST TYPES -->
             <v-list-item v-if="!friendPostsLoaded">
-                <h1 class="ml-0"><i>Loading...</i></h1>
+                <h1 class="text-center mt-5"><i>Loading...</i></h1>
             </v-list-item>
             <v-list-item v-if="friendPostsLoaded && friendsPosts.length === 0">
-                <h1 class="ml-0"><i>No posts found</i></h1>
+                <h1 class="text-center mt-5"><i>No posts found</i></h1>
             </v-list-item> 
             <v-list-item v-for="post in friendsPosts" :key="post.Id">
                 <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">

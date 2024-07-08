@@ -1,6 +1,18 @@
 <template>
-<v-app v-if="loaded">
-    <v-fade-transition>
+<v-app v-if="!loaded">
+  <transition name="fade" appear>
+    <v-row align="center" justify="center" style="margin: 0 !important;">
+      <div class="text-center">
+        <h1  style="font-size: 500%;"><i>Initializing dashboard...</i></h1>
+        <p>Good things come to those who wait!</p>
+      </div>
+    </v-row>
+  </transition>  
+</v-app>
+<v-app v-else>
+  <transition name="fadefast" appear>
+    <v-app>
+      <v-fade-transition>
       <v-alert closable @click:close="hideAlerts()" v-if="showSuccessAlert" position="absolute" color="success" icon="$success" elevation="10" :text="successAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
       <v-alert closable @click:close="hideAlerts()" v-if="showErrorAlert" position="absolute" color="red" icon="$error" elevation="10" :text="errorAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
       <v-alert closable @click:close="hideAlerts()" v-if="showWarningAlert" position="absolute" color="warning" icon="$warning" elevation="10" :text="warningAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>  
@@ -30,7 +42,7 @@
               <v-icon icon="mdi-menu" class="menu-icon ml-auto ma-5 mt-4" @click.stop="drawer = !drawer"></v-icon>
             </div>
             <div>
-              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center wrap-text"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
             </div>
         </v-list-item>
 
@@ -58,7 +70,7 @@
             <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard')"></v-icon>
           </div>
           <div>
-              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center wrap-text"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
             </div>
         </v-list-item>
           <v-divider></v-divider>
@@ -88,19 +100,19 @@
           <Search ref="searchRef" @user-network-success="showSuccessAlertFunc" @user-network-error="showErrorAlertFunc" v-if="widget === 'search'">
 
           </Search>  
-          <Requests ref="requestsRef" @request-success="showSuccessAlertFunc" @get-requests="getAllRequests" v-if="widget === 'requests'">
+          <Requests ref="requestsRef" @request-success="showSuccessAlertFunc" @request-error="showErrorAlertFunc" @get-requests="getAllRequests" v-if="widget === 'requests'">
 
           </Requests>
           <Editor ref="editorRef" v-if="widget === 'editor'">
 
           </Editor>
-          <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" v-if="widget === 'friends'">
+          <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" @friend-error="showErrorAlertFunc" v-if="widget === 'friends'">
 
           </Friends>   
           <Posts ref="postsRef" v-if="widget === 'posts'">
 
           </Posts>
-          <Networks ref="networksRef" @network-left="showSuccessAlertFunc" @network-warning="showWarningAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" v-if="widget === 'networks'">
+          <Networks ref="networksRef" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
 
           </Networks>
           <Settings ref="settingsRef" v-if="widget === 'settings'">
@@ -145,10 +157,12 @@
     </div>    
   </v-main> 
     </v-layout>
-  </v-app>
+    </v-app>
+  </transition>
+</v-app>
 
 
-  <v-dialog v-model="showSignOut" max-width="500">
+  <v-dialog persistent v-model="showSignOut" max-width="500">
   <template v-slot:default="{}">
     <v-card title="Sign Out">
       <v-card-text>
@@ -194,12 +208,33 @@ li {
     line-height: 2.5rem;
     text-decoration: underline;
 }
+.wrap-text {
+  word-wrap: break-word;
+}
 </style>
 <style>
 .badge-lg .v-badge__badge {
   font-size: 1.25rem;
   border-radius: 20px;
   height: 1.5rem;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.fadefast-enter-active,
+.fadefast-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fadefast-enter-from,
+.fadefast-leave-to {
+  opacity: 0;
 }
 </style>
 <script src="./js/Dashboard.js">
