@@ -39,6 +39,11 @@ export default {
         warningAlertText: '',
         _isLoggedIn: false,
         token: null,
+        mouseX: 0,
+        mouseY: 0,
+        myIndex: -1,
+        indeces: [],
+        isLeft: null,
         islandData: null,
         pseudoDatabase: [
           {
@@ -102,32 +107,102 @@ export default {
       else {
         this.getCountFromStore();
       }
+      document.addEventListener("mousemove",this.getMouseCoords);
     },
     methods: {
-        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','setCounts','updateIsland','resetIsland']),
+        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','setCounts','updateIsland','resetIsland','clearIsland']),
         // get notifications/requests from store (faster)
         getCountFromStore() {
           this.notificationCount = this.getCounts[0];
           this.readCount = this.getCounts[1];
           this.requestCount = this.getCounts[2];
         },
+        //Used Claude to generate code to figure out if something is inside a parrallelogram, used to determine if mouse is within range to place a block.
+        isPointInParallelogram(x1, y1, x2, y2, x3, y3, x4, y4, px, py) {
+          function sign(pX, pY, x1, y1, x2, y2) {
+              return (pX - x2) * (y1 - y2) - (x1 - x2) * (pY - y2);
+          }
+          let d1 = sign(px, py, x1, y1, x2, y2);
+          let d2 = sign(px, py, x2, y2, x3, y3);
+          let d3 = sign(px, py, x3, y3, x4, y4);
+          let d4 = sign(px, py, x4, y4, x1, y1);
+          let has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0) || (d4 < 0);
+          let has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0) || (d4 > 0);
+          return !(has_neg && has_pos);
+        },
+        //Determine isometric coordinate within plane to compute index in islandData array where placing a block at your cursor would overwrite.
+        getAltCoords(x1,y1,x2,y2,pX,pY) {
+          //Determine x distance and y distance of mouse pointer to a line, find the hypotenuse of the triangle made using those distances, divide hypotenuse by 2 to get isometric distance in pixels.
+          const slope = (y1-y2)/(x1-x2);
+          const altY = Math.abs(pY - (slope*(pX-x1)+y1));
+          const altX = Math.abs(pX - (x1+((pY-y1)/slope)));
+          //53.778 is the diagonal distance in pixels across a block, at scale 1.5 which is what the program will be using for the demo, because I'm strapped for time.
+          return Math.floor((Math.sqrt(altY**2+altX**2)/2)/53.778);
+        },
+        leftOrRight(pX,onesPlace,eightsPlace) {
+          const shift = eightsPlace-onesPlace;
+          return pX < shift*48.5 + 482;
+        },
+        canIPlaceHere(x,y) {
+          if(this.$refs.editorRef && this.$refs.editorRef.editorView === 'inventory') {
+            //const space = 32;
+            //const scale = 1.5;
+            const baseCoords = [482,324,100,518,482,714,866,518];
+            const indeces = [];
+            for(var plane=0;plane<5;plane++) {
+              const offset = plane*48; //48 = scale*space, set to 1.5 and 32.
+              if(this.isPointInParallelogram(baseCoords[0],-baseCoords[1]+offset,baseCoords[2],-baseCoords[3]+offset,baseCoords[4],-baseCoords[5]+offset,baseCoords[6],-baseCoords[7]+offset,x,-y)) {
+                const eightsPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[2],baseCoords[3]-offset,x,y);
+                const onesPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[6],baseCoords[7]-offset,x,y);
+                indeces.push((onesPlace+eightsPlace*8)+plane*64);
+              }
+            }
+            const eightsPlace = this.getAltCoords(baseCoords[0],baseCoords[1],baseCoords[2],baseCoords[3],x,y);
+            const onesPlace = this.getAltCoords(baseCoords[0],baseCoords[1],baseCoords[6],baseCoords[7],x,y);
+            return [indeces,this.leftOrRight(x,onesPlace,eightsPlace)];
+          } else {
+            return [[],null];
+          }
+        },
+        getMouseCoords(event) {
+          this.mouseX = event.pageX;
+          this.mouseY = event.pageY;
+          const results = this.canIPlaceHere(this.mouseX,this.mouseY);
+          this.indeces = results[0];
+          this.isLeft = results[1];
+          dispatchEvent(new Event("clear"));
+          for(var x=this.indeces.length;x>0;x--) {
+            const hov = document.getElementById('hover-'+this.indeces[x]);
+            if(hov) {
+              hov.style.opacity=1;
+              break;
+            }
+          }
+        },
         //api call to get user data upon login
         genIsland() {
           let blockArray = document.getElementsByClassName("islandBlock");
           let islandDiv = document.getElementById("islandHolder");
+          let elementArray = Array.apply(null, Array(320)).map(function () {});
           for(let x = 0;x<blockArray.length;x++) {
               let block = blockArray[x];
               block.remove();
           }
-          this.resetIsland();
+          this.clearIsland();
           let counter = 0;
           const scale = 1.5;
           const space = 32;
           const sideLength = 8;
           const xStart = 450;
           const yStart = 340;
-          for(var index in this.getIslandData) {
-              let block = this.getIslandData[index];
+          const myIslandData = this.getIslandData;
+          for(var index in myIslandData) {
+              index = Number(index);
+              if(elementArray[index]!=null) {
+                counter++;
+                continue;
+              }
+              let block = myIslandData[index];
               let id = Number(block);
               let thisBlock = document.createElement('img');
               let style = thisBlock.style;
@@ -141,11 +216,32 @@ export default {
               style.transform = `scale(${scale})`;
               thisBlock.setAttribute('src',this.pseudoDatabase[id].image);
               thisBlock.setAttribute('alt',block+'-'+counter.toString());
+              thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id',block+'-'+counter.toString());
-              islandDiv.appendChild(thisBlock);
+              if(id!=1 && index+64<320 && myIslandData[index+64]==="00000001") {
+                let hoverBlock = document.createElement('img');
+                let hoverStyle = hoverBlock.style;
+                hoverStyle.position = 'absolute';
+                hoverStyle.left = left.toString()+"px";
+                hoverStyle.top = (top-(scale*space)).toString()+"px";
+                //hoverStyle.top = top.toString()+"px";
+                hoverStyle.transform = `scale(${scale})`;
+                hoverStyle.opacity = 0;
+                hoverStyle.transition = 'opacity 0.1s ease';
+                hoverBlock.setAttribute('src',"/blockplace.png");
+                hoverBlock.setAttribute('alt','hover-'+counter.toString()); 
+                hoverBlock.setAttribute('id','hover-'+counter.toString()); 
+                hoverBlock.addEventListener("clear", (event) => {
+                  hoverStyle.opacity = 0;
+                });
+                elementArray[counter+64]=hoverBlock;
+              }
+              elementArray[counter]=thisBlock;
               counter++;
           }
-          
+          for(var index in elementArray) {
+            islandDiv.appendChild(elementArray[Number(index)]);
+          }
         },
         getUserDetails() {
           this._isLoggedIn = this.isLoggedIn;

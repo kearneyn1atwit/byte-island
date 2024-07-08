@@ -14,30 +14,35 @@ export default {
                     name: "nil",
                     RGB: 1,
                     image: "/000.png",
+                    inventory: 0
                 },
                 {
                     id: "001",
                     name: "air",
                     RGB: 1,
                     image: "/001.png",
+                    inventory: 0
                 },
                 {
                     id: "002",
                     name: "simple block",
                     RGB: 10000,
                     image: "/002.png",
+                    inventory: 0
                 },
                 {
                     id: "003",
                     name: "blue block",
                     RGB: 1,
                     image: "/003.png",
+                    inventory: 0
                 },
                 {
                     id: "004",
                     name: "green block",
                     RGB: 100,
-                    image: "/004.png"
+                    image: "/004.png",
+                    inventory: 0
                 }]
         };
     },

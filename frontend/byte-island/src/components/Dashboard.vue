@@ -138,7 +138,7 @@
           <v-col cols="8" class="text-center mt-0">
               <!-- <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island"> -->
               <div id="islandHolder"> 
-                
+                <p>{{ indeces }}</p>
               </div>
           </v-col>
         </v-row>
