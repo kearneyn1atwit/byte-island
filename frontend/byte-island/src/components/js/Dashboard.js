@@ -139,7 +139,7 @@ export default {
             //const scale = 1.5;
             const baseCoords = [482,324,100,518,482,714,866,518];
             const indeces = [];
-            for(var plane=0;plane<5;plane++) {
+            for(var plane=0;plane<6;plane++) {
               const offset = plane*48; //48 = scale*space, set to 1.5 and 32.
               if(this.isPointInParallelogram(baseCoords[0],-baseCoords[1]+offset,baseCoords[2],-baseCoords[3]+offset,baseCoords[4],-baseCoords[5]+offset,baseCoords[6],-baseCoords[7]+offset,x,-y)) {
                 const eightsPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[2],baseCoords[3]-offset,x,y);
@@ -192,7 +192,7 @@ export default {
                   thisBlock.setAttribute('id','hoverBlock');
                   document.getElementById("islandHolder").appendChild(thisBlock);
                   break;
-                } else if(this.getSelectedBlock!='DEL') {
+                } else if(this.getSelectedBlock!='DEL' && spot<256) {
                   let thisBlock = document.createElement('img');
                   let style = thisBlock.style;
                   style.position = 'absolute';
