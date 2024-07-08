@@ -1,10 +1,13 @@
+import { mapGetters } from "vuex";
+import { mapMutations } from "vuex";
+
 export default {
     data() {
         return {
             searchCategory: 'ALL',
             searchTab: 0,
             searchString: "",
-            myBlock: "NIL",
+            myBlock: null,
             itemList: [],
             pseudoDatabase: [
                 {
@@ -43,12 +46,13 @@ export default {
       
     },
     computed: {
-
+        ...mapGetters(['getSelectedBlock'])
     },
     mounted() {
-        
+        this.setSelectedBlock(null);
     },
     methods: {
+        ...mapMutations(['setSelectedBlock']),
       fetchDBItems() {
         return this.pseudoDatabase.slice(2);
       },
@@ -98,10 +102,12 @@ export default {
         let blockBtn = document.getElementById(id);
         if(this.myBlock === id) {
             blockBtn.style.backgroundColor="white";
-            this.myBlock = 'NIL';
+            this.myBlock = null;
+            this.setSelectedBlock(null);
         } else {
             blockBtn.style.backgroundColor=this.getColor(this.pseudoDatabase[Number(id)].RGB);
             this.myBlock = id;
+            this.setSelectedBlock(id);
         }
       },
       currentBlock() {
@@ -118,10 +124,12 @@ export default {
         let blockBtn = document.getElementById('DEL');
         if(this.myBlock === 'DEL') {
             blockBtn.style.backgroundColor="white";
-            this.myBlock = 'NIL';
+            this.myBlock = null;
+            this.setSelectedBlock(null);
         } else {
             blockBtn.style.backgroundColor="grey";
             this.myBlock = 'DEL';
+            this.setSelectedBlock('DEL');
         }
       },
       delBg() {

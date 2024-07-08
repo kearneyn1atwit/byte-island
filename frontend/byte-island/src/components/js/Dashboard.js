@@ -89,7 +89,7 @@ export default {
       }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock'])
     },
     async mounted() {
       await this.getNotifications();
@@ -103,6 +103,7 @@ export default {
       }
       this.visitDashboard();
       document.addEventListener("mousemove",this.getMouseCoords);
+      document.addEventListener("click",this.alterIsland);
     },
     methods: {
         ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland']),
@@ -165,39 +166,107 @@ export default {
           const myIslandData = this.islandData;
           for(var x=this.indeces.length-1;x>=0;x--) {
             const spot = this.indeces[x];
-            if(myIslandData[spot]!='00000001' && myIslandData[spot+64]==='00000001') {
-              const scale = 1.5;
-              const space = 32;
-              const sideLength = 8;
-              const xStart = 450;
-              const yStart = 340;
+            if(myIslandData[spot]!='00000001' && myIslandData[spot+64]==='00000001' && this.getSelectedBlock) {
+              //if((myIslandData[spot+73]==='00000001') && (!this.isLeft || myIslandData[spot+65]==='00000001') && (this.isLeft || myIslandData[spot+72]==='00000001')) {
+                const scale = 1.5;
+                const space = 32;
+                const sideLength = 8;
+                const xStart = 450;
+                const yStart = 340;
+                if(this.getSelectedBlock==='DEL' && myIslandData[spot]!='00000000') {
+                  let thisBlock = document.createElement('img');
+                  let style = thisBlock.style;
+                  style.position = 'absolute';
+                  const control = spot%(sideLength*sideLength);
+                  const offset = -1*(scale*space)*(Math.floor(spot/(sideLength*sideLength)))+(Math.floor(spot/(sideLength*sideLength)))+1;
+                  const left = xStart + ((scale*space)*((control%sideLength*-1)+Math.floor(control/sideLength)));
+                  const top = yStart + offset + ((scale*space/2)*((control%sideLength)+Math.floor(control/sideLength)));
+                  style.left = left.toString()+"px";
+                  style.top = top.toString()+"px";
+                  style.transform = `scale(${scale})`;
+                  style.zIndex = spot*2;
+                  thisBlock.setAttribute('spot',spot.toString());
+                  thisBlock.setAttribute('src','/blockdelete.png');
+                  thisBlock.setAttribute('alt','hover-'+spot.toString());
+                  thisBlock.setAttribute('class','hoverBlock');
+                  thisBlock.setAttribute('id','hoverBlock');
+                  document.getElementById("islandHolder").appendChild(thisBlock);
+                  break;
+                } else if(this.getSelectedBlock!='DEL') {
+                  let thisBlock = document.createElement('img');
+                  let style = thisBlock.style;
+                  style.position = 'absolute';
+                  const control = spot%(sideLength*sideLength);
+                  const offset = -1*(scale*space)*(Math.floor(spot/(sideLength*sideLength))+1)+(Math.floor(spot/(sideLength*sideLength)))+1;
+                  const left = xStart + ((scale*space)*((control%sideLength*-1)+Math.floor(control/sideLength)));
+                  const top = yStart + offset + ((scale*space/2)*((control%sideLength)+Math.floor(control/sideLength)));
+                  style.left = left.toString()+"px";
+                  style.top = top.toString()+"px";
+                  style.transform = `scale(${scale})`;
+                  style.zIndex = spot*2;
+                  thisBlock.setAttribute('spot',spot.toString());
+                  thisBlock.setAttribute('src','/blockplace.png');
+                  thisBlock.setAttribute('alt','hover-'+spot.toString());
+                  thisBlock.setAttribute('class','hoverBlock');
+                  thisBlock.setAttribute('id','hoverBlock');
+                  document.getElementById("islandHolder").appendChild(thisBlock);
+                  break;
+                }
+              //}
+            }
+          }
+        },
+        alterIsland(event) {
+          if(document.getElementById('hoverBlock')) {
+            if(this.getSelectedBlock==='DEL') {
               let thisBlock = document.createElement('img');
-              let style = thisBlock.style;
-              style.position = 'absolute';
-              const control = spot%(sideLength*sideLength);
-              const offset = -1*(scale*space)*(Math.floor(spot/(sideLength*sideLength))+1)+(Math.floor(spot/(sideLength*sideLength)))+1;
-              const left = xStart + ((scale*space)*((control%sideLength*-1)+Math.floor(control/sideLength)));
-              const top = yStart + offset + ((scale*space/2)*((control%sideLength)+Math.floor(control/sideLength)));
-              style.left = left.toString()+"px";
-              style.top = top.toString()+"px";
-              style.transform = `scale(${scale})`;
-              style.zIndex = spot*2;
-              thisBlock.setAttribute('src','/blockplace.png');
-              thisBlock.setAttribute('alt','hover-'+spot.toString());
-              thisBlock.setAttribute('class','hoverBlock');
-              thisBlock.setAttribute('id','hoverBlock');
+              let hovBlock = document.getElementById('hoverBlock');
+              let thisStyle = thisBlock.style;
+              let hovStyle = hovBlock.style;
+              thisStyle.position = hovStyle.position;
+              thisStyle.left = hovStyle.left;
+              thisStyle.top = hovStyle.top;
+              thisStyle.transform = hovStyle.transform;
+              thisStyle.zIndex = hovStyle.zIndex;
+              const spot = Number(hovBlock.getAttribute('spot'));
+              thisBlock.setAttribute('src','/001.png');
+              thisBlock.setAttribute('alt','block-'+(spot).toString());
+              thisBlock.setAttribute('class','placeableBlock');
+              thisBlock.setAttribute('id','block-'+(spot).toString());
+              this.islandData[spot] = '00000001';
+              this.updateIsland({index: spot, newData:'00000001'});
+              document.getElementById('block-'+(spot)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
-              break;
+              document.getElementById('hoverBlock').remove();
+            } else {
+              let thisBlock = document.createElement('img');
+              let hovBlock = document.getElementById('hoverBlock');
+              let thisStyle = thisBlock.style;
+              let hovStyle = hovBlock.style;
+              thisStyle.position = hovStyle.position;
+              thisStyle.left = hovStyle.left;
+              thisStyle.top = hovStyle.top;
+              thisStyle.transform = hovStyle.transform;
+              thisStyle.zIndex = hovStyle.zIndex;
+              const spot = Number(hovBlock.getAttribute('spot'));
+              thisBlock.setAttribute('src','/'+this.getSelectedBlock+".png");
+              thisBlock.setAttribute('alt','block-'+(spot+64).toString());
+              thisBlock.setAttribute('class','placeableBlock');
+              thisBlock.setAttribute('id','block-'+(spot+64).toString());
+              this.islandData[spot+64] = '00000002';
+              this.updateIsland({index: spot+64, newData: '00000002'});
+              document.getElementById('block-'+(spot+64)).remove();
+              document.getElementById("islandHolder").appendChild(thisBlock);
             }
           }
         },
         //api call to get user data upon login
         genIsland() {
-          let blockArray = document.getElementsByClassName("islandBlock");
+          //let blockArray = document.getElementsByClassName("placeableBlock");
           let islandDiv = document.getElementById("islandHolder");
-          for(let x = 0;x<blockArray.length;x++) {
-              let block = blockArray[x];
-              block.remove();
+          for(var x=0;x<320;x++) {
+            let delBlock = document.getElementById('block-'+x.toString());
+            if(delBlock) delBlock.remove();
           }
           this.clearIsland();
           let counter = 0;

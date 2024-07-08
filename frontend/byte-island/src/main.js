@@ -15,6 +15,7 @@ import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import { VResizeDrawer } from  '@wdns/vuetify-resize-drawer'
+//import { P } from 'dist/assets/index-D9YVqsRE'
 
 const store = createStore({
     state() {
@@ -34,6 +35,7 @@ const store = createStore({
             user: null,
             token: null,
             points: [0,0,0],
+            selectedBlock: null,
             islandData,
             pseudoDatabase: [
                 {
@@ -95,8 +97,13 @@ const store = createStore({
             state.token = null;
             state.points = [0,0,0];
         },
-        updateIsland(state,index,newData) {
-            state.islandData[index]=newData;
+        //updateIsland(state,index,newData) {
+        updateIsland(state,data) {
+            console.log("hit!");
+            console.log(data.index);
+            console.log(data.newData);
+            //console.log(state.islandData);
+            state.islandData[data.index]=data.newData;
         },
         resetIsland(state) {
             state.islandData = [];
@@ -119,6 +126,9 @@ const store = createStore({
             for(var x=0;x<256;x++) {
                 state.islandData.push("00000001");
             }
+        },
+        setSelectedBlock(state,id) {
+            state.selectedBlock=id;
         }
     },
     actions: {},
@@ -140,6 +150,9 @@ const store = createStore({
         },
         getIslandData(state) {
             return state.islandData;
+        },
+        getSelectedBlock(state) {
+            return state.selectedBlock;
         }
     },
     plugins: [createPersistedState()]
