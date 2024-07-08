@@ -145,6 +145,10 @@ export default {
                 this.reply = '';
                 this.getPosts();
             });
+        },
+        //api call to delete post
+        del(post) {
+            alert('Work in progress.');
         }
     },
     components: {

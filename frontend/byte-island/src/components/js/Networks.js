@@ -44,7 +44,7 @@ export default {
                 return this.networks;
             }
             return this.networks.filter(network => {
-                return network.name.toLowerCase().includes(this.networkSearch.toLowerCase()) 
+                return network.networkname.toLowerCase().includes(this.networkSearch.toLowerCase()) 
             });
         },
         filteredUsers() {
@@ -149,9 +149,14 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
-                      }
+                    }
+                    else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                    }
                 }
                 //console.log("Response was okay!");
+                this.$emit('network-left','Successfully created network: '+this.newNetworkName);
                 this.newNetworkType = 0;
                 this.newNetworkName = '';
                 this.newNetworkDesc = '';
@@ -162,6 +167,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
                 this.newNetworkType = 0;
                 this.newNetworkName = '';
                 this.newNetworkDesc = '';
@@ -177,6 +183,9 @@ export default {
             this.viewedNetwork = network;
             this.networkSearch = '';
             this.networkVisited = true;
+            this.getNetworkUsers(network);
+        },
+        getNetworkUsers(network) {
             this.usersLoaded = false;
             this.networkUsers = [];
             fetch("http://localhost:5000/users", {
@@ -215,7 +224,6 @@ export default {
                     }
                 }
                 this.usersLoaded = true;
-                
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
@@ -223,7 +231,7 @@ export default {
             });
         },
         //api call to leave network
-        leave(network,username) {
+        leave(network,username,reload) {
             fetch("http://localhost:5000/networks", {
                 method: 'DELETE',
                 headers: {
@@ -248,15 +256,27 @@ export default {
                     }
                 }
                 //console.log("Response was okay!");
-                this.$emit('network-left','Successfully left network: '+network.name+'.');
-                this.networksLoaded = false;
-                this.getNetworks(); 
+                if(reload === 'networks') {
+                    this.$emit('network-left','Successfully left network: '+network.networkname+'.');
+                    this.getNetworks(); 
+                }
+                else {
+                    this.$emit('network-left',username+' is no longer part of this network.');
+                    this.getNetworkUsers(network);
+                }
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
                 // network error alert?
-                this.networksLoaded = false;
-                this.getNetworks(); 
+                if(reload === 'networks') {
+                    this.networksLoaded = false;
+                    this.getNetworks(); 
+                }
+                else {
+                    this.usersLoaded = false;
+                    this.getNetworkUsers(network); 
+                }
+                
             });
         },
         visit(user) {

@@ -47,10 +47,10 @@
 
             </v-list-item>
             <v-list-item v-if="!loaded">
-                <h1 class="text-center mt-3"><i>Loading...</i></h1>
+                <h1 class="text-center mt-5"><i>Loading...</i></h1>
             </v-list-item>
             <v-list-item v-if="filteredProjects.length === 0 && loaded">
-                <h1 class="text-center mt-3"><i>No projects found...</i></h1>
+                <h1 class="text-center mt-5"><i>No projects found...</i></h1>
             </v-list-item>
         </div>
         <div v-else-if="projectView === 'new'">

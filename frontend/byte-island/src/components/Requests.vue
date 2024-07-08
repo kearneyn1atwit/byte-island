@@ -26,10 +26,10 @@
         </v-row>
     </v-list-item>
     <v-list-item v-if="!loaded">
-        <h1 class="text-center mt-3"><i>Loading...</i></h1>
+        <h1 class="text-center mt-5"><i>Loading...</i></h1>
     </v-list-item>
     <v-list-item v-if="requests.length === 0 && loaded">
-        <h1 class="text-center mt-3"><i>No new requests...</i></h1>
+        <h1 class="text-center mt-5"><i>No new requests...</i></h1>
     </v-list-item>
     </div>
 </template>
