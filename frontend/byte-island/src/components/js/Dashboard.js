@@ -157,13 +157,36 @@ export default {
           this.mouseX = event.pageX;
           this.mouseY = event.pageY;
           const results = this.canIPlaceHere(this.mouseX,this.mouseY);
+          if(document.getElementById('hoverBlock')){
+            document.getElementById('hoverBlock').remove();
+          }
           this.indeces = results[0];
           this.isLeft = results[1];
-          dispatchEvent(new Event("clear"));
-          for(var x=this.indeces.length;x>0;x--) {
-            const hov = document.getElementById('hover-'+this.indeces[x]);
-            if(hov) {
-              hov.style.opacity=1;
+          const myIslandData = this.islandData;
+          for(var x=this.indeces.length-1;x>=0;x--) {
+            const spot = this.indeces[x];
+            if(myIslandData[spot]!='00000001' && myIslandData[spot+64]==='00000001') {
+              const scale = 1.5;
+              const space = 32;
+              const sideLength = 8;
+              const xStart = 450;
+              const yStart = 340;
+              let thisBlock = document.createElement('img');
+              let style = thisBlock.style;
+              style.position = 'absolute';
+              const control = spot%(sideLength*sideLength);
+              const offset = -1*(scale*space)*(Math.floor(spot/(sideLength*sideLength))+1)+(Math.floor(spot/(sideLength*sideLength)))+1;
+              const left = xStart + ((scale*space)*((control%sideLength*-1)+Math.floor(control/sideLength)));
+              const top = yStart + offset + ((scale*space/2)*((control%sideLength)+Math.floor(control/sideLength)));
+              style.left = left.toString()+"px";
+              style.top = top.toString()+"px";
+              style.transform = `scale(${scale})`;
+              style.zIndex = spot*2;
+              thisBlock.setAttribute('src','/blockplace.png');
+              thisBlock.setAttribute('alt','hover-'+spot.toString());
+              thisBlock.setAttribute('class','hoverBlock');
+              thisBlock.setAttribute('id','hoverBlock');
+              document.getElementById("islandHolder").appendChild(thisBlock);
               break;
             }
           }
@@ -172,7 +195,6 @@ export default {
         genIsland() {
           let blockArray = document.getElementsByClassName("islandBlock");
           let islandDiv = document.getElementById("islandHolder");
-          let elementArray = Array.apply(null, Array(320)).map(function () {});
           for(let x = 0;x<blockArray.length;x++) {
               let block = blockArray[x];
               block.remove();
@@ -185,12 +207,9 @@ export default {
           const xStart = 450;
           const yStart = 340;
           const myIslandData = this.getIslandData;
+          this.islandData = myIslandData;
           for(var index in myIslandData) {
               index = Number(index);
-              if(elementArray[index]!=null) {
-                counter++;
-                continue;
-              }
               let block = myIslandData[index];
               let id = Number(block);
               let thisBlock = document.createElement('img');
@@ -203,33 +222,31 @@ export default {
               style.left = left.toString()+"px";
               style.top = top.toString()+"px";
               style.transform = `scale(${scale})`;
+              style.zIndex = counter*2;
               thisBlock.setAttribute('src',this.pseudoDatabase[id].image);
               thisBlock.setAttribute('alt',block+'-'+counter.toString());
               thisBlock.setAttribute('class','placeableBlock');
-              thisBlock.setAttribute('id',block+'-'+counter.toString());
-              if(id!=1 && index+64<320 && myIslandData[index+64]==="00000001") {
-                let hoverBlock = document.createElement('img');
-                let hoverStyle = hoverBlock.style;
-                hoverStyle.position = 'absolute';
-                hoverStyle.left = left.toString()+"px";
-                hoverStyle.top = (top-(scale*space)).toString()+"px";
-                //hoverStyle.top = top.toString()+"px";
-                hoverStyle.transform = `scale(${scale})`;
-                hoverStyle.opacity = 0;
-                hoverStyle.transition = 'opacity 0.1s ease';
-                hoverBlock.setAttribute('src',"/blockplace.png");
-                hoverBlock.setAttribute('alt','hover-'+counter.toString()); 
-                hoverBlock.setAttribute('id','hover-'+counter.toString()); 
-                hoverBlock.addEventListener("clear", (event) => {
-                  hoverStyle.opacity = 0;
-                });
-                elementArray[counter+64]=hoverBlock;
-              }
-              elementArray[counter]=thisBlock;
+              thisBlock.setAttribute('id','block-'+counter.toString());
+              // if(id!=1 && index+64<320 && myIslandData[index+64]==="00000001") {
+              //   let hoverBlock = document.createElement('img');
+              //   let hoverStyle = hoverBlock.style;
+              //   hoverStyle.position = 'absolute';
+              //   hoverStyle.left = left.toString()+"px";
+              //   hoverStyle.top = (top-(scale*space)).toString()+"px";
+              //   //hoverStyle.top = top.toString()+"px";
+              //   hoverStyle.transform = `scale(${scale})`;
+              //   hoverStyle.opacity = 0;
+              //   hoverStyle.transition = 'opacity 0.1s ease';
+              //   hoverBlock.setAttribute('src',"/blockplace.png");
+              //   hoverBlock.setAttribute('alt','hover-'+counter.toString()); 
+              //   hoverBlock.setAttribute('id','hover-'+counter.toString()); 
+              //   hoverBlock.addEventListener("clear", (event) => {
+              //     hoverStyle.opacity = 0;
+              //   });
+              //   elementArray[counter+64]=hoverBlock;
+              // }
+              islandDiv.appendChild(thisBlock);
               counter++;
-          }
-          for(var index in elementArray) {
-            islandDiv.appendChild(elementArray[Number(index)]);
           }
         },
         getUserDetails() {
