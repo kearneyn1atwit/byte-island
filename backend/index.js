@@ -7,6 +7,7 @@ const {initializeSwaggerUI} = require('./utils/api/SwaggerWrapper');
 
 //Routes
 const v1Friends = require('./routes/Friends');
+const v1Likes = require('./routes/Likes');
 const v1Login = require('./routes/Login');
 const v1Networks = require('./routes/Networks');
 const v1Notifications = require('./routes/Notifications');
@@ -31,6 +32,7 @@ app.use('/api', router);
 
 //Define the route paths and their corresponding definitions | Turn this into a dictionary later
 app.use('/', v1Friends);
+app.use('/', v1Likes);
 app.use('/', v1Login);
 app.use('/', v1Networks);
 app.use('/', v1Notifications);
