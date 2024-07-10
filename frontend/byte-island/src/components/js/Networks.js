@@ -108,7 +108,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-                // console.log(data);
+                //console.log(data);
                 if(!data.message) {
                     this.networks = data;
                 }
@@ -289,6 +289,12 @@ export default {
         },
         //api call to edit network
         confirmEdit() {
+            // console.log(this.editedNetwork.networkname);
+            // console.log(this.editNetworkName);
+            // console.log(this.editedNetwork.networkdesc);
+            // console.log(this.editNetworkDesc);
+            // console.log(this.editedNetwork.private);
+            // console.log(this.editNetworkType === 0 ? false : true);
             if(this.editedNetwork.networkname === this.editNetworkName && this.editedNetwork.networkdesc === this.editNetworkDesc && this.editedNetwork.private === (this.editNetworkType === 0 ? false : true)) {
                 this.$emit('network-warning','No network details have been changed.');
                 return;
@@ -448,7 +454,37 @@ export default {
         },
         //api call to like post
         like(post) {
-            alert('Feature not yet implemented.');
+            fetch("http://localhost:5000/likes", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: post.User,
+                    postid: post.Id,
+                    add: post.LikedPost ? false : true
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
+                }
+                post.LikedPost ? post.Likes-- : post.Likes++;
+                post.LikedPost = !post.LikedPost;
+            })
+            .catch(error => {
+                console.error('Error with Likes API:', error);
+                this.$emit('user-network-error',error);
+            });
         },
         replyToPost(post) {
             this.replyPost = post;

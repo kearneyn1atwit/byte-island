@@ -161,6 +161,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
+                // console.log(data);
               if (!data.message) {
                 this.friendsPosts = data;
               }  
@@ -174,7 +175,37 @@ export default {
         },
         //api call to like post
         like(post) {
-            alert('Feature not yet implemented.');
+            fetch("http://localhost:5000/likes", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: post.User,
+                    postid: post.Id,
+                    add: post.LikedPost ? false : true
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        this.$emit('friend-error',response.statusText);
+                        return;
+                      }
+                }
+                post.LikedPost ? post.Likes-- : post.Likes++;
+                post.LikedPost = !post.LikedPost;
+            })
+            .catch(error => {
+                console.error('Error with Likes API:', error);
+                this.$emit('friend-error',error);
+            });
         },
         replyToPost(post) {
             this.replyPost = post;

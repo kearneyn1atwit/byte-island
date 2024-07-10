@@ -15,7 +15,7 @@ router.put('/likes', async (req, res) => {
         return res.status(401).json({ message: 'Access denied!' }); 
     }
   
-    if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid against username
+    if(!await auth.verifyJWT(req.headers.authorization)) { //Verify token is valid against username
       return res.status(401).json({ message: 'Access denied!' });
     } 
 
