@@ -50,6 +50,10 @@ export default {
                   this.$router.push('/');
                   this.resetStore();
                 }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
+                }
               }
               //console.log("Response was okay!");
               return response.json(); 
@@ -96,6 +100,10 @@ export default {
                   //log out
                   this.$router.push('/');
                   this.resetStore();
+                }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
                 }
               } else {
                 return response.json(); 

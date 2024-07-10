@@ -87,6 +87,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('project-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -99,6 +103,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Projects API:', error);
+                this.$emit('project-error',error);
                 this.loaded = true;
             });
         },

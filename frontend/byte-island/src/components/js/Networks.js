@@ -99,6 +99,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 //console.log("Response was okay!");
                 return response.json(); 
@@ -112,6 +116,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
                 this.networksLoaded = true;
             });
         },
@@ -245,6 +250,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 //console.log("Response was okay!");
                 return response.json(); 
@@ -265,6 +274,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('user-network-error',error);
                 this.usersLoaded = true;
             });
         },
@@ -339,6 +349,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
                 // network error alert?
                 if(reload === 'networks') {
                     this.networksLoaded = false;
@@ -378,6 +389,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -389,6 +404,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Projects API:', error);
+                this.$emit('user-network-error',error);
                 this.userProjectsLoaded = true;
             });
         },
@@ -411,6 +427,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -422,6 +442,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('user-network-error',error);
                 this.userPostsLoaded = true;
             });
         },
@@ -454,6 +475,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 this.showReplyToPost = false;
                 this.reply = '';
@@ -461,6 +486,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('user-network-error',error);
                 this.showReplyToPost = false;
                 this.reply = '';
                 this.getUsersPosts();
@@ -501,6 +527,7 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('user-network-error',error);
             });
         },
         //api call to handle unfriending user
@@ -534,6 +561,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('user-network-error',error);
             });
         },
         //api call to make user admin

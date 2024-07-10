@@ -69,6 +69,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('friend-error',response.statusText);
+                        return;
+                      }
                 }
                 //console.log("Response was okay!");
                 return response.json(); 
@@ -81,6 +85,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('friend-error',error);
                 this.loaded = true;
             });
         },
@@ -111,6 +116,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('friend-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -122,6 +131,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Projects API:', error);
+                this.$emit('friend-error',error);
                 this.friendProjectsLoaded = true;
             });
         },
@@ -143,6 +153,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('friend-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -154,6 +168,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('friend-error',error);
                 this.friendPostsLoaded = true;
             });
         },
@@ -186,6 +201,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('friend-error',response.statusText);
+                        return;
+                      }
                 }
                 this.showReplyToPost = false;
                 this.reply = '';
@@ -193,6 +212,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('friend-error',error);
                 this.showReplyToPost = false;
                 this.reply = '';
                 this.getFriendsPosts();
@@ -230,6 +250,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('friend-error',error);
             });
         }
     },

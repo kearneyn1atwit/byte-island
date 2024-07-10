@@ -51,6 +51,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('notifications-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -60,6 +64,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Notifications API:', error);
+                this.$emit('notifications-error',error);
                 this.loaded = true;
             });
         },
@@ -148,7 +153,7 @@ export default {
             });
         }
     },
-    emits: ['get-notifications'],
+    emits: ['get-notifications','notifications-error'],
     components: {
       
     },

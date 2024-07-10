@@ -207,10 +207,10 @@
                     <v-col cols="12">
                         <v-btn class="mr-3" color="success" variant="outlined" size="small" @click="view(network)">View</v-btn>
                         <!-- V-if user is admin of network -->
-                        <v-btn class="mr-3" color="primary" variant="outlined" size="small" @click="editNetwork(network)">Edit Details</v-btn>
+                        <v-btn class="mr-3" color="primary" variant="outlined" size="small" @click="editNetwork(network)" v-if="network.isAdmin">Edit Details</v-btn>
                         <v-btn class="mr-3" color="red" variant="outlined" size="small" @click="showLeave(network)">Leave</v-btn>
                         <!-- V-if user is admin of network -->
-                        <v-btn color="red" variant="outlined" size="small" @click="delNetwork(network)">Delete Network</v-btn>
+                        <v-btn color="red" variant="outlined" size="small" @click="delNetwork(network)" v-if="network.isAdmin">Delete Network</v-btn>
                     </v-col>
                 </v-row>
             </v-list-item>

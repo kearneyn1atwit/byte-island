@@ -57,6 +57,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                     }
+                    else {
+                      this.$emit('request-error',response.statusText);
+                      return;
+                    }
                 }
                 //console.log("Response was okay!");
                 return response.json(); 
@@ -70,6 +74,7 @@ export default {
             .catch(error => {
                 this.loaded = true;
                 console.error('Error with Requests API:', error);
+                this.$emit('request-error',error);
             });
         },
         accept(request) {
@@ -105,6 +110,7 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('request-error',error);
             });
         },
         ignore(request) {
@@ -127,6 +133,10 @@ export default {
                     this.$router.push('/');
                     this.resetStore();
                   }
+                  else {
+                    this.$emit('request-error',response.statusText);
+                    return;
+                  }
                 }
                 //console.log("Response was okay!");
                 this.$emit('get-requests');
@@ -134,6 +144,7 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('request-error',error);
             });
         }
     },

@@ -60,6 +60,10 @@ export default {
                             this.$router.push('/');
                             this.resetStore();
                           }
+                          else {
+                            this.$emit('user-network-error',response.statusText);
+                            return;
+                          }
                     }
                     //console.log("Response was okay!");
                     return response.json(); 
@@ -78,6 +82,7 @@ export default {
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
+                    this.$emit('user-network-error',error);
                     this.loaded = true;
                 });
             }
@@ -102,6 +107,10 @@ export default {
                             this.$router.push('/');
                             this.resetStore();
                           }
+                          else {
+                            this.$emit('user-network-error',response.statusText);
+                            return;
+                          }
                     }
                     //console.log("Response was okay!");
                     return response.json(); 
@@ -121,6 +130,7 @@ export default {
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
+                    this.$emit('user-network-error',error);
                     this.loaded = true;
                 });
             }
@@ -179,6 +189,7 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('user-network-error',error);
             });
         },
         //api call to handle joining network (/requests POST)
@@ -216,6 +227,7 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('user-network-error',error);
             });
         }
     },

@@ -91,7 +91,7 @@
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="toWidget('settings')"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
-          <Notifications ref="notificationsRef" @get-notifications="getNotifications" v-if="widget === 'notifications'">
+          <Notifications ref="notificationsRef" @get-notifications="getNotifications" @notifications-error="showErrorAlertFunc" v-if="widget === 'notifications'">
 
           </Notifications>
           <Projects ref="projectsRef" @project-success="showSuccessAlertFunc" @project-warning="showWarningAlertFunc" @project-error="showErrorAlertFunc" @project-completed="projectCompleted" v-if="widget === 'projects'">
@@ -109,7 +109,7 @@
           <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" @friend-error="showErrorAlertFunc" v-if="widget === 'friends'">
 
           </Friends>   
-          <Posts ref="postsRef" v-if="widget === 'posts'">
+          <Posts ref="postsRef" @post-error="showErrorAlertFunc" v-if="widget === 'posts'">
 
           </Posts>
           <Networks ref="networksRef" @network-warning="showWarningAlertFunc" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
