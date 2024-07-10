@@ -112,7 +112,7 @@
           <Posts ref="postsRef" v-if="widget === 'posts'">
 
           </Posts>
-          <Networks ref="networksRef" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
+          <Networks ref="networksRef" @network-warning="showWarningAlertFunc" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
 
           </Networks>
           <Settings ref="settingsRef" v-if="widget === 'settings'">

@@ -146,9 +146,13 @@ export default {
                 this.getPosts();
             });
         },
+        //api call to like post
+        like(post) {
+            alert('Feature not yet implemented.');
+        },
         //api call to delete post
         del(post) {
-            alert('Work in progress.');
+            alert('Feature not yet implemented.');
         }
     },
     components: {

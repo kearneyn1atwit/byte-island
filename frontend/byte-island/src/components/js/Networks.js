@@ -1,4 +1,5 @@
 import { mapGetters } from "vuex";
+import { mapMutations } from 'vuex';
 
 export default {
     data() {
@@ -28,7 +29,17 @@ export default {
             usersLoaded: false,
             currentUserAdmin: false,
             userProjectsLoaded: false,
-            userPostsLoaded: false
+            userPostsLoaded: false,
+            showEditNetwork: false,
+            editNetworkType: 0,
+            editNetworkName: '',
+            editNetworkDesc: '',
+            editNetworkPic: '',
+            editedNetwork: null,
+            showDelNetwork: false,
+            toDelNetwork: null,
+            showLeaveNetwork: false,
+            leaveNetwork: null
         }
     },
     async created() {
@@ -64,11 +75,13 @@ export default {
         this.getNetworks();
     },
     methods: {
+        ...mapMutations(['resetStore']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;
         },
         //api call to get networks
+        //edit, delete, delete dialog
         getNetworks() {
             this.networksLoaded = false;
             this.networks = [];
@@ -105,27 +118,52 @@ export default {
         newNetwork() {
             this.showNewNetwork = true;
         },
-        chooseNetworkPic() {
-            this.$refs.networkPic.click();
-            let self = this;
-            document.getElementById('networkPic').addEventListener('change', function(e) {
-                if (e.target.files[0]) {
-                  var elem = document.createElement("img");
-                  elem.setAttribute("height", "200");
-                  elem.setAttribute("width", "200");
-                  elem.setAttribute("alt", "Network Picture");
-                  elem.style.border = '2px solid white';
-                  elem.style.borderRadius = '1000px';
-                  var reader = new FileReader();
-                  reader.onload = function() {
-                    elem.src = reader.result;
-                  }
-                  reader.readAsDataURL(e.target.files[0]);
-                  document.getElementById("imagePrev").innerHTML = '';
-                  document.getElementById("imagePrev").appendChild(elem);
-                  self.newNetworkPic = e.target.files[0].name;
-                }
-            });
+        chooseNetworkPic(type) {
+            if(type === 'new') {
+                this.$refs.networkPic.click();
+                let self = this;
+                document.getElementById('networkPic').addEventListener('change', function(e) {
+                    if (e.target.files[0]) {
+                      var elem = document.createElement("img");
+                      elem.setAttribute("height", "200");
+                      elem.setAttribute("width", "200");
+                      elem.setAttribute("alt", "Network Picture");
+                      elem.style.border = '2px solid white';
+                      elem.style.borderRadius = '1000px';
+                      var reader = new FileReader();
+                      reader.onload = function() {
+                        elem.src = reader.result;
+                      }
+                      reader.readAsDataURL(e.target.files[0]);
+                      document.getElementById("imagePrev").innerHTML = '';
+                      document.getElementById("imagePrev").appendChild(elem);
+                      self.newNetworkPic = e.target.files[0].name;
+                    }
+                });
+            }
+            else if(type === 'edit') {
+                this.$refs.networkPicEdit.click();
+                let self = this;
+                document.getElementById('networkPicEdit').addEventListener('change', function(e) {
+                    if (e.target.files[0]) {
+                      var elem = document.createElement("img");
+                      elem.setAttribute("height", "200");
+                      elem.setAttribute("width", "200");
+                      elem.setAttribute("alt", "Network Picture");
+                      elem.style.border = '2px solid white';
+                      elem.style.borderRadius = '1000px';
+                      var reader = new FileReader();
+                      reader.onload = function() {
+                        elem.src = reader.result;
+                      }
+                      reader.readAsDataURL(e.target.files[0]);
+                      document.getElementById("imagePrevEdit").innerHTML = '';
+                      document.getElementById("imagePrevEdit").appendChild(elem);
+                      self.editNetworkPic = e.target.files[0].name;
+                    }
+                });
+            }
+            
         },  
         //api call to handle network creation
         confirmCreation() {
@@ -230,6 +268,39 @@ export default {
                 this.usersLoaded = true;
             });
         },
+        editNetwork(network) {
+            this.showEditNetwork = true;
+            this.editedNetwork = network;
+            this.editNetworkType = network.private ? 1 : 0;
+            this.editNetworkType = 0;
+            this.editNetworkName = network.networkname;
+            this.editNetworkDesc = network.networkdesc;
+
+        },
+        //api call to edit network
+        confirmEdit() {
+            if(this.editedNetwork.networkname === this.editNetworkName && this.editedNetwork.networkdesc === this.editNetworkDesc && this.editedNetwork.private === (this.editNetworkType === 0 ? false : true)) {
+                this.$emit('network-warning','No network details have been changed.');
+                return;
+            }
+            this.$emit('network-left',this.editNetworkName+' has been successfully updated.');
+            this.showEditNetwork = false;
+            this.getNetworks();
+        },
+        delNetwork(network) {
+            this.showDelNetwork = true;
+            this.toDelNetwork = network;
+        },
+        //api call to delete network
+        confirmDeleteNetwork(network) {
+            alert('Feature not implemented.');
+            // this.showDelNetwork = false;
+            // this.getNetworks();
+        },
+        showLeave(network) {
+            this.showLeaveNetwork = true;
+            this.leaveNetwork = network;
+        },
         //api call to leave network
         leave(network,username,reload) {
             fetch("http://localhost:5000/networks", {
@@ -257,6 +328,7 @@ export default {
                 }
                 //console.log("Response was okay!");
                 if(reload === 'networks') {
+                    this.showLeaveNetwork = false;
                     this.$emit('network-left','Successfully left network: '+network.networkname+'.');
                     this.getNetworks(); 
                 }
@@ -352,6 +424,10 @@ export default {
                 console.error('Error with Posts API:', error);
                 this.userPostsLoaded = true;
             });
+        },
+        //api call to like post
+        like(post) {
+            alert('Feature not yet implemented.');
         },
         replyToPost(post) {
             this.replyPost = post;
@@ -462,14 +538,14 @@ export default {
         },
         //api call to make user admin
         admin(user) {
-            alert('Work in progress.');
+            alert('Feature not yet implemented.');
         },
         //api call to remove user admin
         unadmin(user) {
-            alert('Work in progress.');
+            alert('Feature not yet implemented.');
         }
     },
-    emits: ['network-left','visited-user','friend-user','user-network-error'],
+    emits: ['network-warning','network-left','visited-user','friend-user','user-network-error'],
     components: {
       
     },

@@ -14,9 +14,6 @@ export default {
             showNew: false,
             showPrivateDialog: false,
             showPublicDialog: false,
-            showReset: false,
-            confirmResetPassword: '',
-            showEnterReset: false,
             confirmDeletePassword: '',
             showEnterDelete: false,
             showDelete: false
@@ -78,16 +75,6 @@ export default {
             this.wip();
             this.showPublicDialog = false;
         },
-        resetData() {
-            this.showReset = true;
-        },
-        //api call to reset data
-        confirmReset() {
-            this.wip();
-            this.showReset = false;
-            this.confirmResetPassword = '';
-            this.showEnterReset = false;
-        },
         deleteAccount() {
             this.showDelete = true;
         },
@@ -99,7 +86,7 @@ export default {
             this.showEnterDelete = false;
         },
         wip() {
-            alert('Work in progress.');
+            alert('Feature not yet implemented.');
         }
     },
     components: {

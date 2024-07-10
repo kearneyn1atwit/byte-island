@@ -157,6 +157,10 @@ export default {
                 this.friendPostsLoaded = true;
             });
         },
+        //api call to like post
+        like(post) {
+            alert('Feature not yet implemented.');
+        },
         replyToPost(post) {
             this.replyPost = post;
             this.showReplyToPost = true;

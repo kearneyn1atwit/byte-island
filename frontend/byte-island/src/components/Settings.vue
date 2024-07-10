@@ -120,43 +120,11 @@
                 </v-card>
             </template>
         </v-dialog>
-        <!-- CONFIRM RESET DATA -->
-        <v-dialog v-model="showReset" max-width="500" persistent>
-            <template v-slot:default="{}">
-                <v-card title="Reset Data">
-                <v-card-text>
-                    <h2 style="color: red;"><b>Are you sure you want to reset your data? This action is irreversible.</b></h2>
-                    <h4 class="mt-3"><b>Enter current password:</b></h4>
-                    <v-text-field :type="showEnterReset ? 'text' : 'password'" :append-inner-icon="showEnterReset ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="showEnterReset = !showEnterReset" variant="outlined" class="mt-3 mb-n5" placeholder="Current Password" persistent-placeholder v-model="confirmResetPassword"></v-text-field>
-
-                </v-card-text>
-
-                <v-card-actions class="mb-3 mx-3">
-                    <v-spacer></v-spacer>
-
-                    <v-btn
-                    text="No"
-                    class="mr-3"
-                    variant="outlined"
-                    color="red"
-                    @click="showReset = false; showEnterReset = false; confirmResetPassword = ''"
-                    ></v-btn>
-                    <!-- disable if password entered is not current password (CHANGE) -->
-                    <v-btn
-                    :disabled="!confirmResetPassword"
-                    text="Yes"
-                    variant="outlined"
-                    color="primary"
-                    @click="confirmReset()"
-                    ></v-btn>
-                </v-card-actions>
-                </v-card>
-            </template>
-        </v-dialog>
+        
         <!-- CONFIRM DELETE ACCOUNT -->
         <v-dialog v-model="showDelete" max-width="500" persistent>
             <template v-slot:default="{}">
-                <v-card title="Reset Data">
+                <v-card title="Delete Account">
                 <v-card-text>
                     <h2 style="color: red;"><b>Are you sure you want to delete your account? This action is irreversible.</b></h2>
                     <h4 class="mt-3"><b>Enter current password:</b></h4>
@@ -216,11 +184,6 @@
             <h1 class="mr-n2"><v-icon icon="mdi-account-eye" class="mr-3 ml-n2 mt-n1"></v-icon>Publicize account</h1>
         </v-btn>
         <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Information about what publicizing accounts do... (show this section if account is private)</pre>
-
-        <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="red" @click="resetData()">
-            <h1 class="mr-n2"><v-icon icon="mdi-database-refresh" class="mr-3 ml-n2 mt-n1"></v-icon>Reset Data</h1>
-        </v-btn>
-        <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Information about what reseting your data does...</pre>
 
         <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="red" @click="deleteAccount()">
             <h1 class="mr-n2"><v-icon icon="mdi-account-remove" class="mr-3 ml-n2 mt-n1"></v-icon>Delete Account</h1>
