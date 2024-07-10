@@ -80,7 +80,7 @@
             "desc": "Get all users in network based on network id"
         },
         "likedPosts": { 
-            "query": "MATCH (u:User {Id: <IDVAR1> })-[r:LIKES]-(p:Post {Id: <IDVAR2> }) RETURN u;",
+            "query": "MATCH (u:User {Id: <IDVAR> })-[r:LIKES]-(p:Post) RETURN p;",
             "params": "IDVAR",
             "desc": "Get users based on given tags | DEFINE SORTING"
         },

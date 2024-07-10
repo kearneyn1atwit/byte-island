@@ -212,6 +212,16 @@ module.exports = {
         });
         return idlist;
     },
+    GetUserLikedPosts: async function(id) {
+        const postIds = await neo4j.query(fillCypherParams(cypher.select.likedPosts, {
+            "IDVAR": id
+        }));
+        idlist = []
+        postIds.records.forEach(record => {
+            idlist.push(record.get('p').properties.Id.low);
+        });
+        return idlist;
+    },
     //search is either user's name, tag name, friends or networks
     SearchUsers: async function(search, byName, username) {
 
@@ -590,9 +600,15 @@ module.exports = {
         return idlist;
     },
     //search is either user's name or tag id
-    SearchNetworks: async function(search, byName) {
+    SearchNetworks: async function(search, byName, username) {
 
         let matchingNetworks = [];
+
+        const user = await psql.query(fillSQLParams(sql.users.select, {
+            "name": username,
+        }));
+
+        const userid = user.rows[0]['userid'];
 
         if(byName === 0) { //Get networks list
             const exactNetworkMatch = await psql.query(fillSQLParams(sql.networks.select, {
@@ -600,11 +616,23 @@ module.exports = {
             }));
             try {
                 const networkData = ProcessAndLogRowValues(exactNetworkMatch,0);
+                
+                //Check for admin
+                const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
+                    "IDVAR": networkData['networkid']
+                }));
+                adminlist = []
+                adminIds.records.forEach(record => {
+                    adminlist.push(record.get('u').properties.Id.low);
+                });
+
                 matchingNetworks.push({
                     networkname: search,
                     networkdesc: networkData['networkdescription'],
                     networkid: networkData['networkid'],
-                    pfp: "TEMP_FAKE_IMAGE_STRING"
+                    private: networkData['privatenetwork'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING",
+                    isAdmin: adminlist.includes(userid)
                 });
             } catch(e) {
                 console.log("Exact match not found: " + e);
@@ -614,17 +642,29 @@ module.exports = {
             }));
     
             if(partialNetworkMatches.rowCount != 0) {
-                partialNetworkMatches.rows.forEach((rowData) => {
-                    if(rowData['networkname'] !== search) {
+                for (const rowData of partialNetworkMatches.rows) {
+                    if (rowData['networkname'] !== search) {
                         console.log("Pushing Partial match: " + rowData['networkname']);
+            
+                        const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
+                            "IDVAR": rowData['networkname']
+                        }));
+            
+                        let adminlist = [];
+                        adminIds.records.forEach(record => {
+                            adminlist.push(record.get('u').properties.Id.low);
+                        });
+            
                         matchingNetworks.push({
                             networkname: rowData['networkname'],
                             networkdesc: rowData['networkdescription'],
                             networkid: rowData['networkid'],
-                            pfp: "TEMP_FAKE_IMAGE_STRING"
-                        })
+                            private: rowData['privatenetwork'],
+                            pfp: "TEMP_FAKE_IMAGE_STRING",
+                            isAdmin: adminlist.includes(userid)
+                        });
                     }
-                })
+                }
             }
         } else if(byName === 1) { //Get networks by Tag names
 
@@ -642,11 +682,22 @@ module.exports = {
                     "id": id
                 }));
 
+                //Check for admin
+                const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
+                    "IDVAR": id
+                }));
+                adminlist = []
+                adminIds.records.forEach(record => {
+                    adminlist.push(record.get('u').properties.Id.low);
+                });
+
                 matchingNetworks.push({
                     networkname: network.rows[0]['networkname'],
                     networkdesc: network.rows[0]['networkdescription'],
                     networkid: network.rows[0]['networkid'],
-                    pfp: "TEMP_FAKE_IMAGE_STRING"
+                    private: network.rows[0]['privatenetwork'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING",
+                    isAdmin: adminlist.includes(userid)
                 })
             }
         } else { //byName === 2 | Get Networks User is currently in
@@ -671,11 +722,22 @@ module.exports = {
                     "id": id
                 }));
 
+                //Check for admin
+                const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
+                    "IDVAR": id
+                }));
+                adminlist = []
+                adminIds.records.forEach(record => {
+                    adminlist.push(record.get('u').properties.Id.low);
+                });
+
                 matchingNetworks.push({
                     networkname: network.rows[0]['networkname'],
                     networkdesc: network.rows[0]['networkdescription'],
                     networkid: id,
-                    pfp: "TEMP_FAKE_IMAGE_STRING" //Modify this later
+                    private: network.rows[0]['privatenetwork'],
+                    pfp: "TEMP_FAKE_IMAGE_STRING", //modify this later
+                    isAdmin: adminlist.includes(userid)
                 })
             }
         }
@@ -1615,5 +1677,3 @@ function SearchPosts() {
     cypher.select.relatedPosts;
     sql.posts.SEARCHING; 
 }
-
-//INVENTORY SYSTEM!!!!!!!!!!!!!!

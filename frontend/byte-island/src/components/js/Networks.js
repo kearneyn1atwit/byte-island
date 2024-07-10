@@ -304,7 +304,7 @@ export default {
         //api call to leave network
         leave(network,username,reload) {
             fetch("http://localhost:5000/networks", {
-                method: 'DELETE',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
                     'Authorization': this.token

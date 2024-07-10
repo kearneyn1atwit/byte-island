@@ -16,6 +16,11 @@ function generateJWT(username) {
     return jwt.sign(payload, creds.api.secretkey);
 }
 
+function getUsername(token) {
+    const decoded = jwt.verify(token, creds.api.secretkey);
+    return decoded['username'];
+}
+
 async function verifyJWT(token, username) {
     try {
         //Command will verify token is valid and has not expired yet
@@ -53,4 +58,4 @@ async function verifyJWT(token, username) {
     }
 }
 
-module.exports = { generateJWT, verifyJWT };
+module.exports = { generateJWT, getUsername, verifyJWT };

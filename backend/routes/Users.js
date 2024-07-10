@@ -75,4 +75,45 @@ router.post('/users', async (req, res) => {
   }
 });
 
+router.delete('/users', async (req, res) => {
+
+    let username;
+
+    try {
+        username = req.body.username;
+    }
+    catch(error) {
+        return res.status(401).json({ message: 'Access denied!' }); 
+    }
+
+    if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid and token matches username
+        return res.status(401).json({ message: 'Access denied!' });
+    } 
+
+    console.log("DELETE Users API Starts!");
+
+    try {
+
+        const userid = await db.GetUserId(username);
+        console.log(userid);
+        if (userid == -1) {
+            return res.status(400).json({ message: 'User could not be found!' }); 
+        }
+
+        try {
+          const userData = await db.DeleteUser(username);
+        }
+        catch(err) {
+            console.log(err);
+            return res.status(500).json({ message: 'Error deleting user'});
+        }
+
+        return res.status(200).send();
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+   }
+});
+
 module.exports = router;
