@@ -127,7 +127,8 @@
                     <v-avatar size="70" :image="viewedNetwork.pfp" style="border: 1.5px solid white;"></v-avatar>
                 </v-col>
                 <v-col>
-                    <pre><h1>{{viewedNetwork.networkname}}</h1></pre>           
+                    <pre><h1>{{viewedNetwork.networkname}}</h1></pre>
+                    <pre>Members: {{usersLoaded ? networkUsers.length : '...'}}</pre>           
                 </v-col>    
             </v-row>
             <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-1">

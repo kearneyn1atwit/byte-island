@@ -45,6 +45,7 @@ export default {
         indeces: [],
         isLeft: null,
         islandData: null,
+        showBackToIsland: false,
         pseudoDatabase: [
           {
               id: "000",
@@ -480,7 +481,7 @@ export default {
             if(this.$refs.friendsRef.friendVisited) {
               this.$refs.friendsRef.friendVisited = false;
               this.$refs.friendsRef.friendsData = 0;
-              this.return();
+              // this.returnIsland();
             } else {
               this.widget = widget;
             }
@@ -491,7 +492,7 @@ export default {
               this.$refs.networksRef.userVisited = false;
               this.$refs.networksRef.usersData = 0;
               this.$refs.networksRef.view(this.$refs.networksRef.viewedNetwork);
-              this.return();
+              // this.returnIsland();
             }
             else if(this.$refs.networksRef.networkVisited) {
               this.$refs.networksRef.networkVisited = false;
@@ -536,6 +537,7 @@ export default {
           this.bPoints = this.getPoints[2];
         },
         visitFriend(friend) {
+          this.showBackToIsland = true;
           this.friendRPoints = friend.points[0];
           this.friendGPoints = friend.points[1];
           this.friendBPoints = friend.points[2];
@@ -543,7 +545,17 @@ export default {
           this.friendIsland = friend.island;
         },
         // return to users island
-        return() {
+        returnIsland() {
+          if(this.$refs.friendsRef) {
+            this.$refs.friendsRef.friendVisited = false;
+            this.$refs.friendsRef.friendsData = 0;
+          }  
+          if(this.$refs.networksRef) {
+            this.$refs.networksRef.userSearch = '';
+            this.$refs.networksRef.userVisited = false;
+            this.$refs.networksRef.usersData = 0;
+            this.$refs.networksRef.view(this.$refs.networksRef.viewedNetwork);
+          }
           this.friendRPoints = -1;
           this.getUserDetails();
         },

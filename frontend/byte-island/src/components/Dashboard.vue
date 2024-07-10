@@ -142,6 +142,7 @@
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{friendRPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{friendGPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{friendBPoints}}</li>
+                <li><v-btn v-if="showBackToIsland" @click="returnIsland()" class="mt-5" color="primary">Return to island</v-btn></li>
             </ul>
             
         </v-row>
