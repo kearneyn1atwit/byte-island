@@ -231,10 +231,19 @@
                     <v-avatar size="70" :image="viewedNetwork.pfp" style="border: 1.5px solid white;"></v-avatar>
                 </v-col>
                 <v-col>
-                    <pre><h1>{{viewedNetwork.networkname}}</h1></pre>
-                    <pre>Members: {{usersLoaded ? networkUsers.length : '...'}}</pre>           
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;"><h1><b>{{viewedNetwork.networkname}}</b></h1></pre>
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>Members</b>: {{usersLoaded ? networkUsers.length : '...'}}</pre> 
+                    
                 </v-col>    
             </v-row>
+            <div class="ml-1 mb-3">
+                <pre style="white-space: pre-wrap; word-wrap: break-word;" v-if="showDesc || viewedNetwork.networkdesc.length <= 100"><b>About</b>: {{viewedNetwork.networkdesc}}</pre>
+                <pre style="white-space: pre-wrap; word-wrap: break-word;" v-else><b>About</b>: {{viewedNetwork.networkdesc.substring(0,100)}}...</pre>
+                <div v-if="viewedNetwork.networkdesc.length > 100">
+                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="!showDesc">Read more</pre>
+                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="showDesc">Hide description</pre>          
+                </div>
+            </div>
             <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-1">
             <v-text-field
                 v-model="userSearch"
@@ -397,6 +406,14 @@
 }
 .white-like {
     color: white;
+}
+.desc-text {
+    color: #2196F3;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.desc-text:hover {
+    color: #8fcaf9;
 }
 </style>
 <script src="./js/Networks.js">

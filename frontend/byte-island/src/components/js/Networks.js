@@ -39,7 +39,8 @@ export default {
             showDelNetwork: false,
             toDelNetwork: null,
             showLeaveNetwork: false,
-            leaveNetwork: null
+            leaveNetwork: null,
+            showDesc: false
         }
     },
     async created() {
@@ -282,7 +283,22 @@ export default {
             this.showEditNetwork = true;
             this.editedNetwork = network;
             this.editNetworkType = network.private ? 1 : 0;
-            this.editNetworkType = 0;
+            this.editNetworkPic = network.pfp;
+            // gonna have to show current image here somehow
+            //
+            var elem = document.createElement("img");
+            elem.setAttribute("height", "200");
+            elem.setAttribute("width", "200");
+            elem.setAttribute("alt", "Network Picture");
+            elem.style.border = '2px solid white';
+            elem.style.borderRadius = '1000px';
+            elem.setAttribute("src", network.pfp);
+            // need to figure out what to put here ^^^
+            // timeout so div loads first
+            setTimeout(function() {
+                document.getElementById("imagePrevEdit").innerHTML = '';
+                document.getElementById("imagePrevEdit").appendChild(elem);  
+            },5);
             this.editNetworkName = network.networkname;
             this.editNetworkDesc = network.networkdesc;
 
@@ -295,13 +311,17 @@ export default {
             // console.log(this.editNetworkDesc);
             // console.log(this.editedNetwork.private);
             // console.log(this.editNetworkType === 0 ? false : true);
-            if(this.editedNetwork.networkname === this.editNetworkName && this.editedNetwork.networkdesc === this.editNetworkDesc && this.editedNetwork.private === (this.editNetworkType === 0 ? false : true)) {
-                this.$emit('network-warning','No network details have been changed.');
-                return;
-            }
-            this.$emit('network-left',this.editNetworkName+' has been successfully updated.');
-            this.showEditNetwork = false;
-            this.getNetworks();
+
+            alert('Feature not yet implemented.');
+
+
+            // if(this.editedNetwork.networkname === this.editNetworkName && this.editedNetwork.networkdesc === this.editNetworkDesc && this.editedNetwork.private === (this.editNetworkType === 0 ? false : true)) {
+            //     this.$emit('network-warning','No network details have been changed.');
+            //     return;
+            // }
+            // this.$emit('network-left',this.editNetworkName+' has been successfully updated.');
+            // this.showEditNetwork = false;
+            // this.getNetworks();
         },
         delNetwork(network) {
             this.showDelNetwork = true;
@@ -371,6 +391,7 @@ export default {
         visit(user) {
             this.visitedUser = user;
             this.networkVisited = false;
+            this.showDesc = false;
             this.userVisited = true;
             this.$emit('visited-user',user);
             this.userSearch = '';
@@ -454,6 +475,8 @@ export default {
         },
         //api call to like post
         like(post) {
+            post.LikedPost ? post.Likes-- : post.Likes++;
+            post.LikedPost = !post.LikedPost;
             fetch("http://localhost:5000/likes", {
                 method: 'PUT',
                 headers: {
@@ -463,7 +486,7 @@ export default {
                 body: JSON.stringify({
                     username: post.User,
                     postid: post.Id,
-                    add: post.LikedPost ? false : true
+                    add: post.LikedPost ? true : false
                 }) 
             })
             .then(response => {
@@ -474,14 +497,16 @@ export default {
                         this.resetStore();
                       }
                       else {
+                        post.LikedPost ? post.Likes-- : post.Likes++;
+                        post.LikedPost = !post.LikedPost;
                         this.$emit('user-network-error',response.statusText);
                         return;
                       }
                 }
-                post.LikedPost ? post.Likes-- : post.Likes++;
-                post.LikedPost = !post.LikedPost;
             })
             .catch(error => {
+                post.LikedPost ? post.Likes-- : post.Likes++;
+                post.LikedPost = !post.LikedPost;
                 console.error('Error with Likes API:', error);
                 this.$emit('user-network-error',error);
             });

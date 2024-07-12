@@ -510,6 +510,7 @@ export default {
             }
             else if(this.$refs.networksRef.networkVisited) {
               this.$refs.networksRef.networkVisited = false;
+              this.$refs.networksRef.showDesc = false;
               this.$refs.networksRef.userSearch = '';
               this.$refs.networksRef.getNetworks();
             } else {

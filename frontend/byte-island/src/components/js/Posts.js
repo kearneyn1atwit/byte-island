@@ -164,6 +164,8 @@ export default {
         },
         //api call to like post
         like(post) {
+            post.LikedPost ? post.Likes-- : post.Likes++;
+            post.LikedPost = !post.LikedPost;
             fetch("http://localhost:5000/likes", {
                 method: 'PUT',
                 headers: {
@@ -173,7 +175,7 @@ export default {
                 body: JSON.stringify({
                     username: post.User,
                     postid: post.Id,
-                    add: post.LikedPost ? false : true
+                    add: post.LikedPost ? true : false
                 }) 
             })
             .then(response => {
@@ -184,14 +186,16 @@ export default {
                         this.resetStore();
                       }
                       else {
+                        post.LikedPost ? post.Likes-- : post.Likes++;
+                        post.LikedPost = !post.LikedPost;
                         this.$emit('post-error',response.statusText);
                         return;
                       }
                 }
-                post.LikedPost ? post.Likes-- : post.Likes++;
-                post.LikedPost = !post.LikedPost;
             })
             .catch(error => {
+                post.LikedPost ? post.Likes-- : post.Likes++;
+                post.LikedPost = !post.LikedPost;
                 console.error('Error with Likes API:', error);
                 this.$emit('post-error',error);
             });
