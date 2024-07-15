@@ -6,6 +6,7 @@ const cors = require('cors');
 const {initializeSwaggerUI} = require('./utils/api/SwaggerWrapper');
 
 //Routes
+const v1Admins = require('./routes/Admin');
 const v1Friends = require('./routes/Friends');
 const v1Likes = require('./routes/Likes');
 const v1Login = require('./routes/Login');
@@ -31,6 +32,7 @@ app.use(cors({ //Needs CORS enabled for 5000->3000
 app.use('/api', router);
 
 //Define the route paths and their corresponding definitions | Turn this into a dictionary later
+app.use('/', v1Admins);
 app.use('/', v1Friends);
 app.use('/', v1Likes);
 app.use('/', v1Login);
