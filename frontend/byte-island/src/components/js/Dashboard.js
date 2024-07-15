@@ -346,6 +346,10 @@ export default {
                   this.$router.push('/');
                   this.resetStore();
                 }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
+                }
               }
               //console.log("Response was okay!");
               return response.json(); 
@@ -368,6 +372,7 @@ export default {
             this.notificationCount = 0;
             this.readCount = 0;
             console.error('Error with Notifications API:', error);
+            this.showErrorAlertFunc(error);
           });
         },
         async getUserRequests() {
@@ -386,6 +391,10 @@ export default {
                   //log out
                   this.$router.push('/');
                   this.resetStore();
+                }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
                 }
               }
               //console.log("Response was okay!");
@@ -415,6 +424,10 @@ export default {
                   this.$router.push('/');
                   this.resetStore();
                 }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
+                }
               }
               //console.log("Response was okay!");
               return response.json(); 
@@ -426,6 +439,7 @@ export default {
           })
           .catch(error => {
             console.error('Error with Requests API:', error);
+            this.showErrorAlertFunc(error);
           });
         },
         getAllRequests() {
@@ -496,6 +510,7 @@ export default {
             }
             else if(this.$refs.networksRef.networkVisited) {
               this.$refs.networksRef.networkVisited = false;
+              this.$refs.networksRef.showDesc = false;
               this.$refs.networksRef.userSearch = '';
               this.$refs.networksRef.getNetworks();
             } else {

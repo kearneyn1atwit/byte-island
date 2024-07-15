@@ -58,10 +58,15 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('post-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
             .then(data => {
+              //console.log(data);
               if (!data.message) {
                 this.posts = data;
               }  
@@ -69,6 +74,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('post-error',error);
                 this.loaded = true;
             });
         },
@@ -93,6 +99,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('post-error',response.statusText);
+                        return;
+                      }
                 }
                 this.showNewPost = false;
                 this.loaded = false;
@@ -102,6 +112,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('post-error',error);
                 this.showNewPost = false;
                 this.loaded = false;
                 this.getPosts();
@@ -134,6 +145,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('post-error',response.statusText);
+                        return;
+                      }
                 }
                 this.showReplyToPost = false;
                 this.reply = '';
@@ -141,6 +156,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('post-error',error);
                 this.showReplyToPost = false;
                 this.reply = '';
                 this.getPosts();
@@ -148,13 +164,77 @@ export default {
         },
         //api call to like post
         like(post) {
-            alert('Feature not yet implemented.');
+            post.LikedPost ? post.Likes-- : post.Likes++;
+            post.LikedPost = !post.LikedPost;
+            fetch("http://localhost:5000/likes", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: post.User,
+                    postid: post.Id,
+                    add: post.LikedPost ? true : false
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        post.LikedPost ? post.Likes-- : post.Likes++;
+                        post.LikedPost = !post.LikedPost;
+                        this.$emit('post-error',response.statusText);
+                        return;
+                      }
+                }
+            })
+            .catch(error => {
+                post.LikedPost ? post.Likes-- : post.Likes++;
+                post.LikedPost = !post.LikedPost;
+                console.error('Error with Likes API:', error);
+                this.$emit('post-error',error);
+            });
         },
         //api call to delete post
         del(post) {
-            alert('Feature not yet implemented.');
+            fetch("http://localhost:5000/posts", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: this.username,
+                    postid: post.Id
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        this.$emit('post-error',response.statusText);
+                        return;
+                      }
+                }
+                this.getPosts(); 
+            })
+            .catch(error => {
+                console.error('Error with Posts API:', error);
+                this.$emit('post-error',error);
+                this.getPosts();
+            });
         }
     },
+    emits: ['post-error'],
     components: {
       
     },

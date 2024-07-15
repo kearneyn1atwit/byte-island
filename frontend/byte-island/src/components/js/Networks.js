@@ -39,7 +39,8 @@ export default {
             showDelNetwork: false,
             toDelNetwork: null,
             showLeaveNetwork: false,
-            leaveNetwork: null
+            leaveNetwork: null,
+            showDesc: false
         }
     },
     async created() {
@@ -99,12 +100,16 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 //console.log("Response was okay!");
                 return response.json(); 
             })
             .then(data => {
-                // console.log(data);
+                //console.log(data);
                 if(!data.message) {
                     this.networks = data;
                 }
@@ -112,6 +117,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
                 this.networksLoaded = true;
             });
         },
@@ -245,6 +251,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 //console.log("Response was okay!");
                 return response.json(); 
@@ -265,6 +275,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('user-network-error',error);
                 this.usersLoaded = true;
             });
         },
@@ -272,20 +283,45 @@ export default {
             this.showEditNetwork = true;
             this.editedNetwork = network;
             this.editNetworkType = network.private ? 1 : 0;
-            this.editNetworkType = 0;
+            this.editNetworkPic = network.pfp;
+            // gonna have to show current image here somehow
+            //
+            var elem = document.createElement("img");
+            elem.setAttribute("height", "200");
+            elem.setAttribute("width", "200");
+            elem.setAttribute("alt", "Network Picture");
+            elem.style.border = '2px solid white';
+            elem.style.borderRadius = '1000px';
+            elem.setAttribute("src", network.pfp);
+            // need to figure out what to put here ^^^
+            // timeout so div loads first
+            setTimeout(function() {
+                document.getElementById("imagePrevEdit").innerHTML = '';
+                document.getElementById("imagePrevEdit").appendChild(elem);  
+            },5);
             this.editNetworkName = network.networkname;
             this.editNetworkDesc = network.networkdesc;
 
         },
         //api call to edit network
         confirmEdit() {
-            if(this.editedNetwork.networkname === this.editNetworkName && this.editedNetwork.networkdesc === this.editNetworkDesc && this.editedNetwork.private === (this.editNetworkType === 0 ? false : true)) {
-                this.$emit('network-warning','No network details have been changed.');
-                return;
-            }
-            this.$emit('network-left',this.editNetworkName+' has been successfully updated.');
-            this.showEditNetwork = false;
-            this.getNetworks();
+            // console.log(this.editedNetwork.networkname);
+            // console.log(this.editNetworkName);
+            // console.log(this.editedNetwork.networkdesc);
+            // console.log(this.editNetworkDesc);
+            // console.log(this.editedNetwork.private);
+            // console.log(this.editNetworkType === 0 ? false : true);
+
+            alert('Feature not yet implemented.');
+
+
+            // if(this.editedNetwork.networkname === this.editNetworkName && this.editedNetwork.networkdesc === this.editNetworkDesc && this.editedNetwork.private === (this.editNetworkType === 0 ? false : true)) {
+            //     this.$emit('network-warning','No network details have been changed.');
+            //     return;
+            // }
+            // this.$emit('network-left',this.editNetworkName+' has been successfully updated.');
+            // this.showEditNetwork = false;
+            // this.getNetworks();
         },
         delNetwork(network) {
             this.showDelNetwork = true;
@@ -339,6 +375,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
                 // network error alert?
                 if(reload === 'networks') {
                     this.networksLoaded = false;
@@ -354,6 +391,7 @@ export default {
         visit(user) {
             this.visitedUser = user;
             this.networkVisited = false;
+            this.showDesc = false;
             this.userVisited = true;
             this.$emit('visited-user',user);
             this.userSearch = '';
@@ -378,6 +416,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -389,6 +431,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Projects API:', error);
+                this.$emit('user-network-error',error);
                 this.userProjectsLoaded = true;
             });
         },
@@ -411,6 +454,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -422,12 +469,47 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('user-network-error',error);
                 this.userPostsLoaded = true;
             });
         },
         //api call to like post
         like(post) {
-            alert('Feature not yet implemented.');
+            post.LikedPost ? post.Likes-- : post.Likes++;
+            post.LikedPost = !post.LikedPost;
+            fetch("http://localhost:5000/likes", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: post.User,
+                    postid: post.Id,
+                    add: post.LikedPost ? true : false
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        post.LikedPost ? post.Likes-- : post.Likes++;
+                        post.LikedPost = !post.LikedPost;
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
+                }
+            })
+            .catch(error => {
+                post.LikedPost ? post.Likes-- : post.Likes++;
+                post.LikedPost = !post.LikedPost;
+                console.error('Error with Likes API:', error);
+                this.$emit('user-network-error',error);
+            });
         },
         replyToPost(post) {
             this.replyPost = post;
@@ -454,6 +536,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 this.showReplyToPost = false;
                 this.reply = '';
@@ -461,6 +547,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('user-network-error',error);
                 this.showReplyToPost = false;
                 this.reply = '';
                 this.getUsersPosts();
@@ -501,6 +588,7 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('user-network-error',error);
             });
         },
         //api call to handle unfriending user
@@ -534,6 +622,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('user-network-error',error);
             });
         },
         //api call to make user admin

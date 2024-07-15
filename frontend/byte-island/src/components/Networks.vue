@@ -207,10 +207,10 @@
                     <v-col cols="12">
                         <v-btn class="mr-3" color="success" variant="outlined" size="small" @click="view(network)">View</v-btn>
                         <!-- V-if user is admin of network -->
-                        <v-btn class="mr-3" color="primary" variant="outlined" size="small" @click="editNetwork(network)">Edit Details</v-btn>
+                        <v-btn class="mr-3" color="primary" variant="outlined" size="small" @click="editNetwork(network)" v-if="network.isAdmin">Edit Details</v-btn>
                         <v-btn class="mr-3" color="red" variant="outlined" size="small" @click="showLeave(network)">Leave</v-btn>
                         <!-- V-if user is admin of network -->
-                        <v-btn color="red" variant="outlined" size="small" @click="delNetwork(network)">Delete Network</v-btn>
+                        <v-btn color="red" variant="outlined" size="small" @click="delNetwork(network)" v-if="network.isAdmin">Delete Network</v-btn>
                     </v-col>
                 </v-row>
             </v-list-item>
@@ -231,10 +231,19 @@
                     <v-avatar size="70" :image="viewedNetwork.pfp" style="border: 1.5px solid white;"></v-avatar>
                 </v-col>
                 <v-col>
-                    <pre><h1>{{viewedNetwork.networkname}}</h1></pre>
-                    <pre>Members: {{usersLoaded ? networkUsers.length : '...'}}</pre>           
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;"><h1><b>{{viewedNetwork.networkname}}</b></h1></pre>
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>Members</b>: {{usersLoaded ? networkUsers.length : '...'}}</pre> 
+                    
                 </v-col>    
             </v-row>
+            <div class="ml-1 mb-3">
+                <pre style="white-space: pre-wrap; word-wrap: break-word;" v-if="showDesc || viewedNetwork.networkdesc.length <= 100"><b>About</b>: {{viewedNetwork.networkdesc}}</pre>
+                <pre style="white-space: pre-wrap; word-wrap: break-word;" v-else><b>About</b>: {{viewedNetwork.networkdesc.substring(0,100)}}...</pre>
+                <div v-if="viewedNetwork.networkdesc.length > 100">
+                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="!showDesc">Read more</pre>
+                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="showDesc">Hide description</pre>          
+                </div>
+            </div>
             <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-1">
             <v-text-field
                 v-model="userSearch"
@@ -342,7 +351,7 @@
                                     <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.User}}</b>: {{post.Text}}</pre>
                                     <!-- change color based on if post is liked -->
                                     <div class="mt-2">
-                                        <v-icon size="20" class="mr-3" color="white" @click="like(post)" icon="mdi-thumb-up"></v-icon><pre style="font-size: 17px; display: inline;"><b>{{/*post.Likes*/0}}</b></pre>
+                                        <v-icon size="20" class="mr-3" :color="post.LikedPost ? 'blue' : 'white'" @click="like(post)" icon="mdi-thumb-up"></v-icon><pre :class="post.LikedPost ? 'blue-like' : 'white-like'" style="font-size: 17px; display: inline;"><b>{{post.Likes}}</b></pre>
                                     </div>
                                     <div v-if="!post.HideReplies">
                                         <div class="mx-10 my-7" v-for="reply in post.Replies" :key="reply.Id" >
@@ -391,6 +400,20 @@
 }
 .hide-btn {
     color: rgb(152,255,134);
+}
+.blue-like {
+    color: #2196F3;
+}
+.white-like {
+    color: white;
+}
+.desc-text {
+    color: #2196F3;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.desc-text:hover {
+    color: #8fcaf9;
 }
 </style>
 <script src="./js/Networks.js">
