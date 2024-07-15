@@ -647,7 +647,7 @@ module.exports = {
                         console.log("Pushing Partial match: " + rowData['networkname']);
             
                         const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
-                            "IDVAR": rowData['networkname']
+                            "IDVAR": rowData['networkid']
                         }));
             
                         let adminlist = [];
