@@ -55,6 +55,8 @@ router.put('/settings', async (req, res) => {
 
         if(setting === 'username') { //One option
             await db.UpdateUserCredentials(id, { username: value });
+            const token = auth.generateJWT(value);
+            return res.status(200).json({ token: token })
         } else if(setting === 'email') {
             await db.UpdateUserCredentials(id, { email: value });
         } else if(setting === 'password') {
