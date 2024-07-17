@@ -18,6 +18,7 @@ const v1Requests = require('./routes/Requests');
 const v1Shop = require('./routes/Shop');
 const v1Signup = require('./routes/Signup');
 const v1Users = require('./routes/Users');
+const v1Settings = require('./routes/Settings');
 
 //Instantiate express.js server
 const app = express();
@@ -44,6 +45,7 @@ app.use('/', v1Requests);
 app.use('/', v1Shop);
 app.use('/', v1Signup);
 app.use('/', v1Users);
+app.use('/', v1Settings);
 
 //Create Swagger UI page for the provided API application
 initializeSwaggerUI(app, '/docs', ["./routes/documentation/*.yaml"], port); //Each bit of documentation is contained in a .yaml file
