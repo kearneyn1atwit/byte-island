@@ -52,6 +52,7 @@ router.post('/login', async (req, res) => {
       token: token,
       username: userData['username'],
       pfp: "TEMP_FAKE_IMAGE_DATA_ID_" + userData['profileimageid'],
+      private: userData['privateaccount'],
       career: userData['careerpoints'],
       personal: userData['personalpoints'],
       social: userData['socialpoints'],

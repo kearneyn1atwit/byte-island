@@ -86,7 +86,7 @@
             "desc": "Get all types of points for user from their id"
         },
         "getProfileInformation": { 
-            "query": "SELECT Username, ProfileImageId, CareerPoints, PersonalPoints, SocialPoints FROM Users WHERE UserId = :id AND Deleted != True;",
+            "query": "SELECT Username, ProfileImageId, PrivateAccount, CareerPoints, PersonalPoints, SocialPoints FROM Users WHERE UserId = :id AND Deleted != True;",
             "params": "id",
             "desc": "Grab all columns needed to display user profile from table (JOIN WITH ISLAND DATA?)"
         },
