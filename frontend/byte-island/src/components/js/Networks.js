@@ -626,12 +626,76 @@ export default {
             });
         },
         //api call to make user admin
-        admin(user) {
-            alert('Feature not yet implemented.');
+        admin(user,network) {
+            fetch("http://localhost:5000/admin", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username: this.username,
+                  network: network.networkname,
+                  target: user.username,
+                  add: true
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                    }
+                    else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                    }
+                }
+                //console.log("Response was okay!");
+                this.$emit('friend-user',user.username+' is now an admin of '+network.networkname+'.'); 
+                this.view(this.viewedNetwork);
+            })
+            .catch(error => {
+                console.error('Error with Admin API:', error);
+                this.$emit('user-network-error',error);
+            });
         },
         //api call to remove user admin
-        unadmin(user) {
-            alert('Feature not yet implemented.');
+        unadmin(user,network) {
+            fetch("http://localhost:5000/admin", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username: this.username,
+                  network: network.networkname,
+                  target: user.username,
+                  add: false
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                    }
+                    else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                    }
+                }
+                //console.log("Response was okay!");
+                this.$emit('friend-user',user.username+' is no longer an admin of '+network.networkname+'.'); 
+                this.view(this.viewedNetwork);
+            })
+            .catch(error => {
+                console.error('Error with Admin API:', error);
+                this.$emit('user-network-error',error);
+            });
         }
     },
     emits: ['network-warning','network-left','visited-user','friend-user','user-network-error'],

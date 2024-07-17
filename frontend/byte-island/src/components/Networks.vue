@@ -277,8 +277,8 @@
                         <v-btn class="mr-3" color="success" variant="outlined" size="small" @click="visit(user)">Visit</v-btn>
                         <v-btn v-if="!user.friend" class="mr-3" color="success" variant="outlined" size="small" @click="friend(user)">Friend</v-btn>
                         <v-btn v-else color="red" class="mr-3" variant="outlined" size="small" @click="unfriend(user)">Un-friend</v-btn>
-                        <v-btn v-if="!user.admin && currentUserAdmin" class="mr-3" color="success" variant="outlined" size="small" @click="admin(user)">Make admin</v-btn>
-                        <v-btn v-else-if="user.admin && currentUserAdmin" class="mr-3" color="red" variant="outlined" size="small" @click="unadmin(user)">Remove admin</v-btn>
+                        <v-btn v-if="!user.admin && currentUserAdmin" class="mr-3" color="success" variant="outlined" size="small" @click="admin(user,viewedNetwork)">Make admin</v-btn>
+                        <v-btn v-else-if="user.admin && currentUserAdmin" class="mr-3" color="red" variant="outlined" size="small" @click="unadmin(user,viewedNetwork)">Remove admin</v-btn>
                         <v-btn v-if="!user.admin && currentUserAdmin" color="red" variant="outlined" size="small" @click="leave(viewedNetwork,user.username,'users')">Kick user</v-btn>
                     </v-col>
                 </v-row>    
@@ -374,6 +374,10 @@
     </div>
 </template>
 <style scoped>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
 .header-h1 {
     font-size: 2rem;
     color: rgb(152,255,134);

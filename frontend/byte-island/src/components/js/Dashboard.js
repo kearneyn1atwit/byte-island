@@ -90,7 +90,7 @@ export default {
       }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPfp'])
     },
     async mounted() {
       await this.getNotifications();
@@ -324,7 +324,7 @@ export default {
           this.token = this.getToken;
           this.username = this.getUsername;
           this.visitedUsername = this.username;
-          this.pfp = 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250';
+          this.pfp = this.getPfp;
           this.rPoints = this.getPoints[0];
           this.gPoints = this.getPoints[1];
           this.bPoints = this.getPoints[2];

@@ -115,7 +115,7 @@
           <Networks ref="networksRef" @network-warning="showWarningAlertFunc" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
 
           </Networks>
-          <Settings ref="settingsRef" v-if="widget === 'settings'">
+          <Settings ref="settingsRef" @settings-success="showSuccessAlertFunc" @settings-error="showErrorAlertFunc" @get-dash-data="getUserDetails" v-if="widget === 'settings'">
 
           </Settings>
         </v-list>

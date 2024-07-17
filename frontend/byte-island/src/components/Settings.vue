@@ -30,6 +30,36 @@
                 </v-card>
             </template>
         </v-dialog>
+         <!-- CHANGE EMAIL -->
+        <v-dialog v-model="showEmail" max-width="500" persistent>
+            <template v-slot:default="{}">
+                <v-card title="Change Email">
+                <v-card-text>
+                    <h4><b>Enter new email address:</b></h4>
+                    <v-text-field variant="outlined" class="mt-3 mb-n5" placeholder="Email" persistent-placeholder v-model="newEmail"></v-text-field>
+                </v-card-text>
+
+                <v-card-actions class="mb-3 mx-3">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="Cancel"
+                    class="mr-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showEmail = false; newEmail = email"
+                    ></v-btn>
+                    <v-btn
+                    text="Confirm"
+                    variant="outlined"
+                    color="primary"
+                    :disabled="email === newEmail || !newEmail"
+                    @click="confirmEmail()"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
         <!-- CHANGE PASSWORD -->
         <v-dialog v-model="showPassword" max-width="500" persistent>
             <template v-slot:default="{}">
@@ -164,6 +194,11 @@
         </v-btn>
         <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Change your username.</pre>
 
+        <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="changeEmail()">
+            <h1 class="mr-n2"><v-icon icon="mdi-email" class="mr-3 ml-n2 mt-n1"></v-icon>Change email</h1>
+        </v-btn>
+        <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Change your email address.</pre>
+
         <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="changePassword()">
             <h1 class="mr-n2"><v-icon icon="mdi-security" class="mr-3 ml-n2 mt-n1"></v-icon>Change password</h1>
         </v-btn>
@@ -172,18 +207,22 @@
         <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="changeAvatar()">
             <h1 class="mr-n2"><v-icon icon="mdi-image" class="mr-3 ml-n2 mt-n1"></v-icon>Change avatar</h1>
         </v-btn>
-        <input type="file" accept="image/png, image/jpeg" ref="pfp" style="display: none;">
+        <input type="file" accept="image/png, image/jpeg" ref="pfp" id="pfp" style="display: none;">
         <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Change your profile picture.</pre>
         
-        <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="privateAccount()">
-            <h1 class="mr-n2"><v-icon icon="mdi-account-lock" class="mr-3 ml-n2 mt-n1"></v-icon>Private account</h1>
-        </v-btn>
-        <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Information about what privating accounts do... (show this section if account is public)</pre>
+        <div v-if="!accountStatus">
+            <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="privateAccount()">
+                <h1 class="mr-n2"><v-icon icon="mdi-account-lock" class="mr-3 ml-n2 mt-n1"></v-icon>Private account</h1>
+            </v-btn>
+            <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Make your account private, you will not be searchable.</pre>
+        </div>
 
-        <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="publicAccount()">
-            <h1 class="mr-n2"><v-icon icon="mdi-account-eye" class="mr-3 ml-n2 mt-n1"></v-icon>Publicize account</h1>
-        </v-btn>
-        <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Information about what publicizing accounts do... (show this section if account is private)</pre>
+        <div v-else>
+            <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="publicAccount()">
+                <h1 class="mr-n2"><v-icon icon="mdi-account-eye" class="mr-3 ml-n2 mt-n1"></v-icon>Publicize account</h1>
+            </v-btn>
+            <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Make your account public, you will become searchable.</pre>
+        </div>
 
         <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="red" @click="deleteAccount()">
             <h1 class="mr-n2"><v-icon icon="mdi-account-remove" class="mr-3 ml-n2 mt-n1"></v-icon>Delete Account</h1>
@@ -194,6 +233,10 @@
     </div>
 </template>
 <style scoped>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
 .header-h1 {
     font-size: 2rem;
     color: rgb(152,255,134);

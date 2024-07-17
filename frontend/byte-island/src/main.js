@@ -33,7 +33,10 @@ const store = createStore({
         return {
             dashboardCreateCount: false,
             user: null,
+            email: '',
             token: null,
+            status: false,
+            pfp: '',
             points: [0,0,0],
             selectedBlock: null,
             islandData,
@@ -74,8 +77,17 @@ const store = createStore({
         setUser(state, user) {
             state.user = user
         },
+        setEmail(state, email) {
+            state.email = email;
+        },
+        setPfp(state, pfp) {
+            state.pfp = pfp;
+        },
         setToken(state, token) {
             state.token = token;
+        },
+        setAccountStatus(state, status) {
+            state.status = status;
         },
         setPoints(state, points) {
             state.points = points;
@@ -95,6 +107,7 @@ const store = createStore({
             state.dashboardCreateCount = false;
             state.user = null;
             state.token = null;
+            state.status = false;
             state.points = [0,0,0];
         },
         //updateIsland(state,index,newData) {
@@ -139,8 +152,17 @@ const store = createStore({
         getUsername(state) {
             return state.user;
         },
+        getEmail(state) {
+            return state.email;
+        },
+        getPfp(state) {
+            return state.pfp;
+        },
         getToken(state) {
             return state.token;
+        },
+        getAccountStatus(state) {
+            return state.status;
         },
         getPoints(state) {
             return state.points;
