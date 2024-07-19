@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -37,7 +38,7 @@ export default {
         // api call to get user notifications
         getNotifications() {
             this.loaded = false;
-            fetch("http://localhost:5000/notifications/"+this.username, {
+            fetch("http://"+Data.host+":5000/notifications/"+this.username, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -70,7 +71,7 @@ export default {
         },
         // api call to update notification as read (DONE)
         read(notification) {
-            fetch("http://localhost:5000/notifications", {
+            fetch("http://"+Data.host+":5000/notifications", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -91,7 +92,7 @@ export default {
         },
         // api call to remove notification (DONE)
         del(notification) { 
-            fetch("http://localhost:5000/notifications", {
+            fetch("http://"+Data.host+":5000/notifications", {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -112,7 +113,7 @@ export default {
         },
         // api call to read all (DONE)
         markAllRead() {
-            fetch("http://localhost:5000/notifications", {
+            fetch("http://"+Data.host+":5000/notifications", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -133,7 +134,7 @@ export default {
         },
         // api call to delete all (DONE)
         deleteAll() {
-            fetch("http://localhost:5000/notifications", {
+            fetch("http://"+Data.host+":5000/notifications", {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', 

@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -73,7 +74,7 @@ export default {
         },
         //api call to get user projects
         getProjects() {
-            fetch("http://localhost:5000/projects/"+this.username, {
+            fetch("http://"+Data.host+":5000/projects/"+this.username, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -165,7 +166,7 @@ export default {
                 finalDate = new Date(this.overrideDueDate);
                 finalDate = finalDate.toISOString();
             }
-            fetch("http://localhost:5000/projects/", {
+            fetch("http://"+Data.host+":5000/projects/", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -204,7 +205,7 @@ export default {
         },
         // api call to handle done project
         done(project) {
-            fetch("http://localhost:5000/projects/", {
+            fetch("http://"+Data.host+":5000/projects/", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -271,7 +272,7 @@ export default {
                 this.$emit('project-warning','Warning: No project details have changed.');
                 return;
             }
-            fetch("http://localhost:5000/projects/", {
+            fetch("http://"+Data.host+":5000/projects/", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -318,7 +319,7 @@ export default {
         },
         // api call to handle delete project
         del (project) {
-            fetch("http://localhost:5000/projects/", {
+            fetch("http://"+Data.host+":5000/projects/", {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', 

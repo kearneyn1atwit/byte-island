@@ -182,7 +182,7 @@
             "desc": "Create network with network name."
         },
         "getName": { 
-            "query": "SELECT NetworkName, NetworkDescription FROM Networks WHERE NetworkId = ':id' AND Deleted != True;",
+            "query": "SELECT NetworkName, NetworkDescription, PrivateNetwork FROM Networks WHERE NetworkId = ':id' AND Deleted != True;",
             "params": "id",
             "desc": "Select one network name off its id"
         },
@@ -207,7 +207,7 @@
             "desc": "Mark network as deleted from their id."
         },
         "selectSome": { 
-            "query": "SELECT NetworkId, NetworkName, NetworkDescription FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
+            "query": "SELECT NetworkId, NetworkName, NetworkDescription, PrivateNetwork FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select networks based off matching names"
         },

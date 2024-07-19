@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -51,7 +52,7 @@ export default {
         },
         //api call to change username
         confirmUsername() {
-            fetch("http://localhost:5000/settings", {
+            fetch("http://"+Data.host+":5000/settings", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -93,7 +94,7 @@ export default {
         },
         //api call to change email
         confirmEmail() {
-            fetch("http://localhost:5000/settings", {
+            fetch("http://"+Data.host+":5000/settings", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -145,7 +146,7 @@ export default {
             let self = this;
             document.getElementById('pfp').addEventListener('change', function(e) {
                 if (e.target.files[0]) {
-                  fetch("http://localhost:5000/settings", {
+                  fetch("http://"+Data.host+":5000/settings", {
                       method: 'PUT',
                       headers: {
                           'Content-Type': 'application/json', 
@@ -186,7 +187,7 @@ export default {
         },
         //api call to private account
         confirmPrivate() {
-            fetch("http://localhost:5000/settings", {
+            fetch("http://"+Data.host+":5000/settings", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -225,7 +226,7 @@ export default {
         },
         //api call to publicize account
         confirmPublic() {
-            fetch("http://localhost:5000/settings", {
+            fetch("http://"+Data.host+":5000/settings", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 

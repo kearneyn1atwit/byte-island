@@ -9,6 +9,7 @@ import Friends from './Friends';
 import Posts from './Posts';
 import Networks from "./Networks";
 import Settings from "./Settings";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -332,7 +333,7 @@ export default {
           this.island = null;
         },
         async getNotifications() {
-          return fetch("http://localhost:5000/notifications/"+this.username, {
+          return fetch("http://"+Data.host+":5000/notifications/"+this.username, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json', 
@@ -378,7 +379,7 @@ export default {
         async getUserRequests() {
           this.requestCount = 0;
           // api call to get requests (get just list length)
-          return fetch("http://localhost:5000/requests/"+this.username+"/user/open", {
+          return fetch("http://"+Data.host+":5000/requests/"+this.username+"/user/open", {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json', 
@@ -410,7 +411,7 @@ export default {
           });
         },
         async getNetworkRequests() {
-          return fetch("http://localhost:5000/requests/"+this.username+"/network/open", {
+          return fetch("http://"+Data.host+":5000/requests/"+this.username+"/network/open", {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json', 

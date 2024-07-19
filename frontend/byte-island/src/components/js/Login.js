@@ -1,6 +1,7 @@
 import CryptoJS from "crypto-js";
 import { mapMutations } from "vuex";
 import { mapGetters } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -43,7 +44,7 @@ export default {
           this.resetStore();
           const hashedPassword = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
 
-          fetch("http://localhost:5000/login", {
+          fetch("http://"+Data.host+":5000/login", {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json', 
@@ -98,7 +99,7 @@ export default {
           //Hash password before making API call
           const hashedPassword = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
 
-          fetch("http://localhost:5000/signup", {
+          fetch("http://"+Data.host+":5000/signup", {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json', 

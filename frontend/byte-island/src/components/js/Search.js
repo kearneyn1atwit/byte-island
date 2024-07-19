@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -44,7 +45,7 @@ export default {
             if(searchFor === 0) {
 
                 //API New Version
-                fetch("http://localhost:5000/users", {
+                fetch("http://"+Data.host+":5000/users", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json', 
@@ -95,7 +96,7 @@ export default {
                 }
 
                 //API New Version
-                fetch("http://localhost:5000/networks/"+searchBy+"/"+searchString, {
+                fetch("http://"+Data.host+":5000/networks/"+searchBy+"/"+searchString, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json', 
@@ -158,7 +159,7 @@ export default {
         },
         //api call to handle friending user (/requests POST)
         friend(user) {
-            fetch("http://localhost:5000/requests", {
+            fetch("http://"+Data.host+":5000/requests", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -196,7 +197,7 @@ export default {
         },
         //api call to handle joining network (/requests POST)
         askToJoin(network) {
-            fetch("http://localhost:5000/requests", {
+            fetch("http://"+Data.host+":5000/requests", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 

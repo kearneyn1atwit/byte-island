@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from 'vuex';
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -86,7 +87,7 @@ export default {
         getNetworks() {
             this.networksLoaded = false;
             this.networks = [];
-            fetch("http://localhost:5000/networks/2/"+this.username, {
+            fetch("http://"+Data.host+":5000/networks/2/"+this.username, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -173,7 +174,7 @@ export default {
         },  
         //api call to handle network creation
         confirmCreation() {
-            fetch("http://localhost:5000/networks", {
+            fetch("http://"+Data.host+":5000/networks", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -232,7 +233,7 @@ export default {
         getNetworkUsers(network) {
             this.usersLoaded = false;
             this.networkUsers = [];
-            fetch("http://localhost:5000/users", {
+            fetch("http://"+Data.host+":5000/users", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -339,7 +340,7 @@ export default {
         },
         //api call to leave network
         leave(network,username,reload) {
-            fetch("http://localhost:5000/networks", {
+            fetch("http://"+Data.host+":5000/networks", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -402,7 +403,7 @@ export default {
         getUsersProjects() {
             this.userProjectsLoaded = false;
             this.usersProjects = [];
-            fetch("http://localhost:5000/projects/"+this.visitedUser.username, {
+            fetch("http://"+Data.host+":5000/projects/"+this.visitedUser.username, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -440,7 +441,7 @@ export default {
             this.userPostsLoaded = false;
             this.usersPosts = [];
             let type = this.visitedUser.friend? 'all' : 'public'
-            fetch("http://localhost:5000/posts/"+this.visitedUser.username+"/"+type, {
+            fetch("http://"+Data.host+":5000/posts/"+this.visitedUser.username+"/"+type, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -477,7 +478,7 @@ export default {
         like(post) {
             post.LikedPost ? post.Likes-- : post.Likes++;
             post.LikedPost = !post.LikedPost;
-            fetch("http://localhost:5000/likes", {
+            fetch("http://"+Data.host+":5000/likes", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -517,7 +518,7 @@ export default {
         },
         // api call to reply to post
         confirmReply(post) {
-            fetch("http://localhost:5000/posts", {
+            fetch("http://"+Data.host+":5000/posts", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -555,7 +556,7 @@ export default {
         },
         //api call to handle friending user
         friend(user) {
-            fetch("http://localhost:5000/requests", {
+            fetch("http://"+Data.host+":5000/requests", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -593,7 +594,7 @@ export default {
         },
         //api call to handle unfriending user
         unfriend(user) {
-            fetch("http://localhost:5000/friends", {
+            fetch("http://"+Data.host+":5000/friends", {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -627,7 +628,7 @@ export default {
         },
         //api call to make user admin
         admin(user,network) {
-            fetch("http://localhost:5000/admin", {
+            fetch("http://"+Data.host+":5000/admin", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -663,7 +664,7 @@ export default {
         },
         //api call to remove user admin
         unadmin(user,network) {
-            fetch("http://localhost:5000/admin", {
+            fetch("http://"+Data.host+":5000/admin", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 

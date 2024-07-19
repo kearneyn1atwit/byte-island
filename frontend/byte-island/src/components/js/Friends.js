@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -51,7 +52,7 @@ export default {
         //api call to get list of friends
         getFriends() {
             this.friends = [];
-            fetch("http://localhost:5000/users", {
+            fetch("http://"+Data.host+":5000/users", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -102,7 +103,7 @@ export default {
         getFriendsProjects() {
             this.friendProjectsLoaded = false;
             this.friendsProjects = [];
-            fetch("http://localhost:5000/projects/"+this.visitedFriend.username, {
+            fetch("http://"+Data.host+":5000/projects/"+this.visitedFriend.username, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -139,7 +140,7 @@ export default {
         getFriendsPosts() {
             this.friendPostsLoaded = false;
             this.friendsPosts = [];
-            fetch("http://localhost:5000/posts/"+this.visitedFriend.username+"/all", {
+            fetch("http://"+Data.host+":5000/posts/"+this.visitedFriend.username+"/all", {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -177,7 +178,7 @@ export default {
         like(post) {
             post.LikedPost ? post.Likes-- : post.Likes++;
             post.LikedPost = !post.LikedPost;
-            fetch("http://localhost:5000/likes", {
+            fetch("http://"+Data.host+":5000/likes", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -217,7 +218,7 @@ export default {
         },
         // api call to reply to post
         confirmReply(post) {
-            fetch("http://localhost:5000/posts", {
+            fetch("http://"+Data.host+":5000/posts", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -255,7 +256,7 @@ export default {
         },
         //api call to handle unfriending friend
         unfriend(friend) {
-            fetch("http://localhost:5000/friends", {
+            fetch("http://"+Data.host+":5000/friends", {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', 

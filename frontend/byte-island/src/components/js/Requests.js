@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     props: ['requestCount'],
@@ -43,7 +44,7 @@ export default {
             else if(type === 1 && type2 === 1) {
               reqType = '/network/pending';
             }
-            fetch("http://localhost:5000/requests/"+this.username+reqType, {
+            fetch("http://"+Data.host+":5000/requests/"+this.username+reqType, {
                 method: 'GET',
                 headers: {
                   'Content-Type': 'application/json', 
@@ -79,7 +80,7 @@ export default {
         },
         accept(request) {
             // api call to accept request (PUT)
-            fetch("http://localhost:5000/requests/", {
+            fetch("http://"+Data.host+":5000/requests/", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -115,7 +116,7 @@ export default {
         },
         ignore(request) {
             // api call to remove request (DELETE)
-            fetch("http://localhost:5000/requests/", {
+            fetch("http://"+Data.host+":5000/requests/", {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', 
