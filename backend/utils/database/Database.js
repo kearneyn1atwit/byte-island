@@ -617,6 +617,15 @@ module.exports = {
             try {
                 const networkData = ProcessAndLogRowValues(exactNetworkMatch,0);
                 
+                //Check for in network
+                const memberIds = await neo4j.query(fillCypherParams(cypher.select.usersInNetwork, {
+                    "IDVAR": networkData['networkid']
+                }));
+                memberlist = []
+                memberIds.records.forEach(record => {
+                    memberlist.push(record.get('u').properties.Id.low);
+                });
+
                 //Check for admin
                 const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
                     "IDVAR": networkData['networkid']
@@ -632,6 +641,7 @@ module.exports = {
                     networkid: networkData['networkid'],
                     private: networkData['privatenetwork'],
                     pfp: "TEMP_FAKE_IMAGE_STRING",
+                    inNetwork: memberlist.includes(userid),
                     isAdmin: adminlist.includes(userid)
                 });
             } catch(e) {
@@ -646,6 +656,15 @@ module.exports = {
                     if (rowData['networkname'] !== search) {
                         console.log("Pushing Partial match: " + rowData['networkname']);
             
+                        //Check for in network
+                        const memberIds = await neo4j.query(fillCypherParams(cypher.select.usersInNetwork, {
+                            "IDVAR": networkData['networkid']
+                        }));
+                        memberlist = []
+                        memberIds.records.forEach(record => {
+                            memberlist.push(record.get('u').properties.Id.low);
+                        });
+
                         const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
                             "IDVAR": rowData['networkid']
                         }));
@@ -661,6 +680,7 @@ module.exports = {
                             networkid: rowData['networkid'],
                             private: rowData['privatenetwork'],
                             pfp: "TEMP_FAKE_IMAGE_STRING",
+                            inNetwork: memberlist.includes(userid),
                             isAdmin: adminlist.includes(userid)
                         });
                     }
@@ -697,6 +717,7 @@ module.exports = {
                     networkid: network.rows[0]['networkid'],
                     private: network.rows[0]['privatenetwork'],
                     pfp: "TEMP_FAKE_IMAGE_STRING",
+                    inNetwork: memberlist.includes(userid),
                     isAdmin: adminlist.includes(userid)
                 })
             }
@@ -737,6 +758,7 @@ module.exports = {
                     networkid: id,
                     private: network.rows[0]['privatenetwork'],
                     pfp: "TEMP_FAKE_IMAGE_STRING", //modify this later
+                    inNetwork: true,
                     isAdmin: adminlist.includes(userid)
                 })
             }

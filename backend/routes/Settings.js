@@ -58,6 +58,11 @@ router.put('/settings', async (req, res) => {
             const token = auth.generateJWT(value);
             return res.status(200).json({ token: token })
         } else if(setting === 'email') {
+            //Check input for other requirements
+            const validEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!validEmailRegex.test(value)) {
+                return res.status(400).json({ message: 'Email is not a valid format!' });
+            }
             await db.UpdateUserCredentials(id, { email: value });
         } else if(setting === 'password') {
             await db.UpdateUserCredentials(id, { password: value });
