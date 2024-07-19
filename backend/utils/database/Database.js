@@ -658,7 +658,7 @@ module.exports = {
             
                         //Check for in network
                         const memberIds = await neo4j.query(fillCypherParams(cypher.select.usersInNetwork, {
-                            "IDVAR": networkData['networkid']
+                            "IDVAR": rowData['networkid']
                         }));
                         memberlist = []
                         memberIds.records.forEach(record => {
@@ -702,6 +702,8 @@ module.exports = {
                     "id": id
                 }));
 
+                const networkData = ProcessAndLogRowValues(network,0);
+
                 //Check for admin
                 const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
                     "IDVAR": id
@@ -712,10 +714,10 @@ module.exports = {
                 });
 
                 matchingNetworks.push({
-                    networkname: network.rows[0]['networkname'],
-                    networkdesc: network.rows[0]['networkdescription'],
-                    networkid: network.rows[0]['networkid'],
-                    private: network.rows[0]['privatenetwork'],
+                    networkname: networkData['networkname'],
+                    networkdesc: networkData['networkdescription'],
+                    networkid: networkData['networkid'],
+                    private: networkData['privatenetwork'],
                     pfp: "TEMP_FAKE_IMAGE_STRING",
                     inNetwork: memberlist.includes(userid),
                     isAdmin: adminlist.includes(userid)
@@ -743,6 +745,14 @@ module.exports = {
                     "id": id
                 }));
 
+                let networkData;
+
+                try {
+                    networkData = ProcessAndLogRowValues(network,0);
+                } catch (err) {
+                    continue;
+                }
+
                 //Check for admin
                 const adminIds = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
                     "IDVAR": id
@@ -751,12 +761,12 @@ module.exports = {
                 adminIds.records.forEach(record => {
                     adminlist.push(record.get('u').properties.Id.low);
                 });
-
+                
                 matchingNetworks.push({
-                    networkname: network.rows[0]['networkname'],
-                    networkdesc: network.rows[0]['networkdescription'],
+                    networkname: networkData['networkname'],
+                    networkdesc: networkData['networkdescription'],
                     networkid: id,
-                    private: network.rows[0]['privatenetwork'],
+                    private: networkData['privatenetwork'],
                     pfp: "TEMP_FAKE_IMAGE_STRING", //modify this later
                     inNetwork: true,
                     isAdmin: adminlist.includes(userid)
