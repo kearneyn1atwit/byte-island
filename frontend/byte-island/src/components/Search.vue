@@ -33,11 +33,19 @@
                 <hr v-if="index > 0" style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
                 <v-row align="center">
                     <v-col cols="auto">
-                        <v-avatar class="ml-5" size="55" style="border: 1.5px solid white;" :image="userNetwork.pic"></v-avatar>
+                        <v-avatar class="ml-5 mr-n5" size="55" style="border: 1.5px solid white;" :image="userNetwork.pic"></v-avatar>
                     </v-col>
-                    <v-col>
+                    <v-col class="mx-5">
                         <pre class="user-network-name">{{userNetwork.name}}</pre>
-                        <pre class="text-muted" v-if="searchTab === 1">{{userNetwork.desc}}</pre>
+                        <div class="text-muted" v-if="searchTab === 1">
+                            <pre style="white-space: pre-wrap; word-wrap: break-word;" v-if="showDesc || userNetwork.desc.length <= 100"><b>About</b>: {{userNetwork.desc}}</pre>
+                            <pre style="white-space: pre-wrap; word-wrap: break-word;" v-else><b>About</b>: {{userNetwork.desc.substring(0,100)}}...</pre>
+                            <div v-if="userNetwork.desc.length > 100">
+                                <pre class="desc-text" @click="showDesc = !showDesc" v-if="!showDesc">Read more</pre>
+                                <pre class="desc-text" @click="showDesc = !showDesc" v-if="showDesc">Hide description</pre>          
+                            </div>
+                        </div>
+                        <!-- <pre class="text-muted" v-if="searchTab === 1">{{userNetwork.desc}}</pre> -->
                     </v-col>
                 </v-row>
                 
@@ -56,6 +64,10 @@
     </div>
 </template>
 <style scoped>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
 .header-h1 {
     font-size: 2rem;
     color: rgb(152,255,134);
@@ -79,6 +91,14 @@
 }
 .user-network-name {
     font-size: 1.25rem;
+}
+.desc-text {
+    color: #2196F3;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.desc-text:hover {
+    color: #8fcaf9;
 }
 </style>
 <script src="./js/Search.js">

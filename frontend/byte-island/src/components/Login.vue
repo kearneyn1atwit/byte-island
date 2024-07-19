@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container v-if="loaded"> 
     <v-fade-transition>
       <v-alert closable @click:close="hideAlerts()" v-if="showErrorAlert" position="absolute" color="red" icon="$error" elevation="10" :text="errorAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
     </v-fade-transition> 
@@ -26,7 +26,7 @@
             </v-row>
           </v-form>
         </v-col>
-        <div class="mx-5 ml-auto mt-5"><b><i>V 1.11.9.0</i></b></div>
+        <div class="mx-5 ml-auto mt-5"><b><i>V 1.12.0.0</i></b></div>
       </v-row>
     </v-responsive>
   </v-container>

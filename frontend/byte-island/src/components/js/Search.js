@@ -12,7 +12,8 @@ export default {
             filteredList: [],
             token: null,
             username: '',
-            loaded: true
+            loaded: true,
+            showDesc: false
         }
     },
     async created() {
@@ -32,6 +33,7 @@ export default {
         },
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
+            this.showDesc = false;
             if(!searchString) {
                 this.loaded = true;
                 return;
