@@ -6,7 +6,9 @@ const cors = require('cors');
 const {initializeSwaggerUI} = require('./utils/api/SwaggerWrapper');
 
 //Routes
+const v1Admins = require('./routes/Admin');
 const v1Friends = require('./routes/Friends');
+const v1Likes = require('./routes/Likes');
 const v1Login = require('./routes/Login');
 const v1Networks = require('./routes/Networks');
 const v1Notifications = require('./routes/Notifications');
@@ -16,6 +18,7 @@ const v1Requests = require('./routes/Requests');
 const v1Shop = require('./routes/Shop');
 const v1Signup = require('./routes/Signup');
 const v1Users = require('./routes/Users');
+const v1Settings = require('./routes/Settings');
 
 //Instantiate express.js server
 const app = express();
@@ -30,7 +33,9 @@ app.use(cors({ //Needs CORS enabled for 5000->3000
 app.use('/api', router);
 
 //Define the route paths and their corresponding definitions | Turn this into a dictionary later
+app.use('/', v1Admins);
 app.use('/', v1Friends);
+app.use('/', v1Likes);
 app.use('/', v1Login);
 app.use('/', v1Networks);
 app.use('/', v1Notifications);
@@ -40,6 +45,7 @@ app.use('/', v1Requests);
 app.use('/', v1Shop);
 app.use('/', v1Signup);
 app.use('/', v1Users);
+app.use('/', v1Settings);
 
 //Create Swagger UI page for the provided API application
 initializeSwaggerUI(app, '/docs', ["./routes/documentation/*.yaml"], port); //Each bit of documentation is contained in a .yaml file

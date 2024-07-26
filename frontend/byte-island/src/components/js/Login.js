@@ -1,5 +1,7 @@
 import CryptoJS from "crypto-js";
 import { mapMutations } from "vuex";
+import { mapGetters } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -14,26 +16,35 @@ export default {
             required: v => !!v || 'Field is required!'
         },
         showErrorAlert: false,
-        errorAlertText: ''
+        errorAlertText: '',
+        loaded: false
       };
     },
     async created() {
       
     },
     computed: {
-      
+      ...mapGetters(['getToken','getUsername'])
     },
     mounted() {
-        
+        // check if user is already logged in
+        if(this.getToken !== null) {
+          this.$router.push({ name: 'Home', params: {  
+            id: this.getUsername
+          }});
+        }
+        else {
+          this.loaded = true;
+        }
     },
     methods: {
-      ...mapMutations(['setToken','setUser','setPoints','resetStore']),
+      ...mapMutations(['setToken','setUser','setAccountStatus','setPoints','resetStore','setEmail','setPfp']),
       //api call for logging in
       login() {
           this.resetStore();
           const hashedPassword = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
 
-          fetch("http://localhost:5000/login", {
+          fetch("http://"+Data.host+":5000/login", {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json', 
@@ -50,11 +61,20 @@ export default {
                   this.$router.push('/');
                   this.resetStore();
                 }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
+                }
               }
               //console.log("Response was okay!");
               return response.json(); 
           })
           .then(data => {
+            // replace with data.email
+            this.setEmail('<email address>');
+            // replace with data.pfp
+            this.setPfp('https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250');
+            this.setAccountStatus(data.private);
             this.setToken(data.token);
             this.setUser(data.username);
             this.setPoints([data.career,data.personal,data.social]);
@@ -79,7 +99,7 @@ export default {
           //Hash password before making API call
           const hashedPassword = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
 
-          fetch("http://localhost:5000/signup", {
+          fetch("http://"+Data.host+":5000/signup", {
               method: 'POST',
               headers: {
                   'Content-Type': 'application/json', 
@@ -97,13 +117,22 @@ export default {
                   this.$router.push('/');
                   this.resetStore();
                 }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
+                }
               } else {
                 return response.json(); 
               }
           })
           .then(data => {
+              // replace with data.email
+              this.setEmail('<email address>');
+              // replace with data.pfp
+              this.setPfp('https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250');
               this.setToken(data.token);
               this.setUser(data.username);
+              this.setAccountStatus(data.private);
               this.setPoints([data.career,data.personal,data.social]);
               //console.log('Sign up successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: { 

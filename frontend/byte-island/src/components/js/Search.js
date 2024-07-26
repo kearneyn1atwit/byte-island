@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -12,7 +13,8 @@ export default {
             filteredList: [],
             token: null,
             username: '',
-            loaded: true
+            loaded: true,
+            showDesc: false
         }
     },
     async created() {
@@ -32,6 +34,7 @@ export default {
         },
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
+            this.showDesc = false;
             if(!searchString) {
                 this.loaded = true;
                 return;
@@ -42,7 +45,7 @@ export default {
             if(searchFor === 0) {
 
                 //API New Version
-                fetch("http://localhost:5000/users", {
+                fetch("http://"+Data.host+":5000/users", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json', 
@@ -59,6 +62,10 @@ export default {
                             //log out
                             this.$router.push('/');
                             this.resetStore();
+                          }
+                          else {
+                            this.$emit('user-network-error',response.statusText);
+                            return;
                           }
                     }
                     //console.log("Response was okay!");
@@ -78,6 +85,7 @@ export default {
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
+                    this.$emit('user-network-error',error);
                     this.loaded = true;
                 });
             }
@@ -88,7 +96,7 @@ export default {
                 }
 
                 //API New Version
-                fetch("http://localhost:5000/networks/"+searchBy+"/"+searchString, {
+                fetch("http://"+Data.host+":5000/networks/"+searchBy+"/"+searchString, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json', 
@@ -101,6 +109,10 @@ export default {
                             //log out
                             this.$router.push('/');
                             this.resetStore();
+                          }
+                          else {
+                            this.$emit('user-network-error',response.statusText);
+                            return;
                           }
                     }
                     //console.log("Response was okay!");
@@ -121,6 +133,7 @@ export default {
                 })
                 .catch(error => {
                     console.error('Error with Users API:', error);
+                    this.$emit('user-network-error',error);
                     this.loaded = true;
                 });
             }
@@ -146,7 +159,7 @@ export default {
         },
         //api call to handle friending user (/requests POST)
         friend(user) {
-            fetch("http://localhost:5000/requests", {
+            fetch("http://"+Data.host+":5000/requests", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -179,11 +192,12 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('user-network-error',error);
             });
         },
         //api call to handle joining network (/requests POST)
         askToJoin(network) {
-            fetch("http://localhost:5000/requests", {
+            fetch("http://"+Data.host+":5000/requests", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -216,6 +230,7 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('user-network-error',error);
             });
         }
     },

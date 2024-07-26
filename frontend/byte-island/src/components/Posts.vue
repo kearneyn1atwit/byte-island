@@ -83,6 +83,9 @@
                         <v-col :class="post.Replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
                             <pre>{{post.Datetime}}</pre>
                             <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.User}}</b>: {{post.Text}}</pre>
+                            <div class="mt-2">
+                                <v-icon size="20" class="mr-3" :color="post.LikedPost ? 'blue' : 'white'" @click="like(post)" icon="mdi-thumb-up"></v-icon><pre :class="post.LikedPost ? 'blue-like' : 'white-like'" style="font-size: 17px; display: inline;"><b>{{post.Likes}}</b></pre>
+                            </div>
                             <div v-if="!post.HideReplies">
                                 <div class="mx-10 my-7" v-for="reply in post.Replies" :key="reply.Id" >
                                     <pre class="reply-text">{{reply.Datetime}}</pre>
@@ -106,6 +109,10 @@
      
 </template>
 <style scoped>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
 .header-h1 {
     font-size: 2rem;
     color: rgb(152,255,134);
@@ -147,6 +154,12 @@
 .new-post-div {
     border-top: 5px solid grey;
     background-color: #212121;
+}
+.blue-like {
+    color: #2196F3;
+}
+.white-like {
+    color: white;
 }
 </style>
 <script src="./js/Posts.js">

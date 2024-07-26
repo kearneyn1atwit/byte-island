@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {

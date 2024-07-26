@@ -9,6 +9,7 @@ import Friends from './Friends';
 import Posts from './Posts';
 import Networks from "./Networks";
 import Settings from "./Settings";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -55,6 +56,7 @@ export default {
         //delHereDisplay: 0,
         //spotDisplay: 0,
         islandData: null,
+        showBackToIsland: false,
         pseudoDatabase: null
       };
     },
@@ -69,7 +71,7 @@ export default {
       }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPseudoDatabase'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPseudoDatabase','getPfp'])
     },
     async mounted() {
       await this.getNotifications();
@@ -378,7 +380,7 @@ export default {
           this.token = this.getToken;
           this.username = this.getUsername;
           this.visitedUsername = this.username;
-          this.pfp = 'https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250';
+          this.pfp = this.getPfp;
           this.rPoints = this.getPoints[0];
           this.gPoints = this.getPoints[1];
           this.bPoints = this.getPoints[2];
@@ -386,7 +388,7 @@ export default {
           this.island = null;
         },
         async getNotifications() {
-          return fetch("http://localhost:5000/notifications/"+this.username, {
+          return fetch("http://"+Data.host+":5000/notifications/"+this.username, {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json', 
@@ -399,6 +401,10 @@ export default {
                   //log out
                   this.$router.push('/');
                   this.resetStore();
+                }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
                 }
               }
               //console.log("Response was okay!");
@@ -422,12 +428,13 @@ export default {
             this.notificationCount = 0;
             this.readCount = 0;
             console.error('Error with Notifications API:', error);
+            this.showErrorAlertFunc(error);
           });
         },
         async getUserRequests() {
           this.requestCount = 0;
           // api call to get requests (get just list length)
-          return fetch("http://localhost:5000/requests/"+this.username+"/user/open", {
+          return fetch("http://"+Data.host+":5000/requests/"+this.username+"/user/open", {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json', 
@@ -440,6 +447,10 @@ export default {
                   //log out
                   this.$router.push('/');
                   this.resetStore();
+                }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
                 }
               }
               //console.log("Response was okay!");
@@ -455,7 +466,7 @@ export default {
           });
         },
         async getNetworkRequests() {
-          return fetch("http://localhost:5000/requests/"+this.username+"/network/open", {
+          return fetch("http://"+Data.host+":5000/requests/"+this.username+"/network/open", {
               method: 'GET',
               headers: {
                   'Content-Type': 'application/json', 
@@ -469,6 +480,10 @@ export default {
                   this.$router.push('/');
                   this.resetStore();
                 }
+                else {
+                  this.showErrorAlertFunc(response.statusText);
+                  return;
+                }
               }
               //console.log("Response was okay!");
               return response.json(); 
@@ -480,6 +495,7 @@ export default {
           })
           .catch(error => {
             console.error('Error with Requests API:', error);
+            this.showErrorAlertFunc(error);
           });
         },
         getAllRequests() {
@@ -535,7 +551,7 @@ export default {
             if(this.$refs.friendsRef.friendVisited) {
               this.$refs.friendsRef.friendVisited = false;
               this.$refs.friendsRef.friendsData = 0;
-              this.return();
+              // this.returnIsland();
             } else {
               this.widget = widget;
             }
@@ -546,10 +562,11 @@ export default {
               this.$refs.networksRef.userVisited = false;
               this.$refs.networksRef.usersData = 0;
               this.$refs.networksRef.view(this.$refs.networksRef.viewedNetwork);
-              this.return();
+              // this.returnIsland();
             }
             else if(this.$refs.networksRef.networkVisited) {
               this.$refs.networksRef.networkVisited = false;
+              this.$refs.networksRef.showDesc = false;
               this.$refs.networksRef.userSearch = '';
               this.$refs.networksRef.getNetworks();
             } else {
@@ -591,6 +608,7 @@ export default {
           this.bPoints = this.getPoints[2];
         },
         visitFriend(friend) {
+          this.showBackToIsland = true;
           this.friendRPoints = friend.points[0];
           this.friendGPoints = friend.points[1];
           this.friendBPoints = friend.points[2];
@@ -598,7 +616,17 @@ export default {
           this.friendIsland = friend.island;
         },
         // return to users island
-        return() {
+        returnIsland() {
+          if(this.$refs.friendsRef) {
+            this.$refs.friendsRef.friendVisited = false;
+            this.$refs.friendsRef.friendsData = 0;
+          }  
+          if(this.$refs.networksRef) {
+            this.$refs.networksRef.userSearch = '';
+            this.$refs.networksRef.userVisited = false;
+            this.$refs.networksRef.usersData = 0;
+            this.$refs.networksRef.view(this.$refs.networksRef.viewedNetwork);
+          }
           this.friendRPoints = -1;
           this.getUserDetails();
         },

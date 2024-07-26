@@ -4,7 +4,7 @@ const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
 router.get('/networks/:searchBy/:searchString', async (req, res) => {
-
+  
   if(!await auth.verifyJWT(req.headers.authorization)) {
     return res.status(401).json({ message: 'Access denied!' });
   } 
@@ -44,8 +44,10 @@ router.get('/networks/:searchBy/:searchString', async (req, res) => {
         
     }
 
+    const username = auth.getUsername(req.headers.authorization);
+
     //Query database by network name (0) or tags (1)  or networks user is in (2) based on searchBy
-    const results = await db.SearchNetworks(searchString, searchBy);
+    const results = await db.SearchNetworks(searchString, searchBy, username);
 
     if(results.length === 0) {
         return res.status(200).json({ message: 'No networks were found!' })
@@ -58,7 +60,6 @@ router.get('/networks/:searchBy/:searchString', async (req, res) => {
     return res.status(500).json({ message: 'Internal Server Error' });
   }
 });
-
 
 router.post('/networks', async (req, res) => {
 
@@ -133,22 +134,21 @@ router.post('/networks', async (req, res) => {
   }
 })
 
-router.delete('/networks', async (req, res) => {
+router.put('/networks', async (req, res) => {
+  let username;
 
-    let username;
+  try {
+      username = req.body.username;
+  }
+  catch(error) {
+      return res.status(401).json({ message: 'Access denied!' }); 
+  }
 
-    try {
-        username = req.body.username;
-    }
-    catch(error) {
-        return res.status(401).json({ message: 'Access denied!' }); 
-    }
-  
-    if(!await auth.verifyJWT(req.headers.authorization)) { //Verify token is valid against username
-      return res.status(401).json({ message: 'Access denied!' });
-    } 
+  if(!await auth.verifyJWT(req.headers.authorization)) { //Verify token is valid against username
+    return res.status(401).json({ message: 'Access denied!' });
+  } 
 
-  console.log("DELETE Friends API Starts!");
+  console.log("PUT Networks API Starts!");
 
   //Check all expected input parameters are present
   let network;
@@ -164,29 +164,96 @@ router.delete('/networks', async (req, res) => {
   try {
 
     //Verify user exists and get the id
-    const id1 = await db.GetUserId(username);
-    const id2 = await db.GetNetworkId(network);
-    if (id1 === -1 || id2 === -1) {
+    const userid = await db.GetUserId(username);
+    const networkid = await db.GetNetworkId(network);
+    if (userid === -1 || networkid === -1) {
       return res.status(400).json({ message: 'Invalid username or network provided' }); 
     }
 
-    const networkMembers = await db.GetNetworkMembers(id2);
+    const networkMembers = await db.GetNetworkMembers(networkid);
 
-    if(!networkMembers.includes(id1)) {
-        return res.status(400).json({ message: "You are already not part of this network!"} )
+    if(!networkMembers.includes(userid)) {
+        return res.status(400).json({ message: "User is already not part of this network!"} )
     }
 
-    const removeNetwork = await db.RemoveNetworkMember(id1,id2);
+    const networkAdmins = await db.GetNetworkAdmins(networkid);
+
+    //Make sure username matches token OR token username is admin in the provided network
+    if(auth.getUsername(req.headers.authorization) !== username && !networkAdmins.includes(userid)) {
+      return res.status(401).json({ message: "Illegal operation!"} )
+    }
+
+    const removeNetwork = await db.RemoveNetworkMember(userid,networkid);
 
     if(removeNetwork) {
         return res.status(200).send();
     } else {
-        return res.status(500).json({ message: "Something went wrong trying to remove from network!" });
+        return res.status(500).json({ message: "Something went wrong trying to remove user from the network!" });
     }
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
+});
+
+router.delete('/networks', async (req, res) => {
+  
+  let username;
+
+  try {
+      username = req.body.username;
+  }
+  catch(error) {
+      return res.status(401).json({ message: 'Access denied!' }); 
+  }
+
+  if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid and token matches username
+      return res.status(401).json({ message: 'Access denied!' });
+  } 
+
+  console.log("DELETE Networks API Starts!");
+
+  //Check all expected input parameters are present
+  let network;
+  try {
+    network = req.body.network;
+    if(!network) {
+        return res.status(400).json({ message: 'Missing network!' });
+      }
+  } catch {
+    return res.status(400).json({ message: 'Bad Request' });
+  }
+
+  try {
+
+      //Verify user exists and get the id
+      const userid = await db.GetUserId(username);
+      const networkid = await db.GetNetworkId(network);
+      if (userid === -1 || networkid === -1) {
+        return res.status(400).json({ message: 'Invalid username or network provided' }); 
+      }
+
+      const networkAdmins = await db.GetNetworkAdmins(networkid);
+
+      //Make sure user is a network admin
+      if(!networkAdmins.includes(userid)) {
+        return res.status(401).json({ message: "Illegal operation!"} )
+      }
+
+      try {
+        const networkData = await db.DeleteNetwork(network);
+      }
+      catch(err) {
+          console.log(err);
+          return res.status(500).json({ message: 'Error deleting user'});
+      }
+
+      return res.status(200).send();
+
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+ }
 });
 
 module.exports = router;

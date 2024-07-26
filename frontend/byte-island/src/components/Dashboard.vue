@@ -91,7 +91,7 @@
             <v-list-item title="Settings" value="settings" style="color: rgb(152,255,134);" @click="toWidget('settings')"></v-list-item>
             <v-list-item title="Sign Out" value="signout" @click="showSignOut = true"></v-list-item>
           </div>  
-          <Notifications ref="notificationsRef" @get-notifications="getNotifications" v-if="widget === 'notifications'">
+          <Notifications ref="notificationsRef" @get-notifications="getNotifications" @notifications-error="showErrorAlertFunc" v-if="widget === 'notifications'">
 
           </Notifications>
           <Projects ref="projectsRef" @project-success="showSuccessAlertFunc" @project-warning="showWarningAlertFunc" @project-error="showErrorAlertFunc" @project-completed="projectCompleted" v-if="widget === 'projects'">
@@ -109,13 +109,13 @@
           <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" @friend-error="showErrorAlertFunc" v-if="widget === 'friends'">
 
           </Friends>   
-          <Posts ref="postsRef" v-if="widget === 'posts'">
+          <Posts ref="postsRef" @post-error="showErrorAlertFunc" v-if="widget === 'posts'">
 
           </Posts>
-          <Networks ref="networksRef" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
+          <Networks ref="networksRef" @network-warning="showWarningAlertFunc" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
 
           </Networks>
-          <Settings ref="settingsRef" v-if="widget === 'settings'">
+          <Settings ref="settingsRef" @settings-success="showSuccessAlertFunc" @settings-error="showErrorAlertFunc" @get-dash-data="getUserDetails" v-if="widget === 'settings'">
 
           </Settings>
         </v-list>
@@ -142,6 +142,7 @@
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{friendRPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{friendGPoints}}</li>
                 <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{friendBPoints}}</li>
+                <li><v-btn v-if="showBackToIsland" @click="returnIsland()" class="mt-5" color="primary">Return to island</v-btn></li>
             </ul>
             
         </v-row>

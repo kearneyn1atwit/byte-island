@@ -1,5 +1,105 @@
 <template>
     <div>
+        <v-dialog v-model="showEditNetwork" v-if="showEditNetwork" max-width="500" scrollable persistent>
+            <template v-slot:default="{}">
+                <v-card :title="'Editing Network: '+editNetworkName">
+                <v-card-text style="border-top: 1.5px solid gray;">
+                    <h2 class="mb-2 mt-3">Network type</h2>
+                    <v-btn-toggle rounded class="toggle-group mb-2" v-model="editNetworkType" mandatory>
+                        <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86">Public</v-btn>
+                        <v-btn class="ma-1 toggle-btn text-lg" color="#98FF86">Private</v-btn>
+                    </v-btn-toggle>
+                    <h4 class="mt-3">Enter network name:</h4>
+                    <v-text-field clearable counter="50" persistent-counter maxlength="50" variant="outlined" class="mt-3 mb-n5" placeholder="Network Name" persistent-placeholder v-model="editNetworkName"></v-text-field>
+                    <h4 class="mt-3">Describe your new network:</h4>
+                    <v-textarea clearable maxlength="500" counter persistent-counter v-model="editNetworkDesc" no-resize variant="outlined" class="mt-3 mb-n5" placeholder="Network Description" persistent-placeholder></v-textarea>
+                    <h4 class="mt-3">Choose network picture:</h4>
+                    <v-btn class="mt-3" variant="outlined" color="primary" @click="chooseNetworkPic('edit')">
+                        Choose file
+                    </v-btn>
+                    <input type="file" accept="image/png, image/jpeg" ref="networkPicEdit" id="networkPicEdit" style="display: none;">
+                    <pre class="mt-5"><b>Image preview:</b></pre>
+                    <div class="mt-5 text-center" id="imagePrevEdit"></div>
+                </v-card-text>
+
+                <v-card-actions class="mb-3" style="border-top: 1.5px solid gray;">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="Cancel"
+                    class="mr-3 mt-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showEditNetwork = false; editNetworkName = ''; editNetworkPic = ''; editNetworkType = 0; editNetworkDesc = ''"
+                    ></v-btn>
+                    <v-btn
+                    class="mr-3 mt-3"
+                    :disabled="!editNetworkName || !editNetworkDesc || !editNetworkPic"
+                    text="Update"
+                    variant="outlined"
+                    color="primary"
+                    @click="confirmEdit()"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
+        <v-dialog v-model="showDelNetwork" max-width="500" persistent>
+            <template v-slot:default="{}">
+                <v-card :title="'Delete Network: '+toDelNetwork.networkname">
+                <v-card-text>
+                    <h2 style="color: red;"><b>Are you sure you want to delete this network? This action is irreversible.</b></h2>
+                </v-card-text>
+
+                <v-card-actions class="mb-3 mx-3">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="No"
+                    class="mr-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showDelNetwork = false"
+                    ></v-btn>
+                    <!-- disable if password entered is not current password (CHANGE) -->
+                    <v-btn
+                    text="Yes"
+                    variant="outlined"
+                    color="primary"
+                    @click="confirmDeleteNetwork(toDelNetwork)"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
+        <v-dialog v-model="showLeaveNetwork" max-width="500" persistent>
+            <template v-slot:default="{}">
+                <v-card :title="'Leave Network: '+leaveNetwork.networkname">
+                <v-card-text>
+                    <h4><b>Are you sure you want to leave this network?</b></h4>
+                </v-card-text>
+
+                <v-card-actions class="mb-3 mx-3">
+                    <v-spacer></v-spacer>
+
+                    <v-btn
+                    text="No"
+                    class="mr-3"
+                    variant="outlined"
+                    color="red"
+                    @click="showLeaveNetwork = false"
+                    ></v-btn>
+                    <!-- disable if password entered is not current password (CHANGE) -->
+                    <v-btn
+                    text="Yes"
+                    variant="outlined"
+                    color="primary"
+                    @click="leave(leaveNetwork,username,'networks')"
+                    ></v-btn>
+                </v-card-actions>
+                </v-card>
+            </template>
+        </v-dialog>
         <v-dialog v-model="showNewNetwork" v-if="showNewNetwork" max-width="500" scrollable persistent>
             <template v-slot:default="{}">
                 <v-card title="Create New Network">
@@ -14,7 +114,7 @@
                     <h4 class="mt-3">Describe your new network:</h4>
                     <v-textarea clearable maxlength="500" counter persistent-counter v-model="newNetworkDesc" no-resize variant="outlined" class="mt-3 mb-n5" placeholder="Network Description" persistent-placeholder></v-textarea>
                     <h4 class="mt-3">Choose network picture:</h4>
-                    <v-btn class="mt-3" variant="outlined" color="primary" @click="chooseNetworkPic()">
+                    <v-btn class="mt-3" variant="outlined" color="primary" @click="chooseNetworkPic('new')">
                         Choose file
                     </v-btn>
                     <input type="file" accept="image/png, image/jpeg" ref="networkPic" id="networkPic" style="display: none;">
@@ -30,7 +130,7 @@
                     class="mr-3 mt-3"
                     variant="outlined"
                     color="red"
-                    @click="showNewNetwork = false; newNetworkName = ''; newNetworkPic = ''; networkPicLen = 0; newNetworkType = 0; newNetworkDesc = ''"
+                    @click="showNewNetwork = false; newNetworkName = ''; newNetworkPic = ''; newNetworkType = 0; newNetworkDesc = ''"
                     ></v-btn>
                     <v-btn
                     class="mr-3 mt-3"
@@ -106,7 +206,11 @@
                 <v-row class="my-0 mb-n1" justify="space-around">
                     <v-col cols="12">
                         <v-btn class="mr-3" color="success" variant="outlined" size="small" @click="view(network)">View</v-btn>
-                        <v-btn color="red" variant="outlined" size="small" @click="leave(network,username,'networks')">Leave</v-btn>
+                        <!-- V-if user is admin of network -->
+                        <v-btn class="mr-3" color="primary" variant="outlined" size="small" @click="editNetwork(network)" v-if="network.isAdmin">Edit Details</v-btn>
+                        <v-btn class="mr-3" color="red" variant="outlined" size="small" @click="showLeave(network)">Leave</v-btn>
+                        <!-- V-if user is admin of network -->
+                        <v-btn color="red" variant="outlined" size="small" @click="delNetwork(network)" v-if="network.isAdmin">Delete Network</v-btn>
                     </v-col>
                 </v-row>
             </v-list-item>
@@ -127,9 +231,19 @@
                     <v-avatar size="70" :image="viewedNetwork.pfp" style="border: 1.5px solid white;"></v-avatar>
                 </v-col>
                 <v-col>
-                    <pre><h1>{{viewedNetwork.networkname}}</h1></pre>           
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;"><h1><b>{{viewedNetwork.networkname}}</b></h1></pre>
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>Members</b>: {{usersLoaded ? networkUsers.length : '...'}}</pre> 
+                    
                 </v-col>    
             </v-row>
+            <div class="ml-1 mb-3">
+                <pre style="white-space: pre-wrap; word-wrap: break-word;" v-if="showDesc || viewedNetwork.networkdesc.length <= 100"><b>About</b>: {{viewedNetwork.networkdesc}}</pre>
+                <pre style="white-space: pre-wrap; word-wrap: break-word;" v-else><b>About</b>: {{viewedNetwork.networkdesc.substring(0,100)}}...</pre>
+                <div v-if="viewedNetwork.networkdesc.length > 100">
+                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="!showDesc">Read more</pre>
+                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="showDesc">Hide description</pre>          
+                </div>
+            </div>
             <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-1">
             <v-text-field
                 v-model="userSearch"
@@ -163,8 +277,8 @@
                         <v-btn class="mr-3" color="success" variant="outlined" size="small" @click="visit(user)">Visit</v-btn>
                         <v-btn v-if="!user.friend" class="mr-3" color="success" variant="outlined" size="small" @click="friend(user)">Friend</v-btn>
                         <v-btn v-else color="red" class="mr-3" variant="outlined" size="small" @click="unfriend(user)">Un-friend</v-btn>
-                        <v-btn v-if="!user.admin && currentUserAdmin" class="mr-3" color="success" variant="outlined" size="small" @click="admin(user)">Make admin</v-btn>
-                        <v-btn v-else-if="user.admin && currentUserAdmin" class="mr-3" color="red" variant="outlined" size="small" @click="unadmin(user)">Remove admin</v-btn>
+                        <v-btn v-if="!user.admin && currentUserAdmin" class="mr-3" color="success" variant="outlined" size="small" @click="admin(user,viewedNetwork)">Make admin</v-btn>
+                        <v-btn v-else-if="user.admin && currentUserAdmin" class="mr-3" color="red" variant="outlined" size="small" @click="unadmin(user,viewedNetwork)">Remove admin</v-btn>
                         <v-btn v-if="!user.admin && currentUserAdmin" color="red" variant="outlined" size="small" @click="leave(viewedNetwork,user.username,'users')">Kick user</v-btn>
                     </v-col>
                 </v-row>    
@@ -235,6 +349,10 @@
                                 <v-col :class="post.Replies.length > 0 ? 'ml-3' : 'ml-3 mb-3'">
                                     <pre>{{post.Datetime}}</pre>
                                     <pre style="white-space: pre-wrap; word-wrap: break-word;"><b>{{post.User}}</b>: {{post.Text}}</pre>
+                                    <!-- change color based on if post is liked -->
+                                    <div class="mt-2">
+                                        <v-icon size="20" class="mr-3" :color="post.LikedPost ? 'blue' : 'white'" @click="like(post)" icon="mdi-thumb-up"></v-icon><pre :class="post.LikedPost ? 'blue-like' : 'white-like'" style="font-size: 17px; display: inline;"><b>{{post.Likes}}</b></pre>
+                                    </div>
                                     <div v-if="!post.HideReplies">
                                         <div class="mx-10 my-7" v-for="reply in post.Replies" :key="reply.Id" >
                                             <pre class="reply-text">{{reply.Datetime}}</pre>
@@ -256,6 +374,10 @@
     </div>
 </template>
 <style scoped>
+pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
 .header-h1 {
     font-size: 2rem;
     color: rgb(152,255,134);
@@ -282,6 +404,20 @@
 }
 .hide-btn {
     color: rgb(152,255,134);
+}
+.blue-like {
+    color: #2196F3;
+}
+.white-like {
+    color: white;
+}
+.desc-text {
+    color: #2196F3;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.desc-text:hover {
+    color: #8fcaf9;
 }
 </style>
 <script src="./js/Networks.js">

@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+
 router.get('/posts/:username/:category', async (req, res) => {
 
     let username;
@@ -72,6 +73,8 @@ router.get('/posts/:username/:category', async (req, res) => {
             }
         }
 
+        const likedPosts = await db.GetUserLikedPosts(id);
+
         // Format results and return
         let results = [];
 
@@ -91,7 +94,9 @@ router.get('/posts/:username/:category', async (req, res) => {
                     Id: reply[0],
                     Datetime: reply[7],
                     User: user['username'],
-                    Text: reply[3]
+                    Text: reply[3],
+                    Likes: reply[5],
+                    LikedReply: likedPosts.includes(reply[0]),
                 });
             }
 
@@ -102,6 +107,8 @@ router.get('/posts/:username/:category', async (req, res) => {
                 User: username,
                 Text: rowData[3],
                 Image: "FAKE_IMAGE_TEXT", // update this later
+                Likes: rowData[5],
+                LikedPost: likedPosts.includes(rowData[0]),
                 Replies: replies
             });
         }
@@ -200,7 +207,7 @@ router.put('/posts', async (req, res) => {
         }
         postid = req.body.postid; 
         if(!postid) {
-            return res.status(400).json({ message: 'Missing text for post!' });
+            return res.status(400).json({ message: 'Missing postid for post!' });
         }
     } catch {
         return res.status(400).json({ message: 'Bad Request' });
@@ -234,6 +241,71 @@ router.put('/posts', async (req, res) => {
         catch(err) {
             console.log(err);
             return res.status(500).json({ message: 'Error creating reply!'});
+        }
+
+        return res.status(200).send();
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
+router.delete('/posts', async (req, res) => { 
+
+    let username;
+
+    try {
+        username = req.body.username;
+    }
+    catch(error) {
+        return res.status(401).json({ message: 'Access denied!' }); 
+    }
+
+    if(!await auth.verifyJWT(req.headers.authorization, username)) { //Verify token is valid and token matches username
+        return res.status(401).json({ message: 'Access denied!' });
+    } 
+
+    console.log("DELETE Posts API Starts!");
+
+    let postid;
+    try {
+        postid = req.body.postid; 
+        if(!postid) {
+            return res.status(400).json({ message: 'Missing postid for post!' });
+        }
+    } catch {
+        return res.status(400).json({ message: 'Bad Request' });
+    }
+
+    if (typeof postid !== 'number' || postid <= 0) {
+        return res.status(400).json({ message: 'Invalid post id!' });
+    }
+
+    try {
+  
+        const userid = await db.GetUserId(username);
+        console.log(userid);
+        if (userid == -1) {
+            return res.status(400).json({ message: 'User could not be found!' }); 
+        }
+
+        const postData = await db.GetPostDetails(postid);
+        console.log(postData);
+        if (postData === undefined) {
+            return res.status(400).json({ message: 'Invalid post id!' }); 
+        }
+
+        if(postData['userid'] !== userid) {
+            return res.status(400).json({ message: 'Invalid post id!' }); 
+        }
+        
+        try {
+            const post = await db.DeletePost(postid);
+        }
+        catch(err) {
+            console.log(err);
+            return res.status(500).json({ message: 'Error deleting post!'});
         }
 
         return res.status(200).send();

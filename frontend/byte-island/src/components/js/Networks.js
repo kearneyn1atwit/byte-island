@@ -1,4 +1,6 @@
 import { mapGetters } from "vuex";
+import { mapMutations } from 'vuex';
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -28,7 +30,18 @@ export default {
             usersLoaded: false,
             currentUserAdmin: false,
             userProjectsLoaded: false,
-            userPostsLoaded: false
+            userPostsLoaded: false,
+            showEditNetwork: false,
+            editNetworkType: 0,
+            editNetworkName: '',
+            editNetworkDesc: '',
+            editNetworkPic: '',
+            editedNetwork: null,
+            showDelNetwork: false,
+            toDelNetwork: null,
+            showLeaveNetwork: false,
+            leaveNetwork: null,
+            showDesc: false
         }
     },
     async created() {
@@ -64,15 +77,17 @@ export default {
         this.getNetworks();
     },
     methods: {
+        ...mapMutations(['resetStore']),
         getUserDetails() {
             this.token = this.getToken;
             this.username = this.getUsername;
         },
         //api call to get networks
+        //edit, delete, delete dialog
         getNetworks() {
             this.networksLoaded = false;
             this.networks = [];
-            fetch("http://localhost:5000/networks/2/"+this.username, {
+            fetch("http://"+Data.host+":5000/networks/2/"+this.username, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -86,12 +101,16 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 //console.log("Response was okay!");
                 return response.json(); 
             })
             .then(data => {
-                // console.log(data);
+                //console.log(data);
                 if(!data.message) {
                     this.networks = data;
                 }
@@ -99,37 +118,63 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
                 this.networksLoaded = true;
             });
         },
         newNetwork() {
             this.showNewNetwork = true;
         },
-        chooseNetworkPic() {
-            this.$refs.networkPic.click();
-            let self = this;
-            document.getElementById('networkPic').addEventListener('change', function(e) {
-                if (e.target.files[0]) {
-                  var elem = document.createElement("img");
-                  elem.setAttribute("height", "200");
-                  elem.setAttribute("width", "200");
-                  elem.setAttribute("alt", "Network Picture");
-                  elem.style.border = '2px solid white';
-                  elem.style.borderRadius = '1000px';
-                  var reader = new FileReader();
-                  reader.onload = function() {
-                    elem.src = reader.result;
-                  }
-                  reader.readAsDataURL(e.target.files[0]);
-                  document.getElementById("imagePrev").innerHTML = '';
-                  document.getElementById("imagePrev").appendChild(elem);
-                  self.newNetworkPic = e.target.files[0].name;
-                }
-            });
+        chooseNetworkPic(type) {
+            if(type === 'new') {
+                this.$refs.networkPic.click();
+                let self = this;
+                document.getElementById('networkPic').addEventListener('change', function(e) {
+                    if (e.target.files[0]) {
+                      var elem = document.createElement("img");
+                      elem.setAttribute("height", "200");
+                      elem.setAttribute("width", "200");
+                      elem.setAttribute("alt", "Network Picture");
+                      elem.style.border = '2px solid white';
+                      elem.style.borderRadius = '1000px';
+                      var reader = new FileReader();
+                      reader.onload = function() {
+                        elem.src = reader.result;
+                      }
+                      reader.readAsDataURL(e.target.files[0]);
+                      document.getElementById("imagePrev").innerHTML = '';
+                      document.getElementById("imagePrev").appendChild(elem);
+                      self.newNetworkPic = e.target.files[0].name;
+                    }
+                });
+            }
+            else if(type === 'edit') {
+                this.$refs.networkPicEdit.click();
+                let self = this;
+                document.getElementById('networkPicEdit').addEventListener('change', function(e) {
+                    if (e.target.files[0]) {
+                      var elem = document.createElement("img");
+                      elem.setAttribute("height", "200");
+                      elem.setAttribute("width", "200");
+                      elem.setAttribute("alt", "Network Picture");
+                      elem.style.border = '2px solid white';
+                      elem.style.borderRadius = '1000px';
+                      var reader = new FileReader();
+                      reader.onload = function() {
+                        elem.src = reader.result;
+                      }
+                      reader.readAsDataURL(e.target.files[0]);
+                      document.getElementById("imagePrevEdit").innerHTML = '';
+                      document.getElementById("imagePrevEdit").appendChild(elem);
+                      self.editNetworkPic = e.target.files[0].name;
+                    }
+                });
+            }
+            
         },  
         //api call to handle network creation
         confirmCreation() {
-            fetch("http://localhost:5000/networks", {
+            fetch("http://"+Data.host+":5000/networks", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -188,7 +233,7 @@ export default {
         getNetworkUsers(network) {
             this.usersLoaded = false;
             this.networkUsers = [];
-            fetch("http://localhost:5000/users", {
+            fetch("http://"+Data.host+":5000/users", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -206,6 +251,10 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
+                      }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
                       }
                 }
                 //console.log("Response was okay!");
@@ -227,13 +276,72 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('user-network-error',error);
                 this.usersLoaded = true;
             });
         },
+        editNetwork(network) {
+            this.showEditNetwork = true;
+            this.editedNetwork = network;
+            this.editNetworkType = network.private ? 1 : 0;
+            this.editNetworkPic = network.pfp;
+            // gonna have to show current image here somehow
+            //
+            var elem = document.createElement("img");
+            elem.setAttribute("height", "200");
+            elem.setAttribute("width", "200");
+            elem.setAttribute("alt", "Network Picture");
+            elem.style.border = '2px solid white';
+            elem.style.borderRadius = '1000px';
+            elem.setAttribute("src", network.pfp);
+            // need to figure out what to put here ^^^
+            // timeout so div loads first
+            setTimeout(function() {
+                document.getElementById("imagePrevEdit").innerHTML = '';
+                document.getElementById("imagePrevEdit").appendChild(elem);  
+            },5);
+            this.editNetworkName = network.networkname;
+            this.editNetworkDesc = network.networkdesc;
+
+        },
+        //api call to edit network
+        confirmEdit() {
+            // console.log(this.editedNetwork.networkname);
+            // console.log(this.editNetworkName);
+            // console.log(this.editedNetwork.networkdesc);
+            // console.log(this.editNetworkDesc);
+            // console.log(this.editedNetwork.private);
+            // console.log(this.editNetworkType === 0 ? false : true);
+
+            alert('Feature not yet implemented.');
+
+
+            // if(this.editedNetwork.networkname === this.editNetworkName && this.editedNetwork.networkdesc === this.editNetworkDesc && this.editedNetwork.private === (this.editNetworkType === 0 ? false : true)) {
+            //     this.$emit('network-warning','No network details have been changed.');
+            //     return;
+            // }
+            // this.$emit('network-left',this.editNetworkName+' has been successfully updated.');
+            // this.showEditNetwork = false;
+            // this.getNetworks();
+        },
+        delNetwork(network) {
+            this.showDelNetwork = true;
+            this.toDelNetwork = network;
+        },
+        //api call to delete network
+        confirmDeleteNetwork(network) {
+            alert('Feature not implemented.');
+            // this.showDelNetwork = false;
+            // this.getNetworks();
+        },
+        showLeave(network) {
+            this.showLeaveNetwork = true;
+            this.leaveNetwork = network;
+        },
         //api call to leave network
         leave(network,username,reload) {
-            fetch("http://localhost:5000/networks", {
-                method: 'DELETE',
+            fetch("http://"+Data.host+":5000/networks", {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
                     'Authorization': this.token
@@ -257,6 +365,7 @@ export default {
                 }
                 //console.log("Response was okay!");
                 if(reload === 'networks') {
+                    this.showLeaveNetwork = false;
                     this.$emit('network-left','Successfully left network: '+network.networkname+'.');
                     this.getNetworks(); 
                 }
@@ -267,6 +376,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
                 // network error alert?
                 if(reload === 'networks') {
                     this.networksLoaded = false;
@@ -282,6 +392,7 @@ export default {
         visit(user) {
             this.visitedUser = user;
             this.networkVisited = false;
+            this.showDesc = false;
             this.userVisited = true;
             this.$emit('visited-user',user);
             this.userSearch = '';
@@ -292,7 +403,7 @@ export default {
         getUsersProjects() {
             this.userProjectsLoaded = false;
             this.usersProjects = [];
-            fetch("http://localhost:5000/projects/"+this.visitedUser.username, {
+            fetch("http://"+Data.host+":5000/projects/"+this.visitedUser.username, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -305,6 +416,10 @@ export default {
                         //log out
                         this.$router.push('/');
                         this.resetStore();
+                      }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
                       }
                 }
                 return response.json(); 
@@ -317,6 +432,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Projects API:', error);
+                this.$emit('user-network-error',error);
                 this.userProjectsLoaded = true;
             });
         },
@@ -325,7 +441,7 @@ export default {
             this.userPostsLoaded = false;
             this.usersPosts = [];
             let type = this.visitedUser.friend? 'all' : 'public'
-            fetch("http://localhost:5000/posts/"+this.visitedUser.username+"/"+type, {
+            fetch("http://"+Data.host+":5000/posts/"+this.visitedUser.username+"/"+type, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -339,6 +455,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 return response.json(); 
             })
@@ -350,7 +470,46 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('user-network-error',error);
                 this.userPostsLoaded = true;
+            });
+        },
+        //api call to like post
+        like(post) {
+            post.LikedPost ? post.Likes-- : post.Likes++;
+            post.LikedPost = !post.LikedPost;
+            fetch("http://"+Data.host+":5000/likes", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                    username: post.User,
+                    postid: post.Id,
+                    add: post.LikedPost ? true : false
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        post.LikedPost ? post.Likes-- : post.Likes++;
+                        post.LikedPost = !post.LikedPost;
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
+                }
+            })
+            .catch(error => {
+                post.LikedPost ? post.Likes-- : post.Likes++;
+                post.LikedPost = !post.LikedPost;
+                console.error('Error with Likes API:', error);
+                this.$emit('user-network-error',error);
             });
         },
         replyToPost(post) {
@@ -359,7 +518,7 @@ export default {
         },
         // api call to reply to post
         confirmReply(post) {
-            fetch("http://localhost:5000/posts", {
+            fetch("http://"+Data.host+":5000/posts", {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -378,6 +537,10 @@ export default {
                         this.$router.push('/');
                         this.resetStore();
                       }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
                 }
                 this.showReplyToPost = false;
                 this.reply = '';
@@ -385,6 +548,7 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Posts API:', error);
+                this.$emit('user-network-error',error);
                 this.showReplyToPost = false;
                 this.reply = '';
                 this.getUsersPosts();
@@ -392,7 +556,7 @@ export default {
         },
         //api call to handle friending user
         friend(user) {
-            fetch("http://localhost:5000/requests", {
+            fetch("http://"+Data.host+":5000/requests", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -425,11 +589,12 @@ export default {
             })
             .catch(error => {
               console.error('Error with Requests API:', error);
+              this.$emit('user-network-error',error);
             });
         },
         //api call to handle unfriending user
         unfriend(user) {
-            fetch("http://localhost:5000/friends", {
+            fetch("http://"+Data.host+":5000/friends", {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json', 
@@ -458,10 +623,83 @@ export default {
             })
             .catch(error => {
                 console.error('Error with Users API:', error);
+                this.$emit('user-network-error',error);
+            });
+        },
+        //api call to make user admin
+        admin(user,network) {
+            fetch("http://"+Data.host+":5000/admin", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username: this.username,
+                  network: network.networkname,
+                  target: user.username,
+                  add: true
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                    }
+                    else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                    }
+                }
+                //console.log("Response was okay!");
+                this.$emit('friend-user',user.username+' is now an admin of '+network.networkname+'.'); 
+                this.view(this.viewedNetwork);
+            })
+            .catch(error => {
+                console.error('Error with Admin API:', error);
+                this.$emit('user-network-error',error);
+            });
+        },
+        //api call to remove user admin
+        unadmin(user,network) {
+            fetch("http://"+Data.host+":5000/admin", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username: this.username,
+                  network: network.networkname,
+                  target: user.username,
+                  add: false
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                    }
+                    else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                    }
+                }
+                //console.log("Response was okay!");
+                this.$emit('friend-user',user.username+' is no longer an admin of '+network.networkname+'.'); 
+                this.view(this.viewedNetwork);
+            })
+            .catch(error => {
+                console.error('Error with Admin API:', error);
+                this.$emit('user-network-error',error);
             });
         }
     },
-    emits: ['network-left','visited-user','friend-user','user-network-error'],
+    emits: ['network-warning','network-left','visited-user','friend-user','user-network-error'],
     components: {
       
     },

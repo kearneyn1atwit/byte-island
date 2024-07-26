@@ -29,6 +29,10 @@
     </div>
 </template>
 <style scoped>
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+    }
     .header-h1 {
         font-size: 2rem;
         color: rgb(152,255,134);
