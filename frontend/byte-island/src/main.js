@@ -30,6 +30,49 @@ const store = createStore({
         for(var x=0;x<192;x++) {
             islandData.push("00000001");
         }
+        let pseudoDatabase = [
+            {
+                id: "000",
+                name: "nil",
+                RGB: 1,
+                image: "/000.png",
+            },
+            {
+                id: "001",
+                name: "air",
+                RGB: 1,
+                image: "/001.png",
+            },
+            {
+                id: "002",
+                name: "simple block",
+                RGB: 10000,
+                image: "/002.png",
+            },
+            {
+                id: "003",
+                name: "blue block",
+                RGB: 1,
+                image: "/003.png",
+            },
+            {
+                id: "004",
+                name: "green block",
+                RGB: 100,
+                image: "/004.png"
+            },
+            {
+                id: "005",
+                name: "grass block",
+                RGB: 300,
+                image: "/005.png"
+            },
+            {
+                id: "006",
+                name: "sand block",
+                RGB: 300,
+                image: "/006.png"
+            }];
         return {
             dashboardCreateCount: false,
             user: null,
@@ -37,37 +80,7 @@ const store = createStore({
             points: [0,0,0],
             selectedBlock: null,
             islandData,
-            pseudoDatabase: [
-                {
-                    id: "000",
-                    name: "nil",
-                    RGB: 1,
-                    image: "/000.png",
-                },
-                {
-                    id: "001",
-                    name: "air",
-                    RGB: 1,
-                    image: "/001.png",
-                },
-                {
-                    id: "002",
-                    name: "simple block",
-                    RGB: 10000,
-                    image: "/002.png",
-                },
-                {
-                    id: "003",
-                    name: "blue block",
-                    RGB: 1,
-                    image: "/003.png",
-                },
-                {
-                    id: "004",
-                    name: "green block",
-                    RGB: 100,
-                    image: "/004.png"
-                }]
+            pseudoDatabase
         }
     },
     mutations: {
@@ -97,13 +110,11 @@ const store = createStore({
             state.token = null;
             state.points = [0,0,0];
         },
-        //updateIsland(state,index,newData) {
         updateIsland(state,data) {
-            console.log("hit!");
-            console.log(data.index);
-            console.log(data.newData);
-            //console.log(state.islandData);
             state.islandData[data.index]=data.newData;
+        },
+        updateWholeIsland(state,data) {
+            state.islandData = data.newData;
         },
         resetIsland(state) {
             state.islandData = [];
@@ -153,9 +164,14 @@ const store = createStore({
         },
         getSelectedBlock(state) {
             return state.selectedBlock;
+        },
+        getPseudoDatabase(state) {
+            return state.pseudoDatabase;
         }
     },
-    plugins: [createPersistedState()]
+    plugins: [createPersistedState({
+        storage: window.sessionStorage,
+    })]
 })
 
 const app = createApp(App)

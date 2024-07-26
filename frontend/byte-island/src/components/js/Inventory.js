@@ -9,50 +9,24 @@ export default {
             searchString: "",
             myBlock: null,
             itemList: [],
-            pseudoDatabase: [
-                {
-                    id: "000",
-                    name: "nil",
-                    RGB: 1,
-                    image: "/000.png",
-                },
-                {
-                    id: "001",
-                    name: "air",
-                    RGB: 1,
-                    image: "/001.png",
-                },
-                {
-                    id: "002",
-                    name: "simple block",
-                    RGB: 10000,
-                    image: "/002.png",
-                },
-                {
-                    id: "003",
-                    name: "blue block",
-                    RGB: 1,
-                    image: "/003.png",
-                },
-                {
-                    id: "004",
-                    name: "green block",
-                    RGB: 100,
-                    image: "/004.png"
-                }]
+            pseudoDatabase: null
         };
     },
     async created() {
       
     },
     computed: {
-        ...mapGetters(['getSelectedBlock'])
+        ...mapGetters(['getSelectedBlock','getPseudoDatabase']),
     },
-    mounted() {
+    async mounted() {
         this.setSelectedBlock(null);
+        await this.fillDatabase();
     },
     methods: {
         ...mapMutations(['setSelectedBlock']),
+      async fillDatabase() {
+        this.pseudoDatabase = this.getPseudoDatabase;
+      },
       fetchDBItems() {
         return this.pseudoDatabase.slice(2);
       },

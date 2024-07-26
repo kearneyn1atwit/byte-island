@@ -1,5 +1,33 @@
 <template>
 <div>
+    <v-dialog v-model="buyNew" v-if="buyNew" max-width="500" scrollable persistent>
+        <template v-slot:default="{}">
+                <v-card title="Purchase how many ">
+                    <v-card-text style="border-top: 1.5px solid gray;"></v-card-text>
+                    <v-text-field clearable counter="50" persistent-counter maxlength="5" variant="outlined" type="number" class="mt-3 mb-n5" placeholder=0 persistent-placeholder v-model="purchaseAmnt"></v-text-field>
+                    <h4 class="mt-3" id="totalCost" :color="purchaseColor">Total Cost: {{ purchaseAmnt*baseCost }} {{ purchaseType }} points</h4>
+                </v-card>
+                <v-card-actions class="mb-3" style="border-top: 1.5px solid gray;">
+                    <v-spacer></v-spacer>
+                    <v-btn
+                    text="Cancel"
+                    class="mr-3 mt-3"
+                    variant="outlined"
+                    color="red"
+                    @click="buyNew = false; purchaseAmnt = 0;"
+                    ></v-btn>
+                    <v-btn
+                    class="mr-3 mt-3"
+                    :disabled="purchaseAmnt===0 || !canPurchase()"
+                    text="Purchase"
+                    variant="outlined"
+                    color="primary"
+                    @click="finishPurchaseItem()"
+                    ></v-btn>
+                </v-card-actions>
+        </template>
+    </v-dialog>
+
     <h1 class="header-h1 ml-2 mt-0 mb-1">Search</h1>
     <h2 class="ml-2 mt-1 mb-0.5">Search for...</h2>
     <v-btn-toggle rounded class="mx-2 toggle-group" id="pointColorSearchGroup" v-model="searchTab" mandatory>
@@ -40,7 +68,7 @@
                 <p style="color: #b3ffd9"> Have: {{ item.inventory }}</p>
             </v-col>
             <v-col>
-                <v-btn style="margin: auto; margin-top: 16px; border-radius: 8px; border-width: 3px; width: 48px; height: 48px;" icon="mdi-plus" variant="outlined" color="#00ff80" @click="item.inventory++"></v-btn>
+                <v-btn style="margin: auto; margin-top: 16px; border-radius: 8px; border-width: 3px; width: 48px; height: 48px;" icon="mdi-plus" variant="outlined" color="#00ff80" @click="purchaseItem(item.id)"></v-btn>
             </v-col>
         </v-row>
     </v-list-item>
