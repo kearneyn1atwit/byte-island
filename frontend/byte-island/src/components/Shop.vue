@@ -1,30 +1,31 @@
 <template>
 <div>
-    <v-dialog v-model="buyNew" v-if="buyNew" max-width="500" scrollable persistent>
+    <v-dialog v-model="buyNew" v-if="buyNew" max-width="500" min-height="300" scrollable persistent>
         <template v-slot:default="{}">
                 <v-card title="Purchase how many ">
                     <v-card-text style="border-top: 1.5px solid gray;"></v-card-text>
-                    <v-text-field clearable counter="50" persistent-counter maxlength="5" variant="outlined" type="number" class="mt-3 mb-n5" placeholder=0 persistent-placeholder v-model="purchaseAmnt"></v-text-field>
-                    <h4 class="mt-3" id="totalCost" :color="purchaseColor">Total Cost: {{ purchaseAmnt*baseCost }} {{ purchaseType }} points</h4>
-                </v-card>
-                <v-card-actions class="mb-3" style="border-top: 1.5px solid gray;">
-                    <v-spacer></v-spacer>
-                    <v-btn
-                    text="Cancel"
-                    class="mr-3 mt-3"
-                    variant="outlined"
-                    color="red"
-                    @click="buyNew = false; purchaseAmnt = 0;"
-                    ></v-btn>
-                    <v-btn
-                    class="mr-3 mt-3"
-                    :disabled="purchaseAmnt===0 || !canPurchase()"
-                    text="Purchase"
-                    variant="outlined"
-                    color="primary"
-                    @click="finishPurchaseItem()"
-                    ></v-btn>
-                </v-card-actions>
+                    <v-text-field clearable counter="3" persistent-counter maxlength="3" variant="outlined" type="number" class="mt-3 mb-n5" placeholder=0 persistent-placeholder v-model="purchaseAmnt"></v-text-field>
+                    <h4 class="mt-3" id="totalCost" :style="{color: purchaseColor}">Total Cost: {{ displayCost() }} {{ purchaseType }} points</h4>
+
+                    <v-card-actions class="mb-3" style="border-top: 1.5px solid gray;">
+                        <v-spacer></v-spacer>
+                        <v-btn
+                        text="Cancel"
+                        class="mr-3 mt-3"
+                        variant="outlined"
+                        color="red"
+                        @click="buyNew = false; purchaseAmnt = 0;"
+                        ></v-btn>
+                        <v-btn
+                        class="mr-3 mt-3"
+                        :disabled="purchaseAmnt===0 || !canPurchase() || !numericOnly(purchaseAmnt)"
+                        text="Purchase"
+                        variant="outlined"
+                        color="primary"
+                        @click="finishPurchaseItem()"
+                        ></v-btn>
+                    </v-card-actions>
+            </v-card>
         </template>
     </v-dialog>
 
@@ -59,16 +60,16 @@
         <v-row>
             <v-col cols="auto">
                 <div style="height:72px; width:72px; border: 3px solid #b3ffd9; border-radius: 8px; background-color: white;">
-                    <v-img style="width: 64px; height: 64px; margin: auto; margin-top: 2px" :src="item.image"></v-img>
+                    <v-img style="width: 64px; height: 64px; margin: auto; margin-top: 2px" :src="'/'+mapNumToHex(item.Id)+'.png'" :alt="item.Id+'.png'"></v-img>
                 </div>
             </v-col>
             <v-col>
-                <h3 style="text-transform:capitalize">{{ item.name }}</h3>
-                <p> Cost: <span style="color: #FF9095">{{ Math.round(item.RGB/10000) }}</span>, <span style="color: #A3FFC9">{{ Math.round(item.RGB/100%100) }}</span>, <span style="color: #7DAEFF"> {{ Math.round(item.RGB%100) }}</span></p>
-                <p style="color: #b3ffd9"> Have: {{ item.inventory }}</p>
+                <h3 style="text-transform:capitalize">{{ item.Name }}</h3>
+                <p> Cost: <span :style="{color: getColor(item.Category)}">{{ item.Points }} {{ mapCategory(item.Category) }} </span> Points</p>
+                <p :style="{color: getColor(item.Category)}"> Have: {{ item.Inventory }}</p>
             </v-col>
             <v-col>
-                <v-btn style="margin: auto; margin-top: 16px; border-radius: 8px; border-width: 3px; width: 48px; height: 48px;" icon="mdi-plus" variant="outlined" color="#00ff80" @click="purchaseItem(item.id)"></v-btn>
+                <v-btn style="margin: auto; margin-top: 16px; border-radius: 8px; border-width: 3px; width: 48px; height: 48px;" icon="mdi-plus" variant="outlined" color="#00ff80" @click="purchaseItem(item.Id)"></v-btn>
             </v-col>
         </v-row>
     </v-list-item>

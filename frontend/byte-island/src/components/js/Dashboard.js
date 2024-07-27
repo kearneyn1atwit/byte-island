@@ -71,7 +71,7 @@ export default {
       }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPseudoDatabase','getPfp'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPfp'])
     },
     async mounted() {
       await this.getNotifications();
@@ -92,7 +92,7 @@ export default {
         ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland']),
         
         async fillDatabase() {
-          this.pseudoDatabase = this.getPseudoDatabase;
+          this.getBlockData();
         },
         //Determine if running on mobile platform.
         isMobile() {
@@ -175,9 +175,9 @@ export default {
 
           for(var x=this.indeces.length-1;x>=0;x--) {
             const spot = this.indeces[x];
-            if(myIslandData[spot]!='00000001' && myIslandData[spot+squareSize]==='00000001' && this.getSelectedBlock) {
+            if(myIslandData[spot]!='00' && myIslandData[spot+squareSize]==='00' && this.getSelectedBlock) {
 
-              const canDelete = (this.getSelectedBlock==='DEL' && myIslandData[spot]!='00000000');
+              const canDelete = (this.getSelectedBlock==='DEL' && myIslandData[spot]!='01');
               const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit);
 
               if(!(canDelete || canPlace)) break;
@@ -211,70 +211,6 @@ export default {
               break;
 
             }
-            /*
-            if(this.getSelectedBlock && (
-              (this.isLeft && myIslandData[spot+ squareSize + 1]!='00000001') || (!this.isLeft && myIslandData[spot+ squareSize + sideLength]!='00000001')//&& Math.floor(spot%64/sideLength)!=sideLength-1) //&& spot%sideLength!=sideLength-1) 
-              || (this.isLeft && myIslandData[spot+ squareSize]!='00000001') || (!this.isLeft && myIslandData[spot+ squareSize]!='00000001')
-              )) {
-                this.spotDisplay = spot;
-                /*
-                let whichSide;
-                if(((this.isLeft && myIslandData[spot+squareSize + 1]!='00000001') || (!this.isLeft && myIslandData[spot+squareSize]!='00000001'))) whichSide = true; //right
-                else whichSide = false; //left
-
-                let upDown;
-                if((whichSide===sideLength && this.isLeft) || (whichSide===1 && !this.isLeft)) upDown = true; //up
-                else upDown = false; //down
-                */
-
-                //const canDelete = this.getSelectedBlock==='DEL';
-                //const canPlace = (!canDelete && (whichSide && upDown && myIslandData[]))
-
-                // && myIslandData[spot+ squareSize + sideLength + 1]==='00000001'
-                // && myIslandData[spot+ squareSize + sideLength]==='00000001'
-                // && myIslandData[spot+ squareSize + 1]==='00000001'
-                // && myIslandData[spot+ squareSize + sideLength + 1]==='00000001'
-            /*
-                if(this.getSelectedBlock==='DEL') {
-                  let delHere;
-                  if(this.isLeft && myIslandData[spot+squareSize+1]!='00000001') delHere = spot+squareSize+1;
-                  else if(!this.isLeft && myIslandData[spot+squareSize+sideLength]!='00000001') delHere = spot+squareSize+sideLength;
-                  else delHere = spot+squareSize;
-
-                  this.delHereDisplay = delHere;
-                  
-                  if(myIslandData[delHere+squareSize]!='00000001' || myIslandData[delHere]-squareSize==='00000001') break;
-
-                  let thisBlock = document.createElement('img');
-                  let style = thisBlock.style;
-                  style.position = 'absolute';
-                  const control = delHere%(squareSize);
-
-                  const offset = -1*space*(Math.floor(delHere/(squareSize)))+(Math.floor(delHere/(squareSize)))+1;
-                  const left = xStart + (space*((control%sideLength*-1)+Math.floor(control/sideLength)));
-                  const top = yStart + offset + ((space/2)*((control%sideLength)+Math.floor(control/sideLength)));
-                  style.left = left.toString()+"px";
-                  style.top = top.toString()+"px";
-                  style.transform = `scale(${scale})`;
-                  style.zIndex = delHere*2;
-                  thisBlock.setAttribute('spot',delHere.toString());
-                  thisBlock.setAttribute('alt','hover-'+delHere.toString());
-                  thisBlock.setAttribute('class','hoverBlock');
-                  thisBlock.setAttribute('id','hoverBlock');
-                  thisBlock.setAttribute('src','/blockdelete.png');
-                  document.getElementById("islandHolder").appendChild(thisBlock);
-                  break;
-
-                }
-
-                // let placeHere;
-                // if(!this.isLeft && myIslandData[spot+ squareSize]!='00000001') placeHere = spot+squareSize+sideLength; //spot+squareSize+sideLength;
-                // else if(this.isLeft && myIslandData[spot+ squareSize]!='00000001') placeHere = spot+squareSize+1;
-                // else placeHere = spot+squareSize+sideLength+1;
-
-                // if(myIslandData[placeHere]!='00000001') break;
-
-            }*/
           }
         },
         alterIsland(event) {
@@ -290,23 +226,22 @@ export default {
             thisStyle.zIndex = hovStyle.zIndex;
             const spot = Number(hovBlock.getAttribute('spot'));
             if(this.getSelectedBlock==='DEL') {
-              thisBlock.setAttribute('src','/001.png');
+              thisBlock.setAttribute('src','/00.png');
               thisBlock.setAttribute('alt','block-'+(spot).toString());
               thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id','block-'+(spot).toString());
-              this.islandData[spot] = '00000001';
-              this.updateIsland({index: spot, newData:'00000001'});
+              this.islandData[spot] = '00';
+              this.updateIsland({index: spot, newData:'00'});
               document.getElementById('block-'+(spot)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
               document.getElementById('hoverBlock').remove();
             } else {
               thisBlock.setAttribute('src','/'+this.getSelectedBlock+".png");
-              console.log(this.getSelectedBlock);
               thisBlock.setAttribute('alt','block-'+(spot+64).toString());
               thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id','block-'+(spot+64).toString());
-              this.islandData[spot+64] = '00000'+this.getSelectedBlock;
-              this.updateIsland({index: spot+64, newData: '00000'+this.getSelectedBlock});
+              this.islandData[spot+64] = this.getSelectedBlock;
+              this.updateIsland({index: spot+64, newData: this.getSelectedBlock});
               document.getElementById('block-'+(spot+64)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
             }
@@ -349,7 +284,7 @@ export default {
               style.top = top.toString()+"px";
               style.transform = `scale(${scale})`;
               style.zIndex = counter*2;
-              thisBlock.setAttribute('src',this.pseudoDatabase[id].image);
+              thisBlock.setAttribute('src','/'+this.mapNumToHex(id)+'.png');
               thisBlock.setAttribute('alt',block+'-'+counter.toString());
               thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id','block-'+counter.toString());
@@ -373,6 +308,16 @@ export default {
         //https://stackoverflow.com/questions/15170942/how-to-rotate-a-matrix-in-an-array-in-javascript
         rotateIslandCounterClockwise() {
 
+        },
+        mapNumToHex(id) {
+          if(id === 'DEL' || id===null) return id;
+          let hexID = Number(id).toString(16);
+          if(hexID.length===1) hexID = '0'+hexID;
+          return hexID;
+        },
+        mapHexToNum(hex) {
+          if(hex===null || hex==='DEL') return hex;
+          return parseInt(hex,16);
         },
         //api call to get user data upon login
         getUserDetails() {
@@ -630,6 +575,39 @@ export default {
           this.friendRPoints = -1;
           this.getUserDetails();
         },
+        getRPoints() { return this.getPoints[0] },
+        getGPoints() { return this.getPoints[1] },
+        getBPoints() { return this.getPoints[2] },
+        getBlockData() {
+          fetch("http://"+Data.host+":5000/shop/"+this.getUsername+"/all", {
+              method: 'GET',
+              headers: {
+                  'Content-Type': 'application/json', 
+                  'Authorization': this.getToken
+              }
+          })
+          .then(response => {
+              if (!response.ok) {
+                  if(response.status === 401) {
+                      //log out
+                      this.$router.push('/');
+                      this.resetStore();
+                    }
+                    else {
+                      this.$emit('shop-fetch-error',response.statusText);
+                      return;
+                    }
+              }
+              return response.json(); 
+          })
+          .then(data => {
+              this.pseudoDatabase = data;
+          })
+          .catch(error => {
+              console.error('Error with Shop API:', error);
+              this.$emit('shop-fetch-error',error);
+          });
+      }
     },
     components: {
       Notifications,
@@ -667,3 +645,69 @@ export default {
     elementArray[counter+64]=hoverBlock;
   }
   */
+
+  //Was for placing blocks on the side of blocks. Buggy mess.
+  /*
+            if(this.getSelectedBlock && (
+              (this.isLeft && myIslandData[spot+ squareSize + 1]!='00000001') || (!this.isLeft && myIslandData[spot+ squareSize + sideLength]!='00000001')//&& Math.floor(spot%64/sideLength)!=sideLength-1) //&& spot%sideLength!=sideLength-1) 
+              || (this.isLeft && myIslandData[spot+ squareSize]!='00000001') || (!this.isLeft && myIslandData[spot+ squareSize]!='00000001')
+              )) {
+                this.spotDisplay = spot;
+                /*
+                let whichSide;
+                if(((this.isLeft && myIslandData[spot+squareSize + 1]!='00000001') || (!this.isLeft && myIslandData[spot+squareSize]!='00000001'))) whichSide = true; //right
+                else whichSide = false; //left
+
+                let upDown;
+                if((whichSide===sideLength && this.isLeft) || (whichSide===1 && !this.isLeft)) upDown = true; //up
+                else upDown = false; //down
+                */
+
+                //const canDelete = this.getSelectedBlock==='DEL';
+                //const canPlace = (!canDelete && (whichSide && upDown && myIslandData[]))
+
+                // && myIslandData[spot+ squareSize + sideLength + 1]==='00000001'
+                // && myIslandData[spot+ squareSize + sideLength]==='00000001'
+                // && myIslandData[spot+ squareSize + 1]==='00000001'
+                // && myIslandData[spot+ squareSize + sideLength + 1]==='00000001'
+            /*
+                if(this.getSelectedBlock==='DEL') {
+                  let delHere;
+                  if(this.isLeft && myIslandData[spot+squareSize+1]!='00000001') delHere = spot+squareSize+1;
+                  else if(!this.isLeft && myIslandData[spot+squareSize+sideLength]!='00000001') delHere = spot+squareSize+sideLength;
+                  else delHere = spot+squareSize;
+
+                  this.delHereDisplay = delHere;
+                  
+                  if(myIslandData[delHere+squareSize]!='00000001' || myIslandData[delHere]-squareSize==='00000001') break;
+
+                  let thisBlock = document.createElement('img');
+                  let style = thisBlock.style;
+                  style.position = 'absolute';
+                  const control = delHere%(squareSize);
+
+                  const offset = -1*space*(Math.floor(delHere/(squareSize)))+(Math.floor(delHere/(squareSize)))+1;
+                  const left = xStart + (space*((control%sideLength*-1)+Math.floor(control/sideLength)));
+                  const top = yStart + offset + ((space/2)*((control%sideLength)+Math.floor(control/sideLength)));
+                  style.left = left.toString()+"px";
+                  style.top = top.toString()+"px";
+                  style.transform = `scale(${scale})`;
+                  style.zIndex = delHere*2;
+                  thisBlock.setAttribute('spot',delHere.toString());
+                  thisBlock.setAttribute('alt','hover-'+delHere.toString());
+                  thisBlock.setAttribute('class','hoverBlock');
+                  thisBlock.setAttribute('id','hoverBlock');
+                  thisBlock.setAttribute('src','/blockdelete.png');
+                  document.getElementById("islandHolder").appendChild(thisBlock);
+                  break;
+
+                }
+
+                // let placeHere;
+                // if(!this.isLeft && myIslandData[spot+ squareSize]!='00000001') placeHere = spot+squareSize+sideLength; //spot+squareSize+sideLength;
+                // else if(this.isLeft && myIslandData[spot+ squareSize]!='00000001') placeHere = spot+squareSize+1;
+                // else placeHere = spot+squareSize+sideLength+1;
+
+                // if(myIslandData[placeHere]!='00000001') break;
+
+            }*/

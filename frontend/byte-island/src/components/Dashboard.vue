@@ -103,7 +103,7 @@
           <Requests ref="requestsRef" @request-success="showSuccessAlertFunc" @request-error="showErrorAlertFunc" @get-requests="getAllRequests" v-if="widget === 'requests'">
 
           </Requests>
-          <Editor ref="editorRef" v-if="widget === 'editor'">
+          <Editor ref="editorRef" @shop-fetch-error="showErrorAlertFunc" @shop-purchase-error="showErrorAlertFunc" @sell-error="showErrorAlertFunc" @inventory-fetch-error="showErrorAlertFunc" v-if="widget === 'editor'">
 
           </Editor>
           <Friends ref="friendsRef" @visited-friend="visitFriend" @unfriend-friend="showSuccessAlertFunc" @friend-error="showErrorAlertFunc" v-if="widget === 'friends'">
@@ -133,9 +133,9 @@
           <v-icon icon="mdi-menu" class="menu-icon" @click.stop="drawer = !drawer"></v-icon>
         </div>
             <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-if="friendRPoints < 0">
-                <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{rPoints}}</li>
-                <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{gPoints}}</li>
-                <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{bPoints}}</li>
+                <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{getRPoints()}}</li>
+                <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{getGPoints()}}</li>
+                <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{getBPoints()}}</li>
                 <li><v-btn @click="genIsland()">Click to gen Island</v-btn></li>
             </ul>
             <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-else>

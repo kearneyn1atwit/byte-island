@@ -1,5 +1,6 @@
 import { mapGetters } from "vuex";
 import { mapMutations } from "vuex";
+import Data from "../../data.json";
 
 export default {
     data() {
@@ -16,34 +17,29 @@ export default {
       
     },
     computed: {
-        ...mapGetters(['getSelectedBlock','getPseudoDatabase']),
+        ...mapGetters(['getSelectedBlock','getUsername','getToken']),
     },
     async mounted() {
         this.setSelectedBlock(null);
         await this.fillDatabase();
     },
     methods: {
-        ...mapMutations(['setSelectedBlock']),
+        ...mapMutations(['setSelectedBlock','setPoints','resetStore']),
       async fillDatabase() {
-        this.pseudoDatabase = this.getPseudoDatabase;
+        this.getInv();
       },
       fetchDBItems() {
-        return this.pseudoDatabase.slice(2);
-      },
-      setInv(id,inv) {
-          this.pseudoDatabase[Number(id)].inventory++;
+        return this.pseudoDatabase.slice(2,4);
       },
       getSearchItems(searchCat,searchStr) {
-          this.itemList = [];
-          let fetchedItems=this.fetchDBItems();
-          var myFunc;
-          if(searchCat === 'ALL') myFunc = (x) => {return 1};
-          else if(searchCat === 'RED') myFunc = (x) => {return x/10000>=1};
-          else if(searchCat === 'GRN') myFunc = (x) => {return x/100%100>=1};
-          else myFunc = (x) => {return x%100>=1};
-          fetchedItems.forEach((element) => {
-              if(element.name.indexOf(searchStr.toLowerCase())!=-1 && myFunc(element.RGB)) this.itemList.push(element);
-          });
+        this.itemList = [];
+        let fetchedItems=this.fetchDBItems();
+        var myFunc;
+        if(searchCat === 'ALL') myFunc = (x) => {return 1};
+        else myFunc = (x) => {return x===(this.searchTab-1)};
+        fetchedItems.forEach((element) => {
+            if(element.Name.toLowerCase().indexOf(searchStr.toLowerCase())!=-1 && myFunc(element.Category)) this.itemList.push(element);
+        });
       },
       updateCategory() {
           let searchBar = document.getElementById("pointColorSearchGroup");
@@ -66,30 +62,49 @@ export default {
           this.searchString = '';
           this.itemList = [];
       },
-      getColor(rgb) {
-        if(rgb/10000>=1) return "#FF9095";
-        else if(rgb/100%100>=1) return "#A3FFC9";
-        else if(rgb%100>=1) return "#7DAEFF"; 
+      getColor(cat) {
+        if(cat===0) return "#FF9095";
+        else if(cat===1) return "#A3FFC9";
+        else if(cat===2) return "#7DAEFF"; 
         else return "#DDDDDD";
+      },
+      mapCategory(cat) {
+        if(cat===0) return "RED";
+        else if(cat===1) return "GRN";
+        else if(cat===2) return "BLU"; 
+        else return "WHT";
+      },
+      mapNumToHex(id) {
+        if(id === 'DEL' || id===null) return id;
+        let hexID = Number(id).toString(16);
+        if(hexID.length===1) hexID = '0'+hexID;
+        console.log(id);
+        console.log(hexID);
+        return hexID;
+      },
+      mapHexToNum(hex) {
+        if(hex===null || hex==='DEL') return hex;
+        return parseInt(hex,16);
       },
       selectBlock(id) {
         let blockBtn = document.getElementById(id);
-        if(this.myBlock === id) {
+        if(this.myBlock === this.mapNumToHex(id)) {
             blockBtn.style.backgroundColor="white";
             this.myBlock = null;
             this.setSelectedBlock(null);
         } else {
-            blockBtn.style.backgroundColor=this.getColor(this.pseudoDatabase[Number(id)].RGB);
-            this.myBlock = id;
-            this.setSelectedBlock(id);
+            let idOnly = Number(id.slice(0,id.indexOf('-o')));
+            blockBtn.style.backgroundColor=this.getColor(this.pseudoDatabase[idOnly].Category);
+            this.myBlock = this.mapNumToHex(id);
+            this.setSelectedBlock(this.mapNumToHex(this.myBlock));
         }
       },
       currentBlock() {
         return this.myBlock;
       },
       getBg(id) {
-        if(this.myBlock === id) {
-            return this.getColor(this.pseudoDatabase[Number(id)].RGB);
+        if(this.myBlock === this.mapNumToHex(id)) {
+            return this.getColor(this.pseudoDatabase[Number(id)].Category);
         } else {
             return "white";
         }
@@ -112,7 +127,37 @@ export default {
         } else {
             return "white";
         }
-      }
+      },
+      getInv() {
+        fetch("http://"+Data.host+":5000/shop/"+this.getUsername+"/all", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json', 
+                'Authorization': this.getToken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if(response.status === 401) {
+                    //log out
+                    this.$router.push('/');
+                    this.resetStore();
+                  }
+                  else {
+                    this.$emit('inventory-fetch-error',response.statusText);
+                    return;
+                  }
+            }
+            return response.json(); 
+        })
+        .then(data => {
+            this.pseudoDatabase = data;
+        })
+        .catch(error => {
+            console.error('Error with Inventory API:', error);
+            this.$emit('inventory-fetch-error',error);
+        });
+    }
     },
     components: {
 

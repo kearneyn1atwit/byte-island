@@ -34,11 +34,11 @@
         </v-list-item>
         <v-list-item v-for="(item) in itemList" style="padding: 0;">
             <div class="inv-item">
-                <p style="text-transform: capitalize; width: 100%; height: 28px; text-align: center;" :style="{color: getColor(item.RGB)}">{{ item.name }}</p>
-                <v-btn style="width: 84px; height: 84px; margin: auto; margin-top: 2px; border-radius: 8px; color: black; border: solid 3px;" :style="{'border-color': getColor(item.RGB), 'background-color': getBg(item.id)}" :id="item.id" @click="selectBlock(item.id)">
-                    <img style="width: 64px; height: 64px; margin: auto;" :src="item.image"/>
+                <p style="text-transform: capitalize; width: 100%; height: 28px; text-align: center;" :style="{color: getColor(item.Category)}">{{ item.Name }}</p>
+                <v-btn style="width: 84px; height: 84px; margin: auto; margin-top: 2px; border-radius: 8px; color: black; border: solid 3px;" :style="{'border-color': getColor(item.Category), 'background-color': getBg(item.Category)}" :id="item.Id+'-option'" @click="selectBlock(item.Id+'-option')">
+                    <img style="width: 64px; height: 64px; margin: auto;" :src="'/'+mapNumToHex(item.Id)+'.png'"/>
                 </v-btn>
-                <p style="width: 48px; text-align: center; margin: auto;" :style="{color: getColor(item.RGB)}">x00</p>
+                <p style="width: 48px; text-align: center; margin: auto;" :style="{color: getColor(item.Category)}">x{{ item.Inventory }}</p>
                 <v-btn class="trns-btn" style="width: 32px; height: 32px; margin: auto; border-color: red; color: red; font-size: larger;">$</v-btn>
             </div>
         </v-list-item>

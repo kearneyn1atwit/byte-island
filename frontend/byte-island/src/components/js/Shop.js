@@ -13,7 +13,9 @@ export default {
             purchaseAmnt: 0,
             purchaseType: "RED",
             purchaseColor: "#FF9095",
+            purchaseCat: 0,
             baseCost: 0,
+            purchaseId: null,
             pseudoDatabase: null
         };
     },
@@ -21,32 +23,37 @@ export default {
         
     },
     computed: {
-        ...mapGetters(['getPseudoDatabase','getPoints'])
+        ...mapGetters(['getPoints','getUsername','getToken'])
     },
     async mounted() {
         await this.fillDatabase();
     },
     methods: {
-        ...mapMutations(['setPoints']),
+        ...mapMutations(['setPoints','resetStore']),
         async fillDatabase() {
-            this.pseudoDatabase = this.getPseudoDatabase;
+            this.getShop();
         },
         fetchDBItems() {
-            return this.pseudoDatabase.slice(2);
+            return this.pseudoDatabase.slice(2,4);
         },
-        setInv(id,inv) {
-            this.pseudoDatabase[Number(id)].inventory++;
+        mapNumToHex(id) {
+            if(id === 'DEL' || id===null) return id;
+            let hexID = Number(id).toString(16);
+            if(hexID.length===1) hexID = '0'+hexID;
+            return hexID;
+        },
+        mapHexToNum(hex) {
+            if(hex===null || hex==='DEL') return hex;
+            return parseInt(hex,16);
         },
         getSearchItems(searchCat,searchStr) {
             this.itemList = [];
             let fetchedItems=this.fetchDBItems();
             var myFunc;
             if(searchCat === 'ALL') myFunc = (x) => {return 1};
-            else if(searchCat === 'RED') myFunc = (x) => {return x/10000>=1};
-            else if(searchCat === 'GRN') myFunc = (x) => {return x/100%100>=1};
-            else myFunc = (x) => {return x%100>=1};
+            else myFunc = (x) => {return x===(this.searchTab-1)};
             fetchedItems.forEach((element) => {
-                if(element.name.indexOf(searchStr.toLowerCase())!=-1 && myFunc(element.RGB)) this.itemList.push(element);
+                if(element.Name.toLowerCase().indexOf(searchStr.toLowerCase())!=-1 && myFunc(element.Category)) this.itemList.push(element);
             });
         },
         updateCategory() {
@@ -70,44 +77,111 @@ export default {
             this.searchString = '';
             this.itemList = [];
         },
-        getColor(rgb) {
-            if(rgb/10000>=1) return "#FF9095";
-            else if(rgb/100%100>=1) return "#A3FFC9";
-            else if(rgb%100>=1) return "#7DAEFF"; 
+        getColor(cat) {
+            if(cat===0) return "#FF9095";
+            else if(cat===1) return "#A3FFC9";
+            else if(cat===2) return "#7DAEFF"; 
             else return "#DDDDDD";
         },
-        getCost(rgb,color) {
-            if(color==='RED') return rgb/10000;
-            else if(color==='GRN') return rgb/100%100;
-            else if(color==='BLU') return rgb%100>=1; 
-            else return 0;
+        mapCategory(cat) {
+            if(cat===0) return "RED";
+            else if(cat===1) return "GRN";
+            else if(cat===2) return "BLU"; 
+            else return "WHT";
         },
         purchaseItem(id) {
             this.purchaseAmnt=0;
-            let rgb = this.pseudoDatabase[Number(id)];
-            this.purchaseColor = this.getColor(rgb);
-            if(this.purchaseColor==="#FF9095") this.purchaseType='RED';
-            else if(this.purchaseColor==="#A3FFC9") this.purchaseType='GRN';
-            else if(this.purchaseColor==="#7DAEFF") this.purchaseType='BLU';
-            else this.purchaseType='WHT'
-            this.baseCost = this.getCost(rgb,this.purchaseType);
+            const myId = Number(id);
+            const cost = this.pseudoDatabase[myId].Points;
+            const cat = this.pseudoDatabase[myId].Category;
+            this.purchaseId = myId;
+            this.purchaseCat = cat;
+            this.purchaseColor = this.getColor(cat);
+            this.purchaseType = this.mapCategory(cat);
+            this.baseCost = cost;
             this.buyNew=true;
         },
         finishPurchaseItem() {
-            let points = this.getPoints;
-            if(this.purchaseType==='RED') points[0]-=this.purchaseAmnt*baseCost;
-            else if(this.purchaseType==='GRN') points[1]-=this.purchaseAmnt*baseCost;
-            else if(this.purchaseType==='BLU') points[2]-=this.purchaseAmnt*baseCost;
-            this.setPoints(points);
-            this.purchaseAmnt=0;
-            this.buyNew=false;
+            fetch("http://"+Data.host+":5000/shop", {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.getToken
+                },
+                body: JSON.stringify({
+                    username: this.getUsername,
+                    id: Number(this.purchaseId),
+                    buy: true,
+                    quantity: Number(this.purchaseAmnt)
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        this.$emit('shop-purchase-error',response.statusText);
+                        return;
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+                let points = this.getPoints;
+                points[this.purchaseCat]-=this.purchaseAmnt*this.baseCost;
+                this.pseudoDatabase[this.purchaseId].Inventory=Number(this.pseudoDatabase[this.purchaseId].Inventory) + Number(this.purchaseAmnt);
+                this.setPoints(points);
+                this.purchaseAmnt=0;
+                this.buyNew=false;
+            })
+            .catch(error => {
+                console.error('Error with Shop API:', error);
+                this.$emit('shop-purchase-error',error);
+            });
         },
         canPurchase() {
-            let points = this.getPoints;
-            if(this.purchaseType==='RED') return points[0]>=this.purchaseAmnt*baseCost;
-            else if(this.purchaseType==='GRN') return points[1]>=this.purchaseAmnt*baseCost;
-            else if(this.purchaseType==='BLU') return points[2]>=this.purchaseAmnt*baseCost;
-            else return false;
+            return this.getPoints[this.purchaseCat]>=this.purchaseAmnt*this.baseCost;
+        },
+        numericOnly(input) {
+           return /^\d+$/.test(input);
+        },
+        displayCost() {
+            if(this.purchaseAmnt*this.baseCost>9999) return "9999+";
+            else return this.purchaseAmnt*this.baseCost;
+        },
+        getShop() {
+            fetch("http://"+Data.host+":5000/shop/"+this.getUsername+"/all", {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.getToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        this.$emit('shop-fetch-error',response.statusText);
+                        return;
+                      }
+                }
+                return response.json(); 
+            })
+            .then(data => {
+                this.pseudoDatabase = data;
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error with Shop API:', error);
+                this.$emit('shop-fetch-error',error);
+            });
         }
     },
     components: {
