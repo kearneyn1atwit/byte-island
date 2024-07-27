@@ -150,7 +150,10 @@
           <!-- replace with friends island when friend is visited -->
           <v-col cols="8" class="text-center mt-0">
               <!-- <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island"> -->
-              <div id="islandHolder"> 
+              <div id="islandHolder">
+              <!--<p>{{ indeces }}, {{ isLeft }}, {{ [mouseX,mouseY] }}</p> -->
+              <!-- <v-btn @click="rotateIslandClockwise()" icon="mdi-arrow-up-left" class="rotateButton" id="clockwiseRotate"></v-btn>
+              <v-btn @click="rotateIslandCounterClockwise()" icon="mdi-arrow-up-right" class="rotateButton" id="counterClockwiseRotate"></v-btn> -->
               </div>
           </v-col>
         </v-row>
@@ -194,6 +197,16 @@
     
 </template>
 <style scoped>
+.rotateButton {
+  position: absolute;
+  top: 300;
+}
+#clockwiseRotate {
+  left: 100
+}
+#counterClockwiseRotate {
+  left: 300
+}
 li {
     font-size: 1.25rem;
 }

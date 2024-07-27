@@ -328,7 +328,7 @@ export default {
                 body: JSON.stringify({
                     username: this.username,
                     projectId: project.Id
-                }) 
+                })
             })
             .then(response => {
                 if (!response.ok) {
