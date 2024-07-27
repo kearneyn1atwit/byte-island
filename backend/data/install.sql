@@ -87,7 +87,7 @@ CREATE TABLE Resources (
 CREATE TABLE IslandData (
     UserId int PRIMARY KEY,
     NumberOfPeople int NOT NULL DEFAULT 0,
-    DataPath varchar(256) UNIQUE NOT NULL,
+    DataPath varchar(768) NOT NULL,
     InventoryData JSONB DEFAULT
     '{
         "Item0": 0, "Item1": 0, "Item2": 0, "Item3": 0, "Item4": 0, "Item5": 0, "Item6": 0, "Item7": 0, 

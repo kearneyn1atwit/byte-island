@@ -73,7 +73,7 @@ router.post('/signup', async (req, res) => {
       personal: userData['personalpoints'],
       social: userData['socialpoints'],
       pfp: imageData,
-      island: "TEMP_FAKE_ISLAND_DATA_" + islandData['datapath']
+      island: islandData['datapath']
      });;
 
   } catch (error) {

@@ -58,7 +58,7 @@ router.post('/login', async (req, res) => {
       personal: userData['personalpoints'],
       social: userData['socialpoints'],
       pfp: imageData[0],
-      island: "TEMP_FAKE_ISLAND_DATA_" + islandData['datapath']
+      island: islandData['datapath']
      });
 
   } catch (error) {
