@@ -67,7 +67,8 @@ router.put('/settings', async (req, res) => {
         } else if(setting === 'password') {
             await db.UpdateUserCredentials(id, { password: value });
         } else if(setting === 'avatar') {
-            //await db.UpdateUserData(id, { image: value });
+            const imageid = await db.CreateImage(value);
+            await db.UpdateUserData(id, { image: imageid });
         } else { //setting === status
             if(value.toLowerCase() !== 'public' && value.toLowerCase() !== 'private') {
                 return res.status(400).json({ message: "Invalid value!" });

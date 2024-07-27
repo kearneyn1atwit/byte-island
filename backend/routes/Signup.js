@@ -63,21 +63,18 @@ router.post('/signup', async (req, res) => {
     const userData = await db.GetUserProfileData([id]);
     const islandData = await db.GetIslandData(id);
 
+    const imageData = await db.GetImage(userData['profileimageid']);
+
     return res.status(200).json({ 
       token: token,
       username: userData['username'],
-      pfp: "TEMP_FAKE_IMAGE_DATA_ID_" + userData['profileimageid'],
       private: userData['privateaccount'],
       career: userData['careerpoints'],
       personal: userData['personalpoints'],
       social: userData['socialpoints'],
-      island: "TEMP_FAKE_ISLAND_DATA_" + islandData['datapath']
+      pfp: imageData,
+      island: islandData['datapath']
      });;
-
-    return res.status(200).json({ 
-      token: token,
-      username: username
-     });
 
   } catch (error) {
     console.error(error);

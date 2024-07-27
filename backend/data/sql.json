@@ -51,7 +51,7 @@
             "desc": "Select all users in the table"
         },
         "selectSome": { 
-            "query": "SELECT UserId, Username FROM Users WHERE Username ILIKE '%:name%' AND Deleted != True;",
+            "query": "SELECT UserId, Username, ProfileImageId FROM Users WHERE Username ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select users based off matching names"
         },
@@ -155,17 +155,17 @@
     },
     "resources": {
         "selectAll": { 
-            "query": "SELECT * FROM Resources",
+            "query": "SELECT * FROM Resources ORDER BY ResourceId",
             "params": "",
             "desc": "Get entire table / switch to shop details"
         },
         "selectCategory": { 
-            "query": "SELECT ResourceId FROM Resources WHERE Category = :category;",
+            "query": "SELECT ResourceId FROM Resources WHERE Category = :category ORDER BY ResourceId;",
             "params": "category",
             "desc": "Get resources that fall into a certain category"
         },
         "selectShape": { 
-            "query": "SELECT ResourceId FROM Resources WHERE Shape = :shape;",
+            "query": "SELECT ResourceId FROM Resources WHERE Shape = :shape ORDER BY ResourceId;",
             "params": "shape",
             "desc": "Get resources that have a certain shape"
         },
@@ -177,8 +177,8 @@
     },
     "networks": {
         "create": { 
-            "query": "INSERT INTO Networks (NetworkName, NetworkDescription, PrivateNetwork) VALUES (':name',':desc',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
-            "params": "name,desc,private",
+            "query": "INSERT INTO Networks (NetworkName, NetworkDescription, PrivateNetwork, ImageId) VALUES (':name',':desc',:private,:image); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
+            "params": "name,desc,private,image",
             "desc": "Create network with network name."
         },
         "getName": { 
@@ -207,7 +207,7 @@
             "desc": "Mark network as deleted from their id."
         },
         "selectSome": { 
-            "query": "SELECT NetworkId, NetworkName, NetworkDescription, PrivateNetwork FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
+            "query": "SELECT NetworkId, NetworkName, NetworkDescription, PrivateNetwork, ImageId FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select networks based off matching names"
         },
