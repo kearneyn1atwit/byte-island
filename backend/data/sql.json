@@ -155,17 +155,17 @@
     },
     "resources": {
         "selectAll": { 
-            "query": "SELECT * FROM Resources",
+            "query": "SELECT * FROM Resources ORDER BY ResourceId",
             "params": "",
             "desc": "Get entire table / switch to shop details"
         },
         "selectCategory": { 
-            "query": "SELECT ResourceId FROM Resources WHERE Category = :category;",
+            "query": "SELECT ResourceId FROM Resources WHERE Category = :category ORDER BY ResourceId;",
             "params": "category",
             "desc": "Get resources that fall into a certain category"
         },
         "selectShape": { 
-            "query": "SELECT ResourceId FROM Resources WHERE Shape = :shape;",
+            "query": "SELECT ResourceId FROM Resources WHERE Shape = :shape ORDER BY ResourceId;",
             "params": "shape",
             "desc": "Get resources that have a certain shape"
         },
