@@ -45,17 +45,19 @@ router.post('/login', async (req, res) => {
     const userData = await db.GetUserProfileData([id]);
     const islandData = await db.GetIslandData(id);
 
+    const imageData = await db.GetImage(userData['profileimageid']);
+
     // Generate JWT token and return it 
     const token = auth.generateJWT(userCreds['username']);
 
     return res.status(200).json({ 
       token: token,
       username: userData['username'],
-      pfp: "TEMP_FAKE_IMAGE_DATA_ID_" + userData['profileimageid'],
       private: userData['privateaccount'],
       career: userData['careerpoints'],
       personal: userData['personalpoints'],
       social: userData['socialpoints'],
+      pfp: imageData[0],
       island: "TEMP_FAKE_ISLAND_DATA_" + islandData['datapath']
      });
 

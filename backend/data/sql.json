@@ -51,7 +51,7 @@
             "desc": "Select all users in the table"
         },
         "selectSome": { 
-            "query": "SELECT UserId, Username FROM Users WHERE Username ILIKE '%:name%' AND Deleted != True;",
+            "query": "SELECT UserId, Username, ProfileImageId FROM Users WHERE Username ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select users based off matching names"
         },
@@ -177,8 +177,8 @@
     },
     "networks": {
         "create": { 
-            "query": "INSERT INTO Networks (NetworkName, NetworkDescription, PrivateNetwork) VALUES (':name',':desc',:private); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
-            "params": "name,desc,private",
+            "query": "INSERT INTO Networks (NetworkName, NetworkDescription, PrivateNetwork, ImageId) VALUES (':name',':desc',:private,:image); SELECT NetworkId FROM Networks WHERE NetworkName = ':name';",
+            "params": "name,desc,private,image",
             "desc": "Create network with network name."
         },
         "getName": { 
@@ -207,7 +207,7 @@
             "desc": "Mark network as deleted from their id."
         },
         "selectSome": { 
-            "query": "SELECT NetworkId, NetworkName, NetworkDescription, PrivateNetwork FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
+            "query": "SELECT NetworkId, NetworkName, NetworkDescription, PrivateNetwork, ImageId FROM Networks WHERE NetworkName ILIKE '%:name%' AND Deleted != True;",
             "params": "name",
             "desc": "Select networks based off matching names"
         },

@@ -11,10 +11,10 @@ DROP TABLE IF EXISTS Images;
 
 CREATE TABLE Images (
     ImageId SERIAL PRIMARY KEY,
-    ImagePath varchar(256) UNIQUE NOT NULL,
+    ImagePath varchar(10000) NOT NULL,
     CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     DeletedDate timestamp,
-    Deleted boolean NOT NULL DEFAULT FALSE
+    Deleted boolean NOT NULL DEFAULT FALSE,
 );
 
 CREATE TABLE Users (
@@ -38,11 +38,13 @@ CREATE TABLE Networks (
     NetworkId SERIAL PRIMARY KEY,
     NetworkName varchar(60) NOT NULL,
     NetworkDescription varchar(500) NOT NULL,
+    ImageId int NOT NULL,
     Members int NOT NULL DEFAULT 0,
     PrivateNetwork boolean NOT NULL DEFAULT FALSE,
     CreatedDate timestamp DEFAULT CURRENT_TIMESTAMP,
     DeletedDate timestamp,
     Deleted boolean NOT NULL DEFAULT FALSE,
+    FOREIGN KEY(ImageId) REFERENCES Images(ImageId),
     CHECK(Members > 0)
 );
 

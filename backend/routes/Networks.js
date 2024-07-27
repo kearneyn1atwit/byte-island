@@ -122,7 +122,9 @@ router.post('/networks', async (req, res) => {
           return res.status(400).json({ message: 'User could not be found!' }); 
       }
 
-      const networkId = await db.CreateNetwork(name,desc,private) //add images later
+      const imageid = await db.CreateImage(image);
+
+      const networkId = await db.CreateNetwork(name,desc,private,imageid) //add images later
 
       const addUserToNetwork = await db.AddNetworkAdmin(id,networkId);
 

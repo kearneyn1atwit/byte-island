@@ -234,10 +234,20 @@ module.exports = {
             }));
             try {
                 const id = ProcessAndLogRowValues(exactUserMatch,0);
+
+                //get image
+                const profile = await psql.query(fillSQLParams(sql.users.getProfileInformation, {
+                    "id": id,
+                }));
+                const userData = ProcessAndLogRowValues(profile,0);
+                const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                    "id": userData['profileimageid']
+                }));
+                
                 matchingUsers.push({
                     username: search,
                     userid: id['userid'],
-                    pfp: "TEMP_FAKE_IMAGE_STRING"
+                    pfp: imageData.rows[0]['imagepath']
                 });
             } catch(e) {
                 console.log("Exact match not found: " + e);
@@ -248,16 +258,21 @@ module.exports = {
             }));
     
             if(partialUserMatches.rowCount != 0) {
-                partialUserMatches.rows.forEach((rowData) => {
-                    if(rowData['username'] !== search) {
+                for (const rowData of partialUserMatches.rows) {
+                    if (rowData['username'] !== search) {
                         console.log("Pushing Partial match: " + rowData['username']);
+            
+                        const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                            "id": rowData['profileimageid']
+                        }));
+                        
                         matchingUsers.push({
                             username: rowData['username'],
                             userid: rowData['userid'],
-                            pfp: "TEMP_FAKE_IMAGE_STRING"
-                        })
+                            pfp: imageData.rows[0]['imagepath']
+                        });
                     }
-                })
+                }
             }
         } else if(byName === 1) { //By Tags
 
@@ -275,10 +290,14 @@ module.exports = {
                     "id": id
                 }));
 
+                const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                    "id": userMiniProfile.rows[0]['profileimageid']
+                }));
+
                 matchingUsers.push({
                     username: userMiniProfile.rows[0]['username'],
                     userid: id,
-                    pfp: "TEMP_FAKE_IMAGE_STRING"
+                    pfp: imageData.rows[0]['imagepath']
                 })
             }
 
@@ -306,14 +325,18 @@ module.exports = {
                     "id": id
                 }));
 
+                const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                    "id": userMiniProfile.rows[0]['profileimageid']
+                }));
+
                 matchingUsers.push({
                     username: userMiniProfile.rows[0]['username'],
                     userid: id,
-                    pfp: "TEMP_FAKE_IMAGE_STRING",
                     points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
                     island: "FAKE_ISLAND_STRING",
                     friend: true,
                     friendsSince: sincelist[i].year.low+"-"+String(sincelist[i].month.low).padStart(2, '0')+"-"+String(sincelist[i].day.low).padStart(2, '0')+"T"+String(sincelist[i].hour.low).padStart(2, '0')+":"+String(sincelist[i].minute.low).padStart(2, '0')+":"+String(sincelist[i].second.low).padStart(2, '0'),
+                    pfp: imageData.rows[0]['imagepath']
                 });
             }
 
@@ -366,14 +389,18 @@ module.exports = {
                     "id": id
                 }));
 
+                const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                    "id": userMiniProfile.rows[0]['profileimageid']
+                }));
+
                 matchingUsers.push({
                     username: userMiniProfile.rows[0]['username'],
                     userid: id,
-                    pfp: "TEMP_FAKE_IMAGE_STRING",
                     points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
                     island: "FAKE_ISLAND_STRING",
                     friend: friendlist.includes(id),
-                    admin: adminlist.includes(id)
+                    admin: adminlist.includes(id),
+                    pfp: imageData.rows[0]['imagepath']
                 });
             }
         }
@@ -530,7 +557,7 @@ module.exports = {
     },
 
     //Network Related Functions 
-    CreateNetwork: async function (name, description, private) { 
+    CreateNetwork: async function (name, description, private, imageid) { 
 
         //Make sure network doesn't already exist
         const oldNetworkRow = await psql.query(fillSQLParams(sql.networks.select, {
@@ -545,7 +572,8 @@ module.exports = {
        const newNetworkRow = await psql.query(fillSQLParams(sql.networks.create, {
             "name": name,
             "desc": description,
-            "private": private
+            "private": private,
+            "image": imageid
         }));
 
         const networkId = newNetworkRow[1].rows[0]['networkid'];
@@ -635,14 +663,19 @@ module.exports = {
                     adminlist.push(record.get('u').properties.Id.low);
                 });
 
+                //get image
+                const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                    "id": networkData['imageid']
+                }));
+
                 matchingNetworks.push({
                     networkname: search,
                     networkdesc: networkData['networkdescription'],
                     networkid: networkData['networkid'],
                     private: networkData['privatenetwork'],
-                    pfp: "TEMP_FAKE_IMAGE_STRING",
                     inNetwork: memberlist.includes(userid),
-                    isAdmin: adminlist.includes(userid)
+                    isAdmin: adminlist.includes(userid),
+                    pfp: imageData.rows[0]['imagepath']
                 });
             } catch(e) {
                 console.log("Exact match not found: " + e);
@@ -673,15 +706,20 @@ module.exports = {
                         adminIds.records.forEach(record => {
                             adminlist.push(record.get('u').properties.Id.low);
                         });
+
+                        //get image
+                        const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                            "id": rowData['imageid']
+                        }));
             
                         matchingNetworks.push({
                             networkname: rowData['networkname'],
                             networkdesc: rowData['networkdescription'],
                             networkid: rowData['networkid'],
                             private: rowData['privatenetwork'],
-                            pfp: "TEMP_FAKE_IMAGE_STRING",
                             inNetwork: memberlist.includes(userid),
-                            isAdmin: adminlist.includes(userid)
+                            isAdmin: adminlist.includes(userid),
+                            pfp: imageData.rows[0]['imagepath']
                         });
                     }
                 }
@@ -713,14 +751,19 @@ module.exports = {
                     adminlist.push(record.get('u').properties.Id.low);
                 });
 
+                //get image
+                const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                    "id": networkData['imageid']
+                }));
+
                 matchingNetworks.push({
                     networkname: networkData['networkname'],
                     networkdesc: networkData['networkdescription'],
                     networkid: networkData['networkid'],
                     private: networkData['privatenetwork'],
-                    pfp: "TEMP_FAKE_IMAGE_STRING",
                     inNetwork: memberlist.includes(userid),
-                    isAdmin: adminlist.includes(userid)
+                    isAdmin: adminlist.includes(userid),
+                    pfp: imageData.rows[0]['imageid']
                 })
             }
         } else { //byName === 2 | Get Networks User is currently in
@@ -761,15 +804,20 @@ module.exports = {
                 adminIds.records.forEach(record => {
                     adminlist.push(record.get('u').properties.Id.low);
                 });
+
+                //get image
+                const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                    "id": networkData['imageid']
+                }));
                 
                 matchingNetworks.push({
                     networkname: networkData['networkname'],
                     networkdesc: networkData['networkdescription'],
                     networkid: id,
                     private: networkData['privatenetwork'],
-                    pfp: "TEMP_FAKE_IMAGE_STRING", //modify this later
                     inNetwork: true,
-                    isAdmin: adminlist.includes(userid)
+                    isAdmin: adminlist.includes(userid),
+                    pfp: imageData.rows[0]['imagepath']
                 })
             }
         }
