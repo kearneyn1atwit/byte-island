@@ -1,3 +1,4 @@
+import { mapMutations } from "vuex";
 import Shop from './Shop'
 import Inventory from './Inventory'
 
@@ -17,8 +18,13 @@ export default {
         
     },
     methods: {
+      ...mapMutations(['setIsInInventory']),
         toEditorView(view) {
+          this.setIsInInventory(false);
           this.editorView = view;
+          if(this.editorView==='inventory') {
+            this.setIsInInventory(true);
+          }
         }
     },
     components: {

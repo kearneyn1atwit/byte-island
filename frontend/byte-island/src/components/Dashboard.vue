@@ -32,6 +32,7 @@
         :scrim="false"
       >
         <div style="position: sticky; top:0; left: 5px; width:calc(100% - 5px); z-index: 2; background-color: rgb(33,33,33);">
+          
           <v-list-item v-if="widget === 'dashboard'">
             <div v-if="(notificationCount - readCount) + requestCount > 0">
               <v-badge color="rgb(89,153,80)" :content="(notificationCount - readCount) + requestCount" class="ml-auto ma-5 mt-4 badge-lg">
@@ -61,7 +62,7 @@
             <v-badge color="rgb(89,153,80)" :content="(notificationCount - readCount)" class="ml-auto ma-5 mt-4 badge-lg">
               <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
             </v-badge>
-          </div>   
+          </div>
           <!-- Not sure why this is here, i'll comment in case it's needed later -->
           <!-- <div v-else-if="widget === 'editor'">
             
@@ -69,13 +70,18 @@
           <div v-else>
             <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard')"></v-icon>
           </div>
+
+          <div v-if="isInInventory()">
+            <v-icon icon="mdi-cube-outline" class="menu-icon ml-auto ma-5 mt-n3 mr-8" @click.stop="drawer = !drawer"></v-icon>
+          </div>
+
           <div>
               <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center wrap-text"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
             </div>
         </v-list-item>
           <v-divider></v-divider>
         </div>
-
+        
         <v-list density="compact" nav class="custom-nav">
           <div v-if="widget === 'dashboard'">
             <v-list-item title="Notifications" value="notifications" style="color: rgb(152,255,134);" @click="toWidget('notifications')"></v-list-item>  
@@ -151,7 +157,7 @@
           <v-col cols="8" class="text-center mt-0">
               <!-- <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island"> -->
               <div id="islandHolder">
-              <!--<p>{{ indeces }}, {{ isLeft }}, {{ [mouseX,mouseY] }}</p> -->
+              <p>{{ indeces }}, {{ isLeft }}, {{ [mouseX,mouseY] }}</p>
               <!-- <v-btn @click="rotateIslandClockwise()" icon="mdi-arrow-up-left" class="rotateButton" id="clockwiseRotate"></v-btn>
               <v-btn @click="rotateIslandCounterClockwise()" icon="mdi-arrow-up-right" class="rotateButton" id="counterClockwiseRotate"></v-btn> -->
               </div>

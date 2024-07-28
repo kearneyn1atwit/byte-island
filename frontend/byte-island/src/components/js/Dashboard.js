@@ -71,7 +71,7 @@ export default {
       }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPfp'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPfp','getIsInInventory'])
     },
     async mounted() {
       await this.getNotifications();
@@ -95,7 +95,7 @@ export default {
         },
         //Determine if running on mobile platform.
         isMobile() {
-          if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+          if(window.screen.width<=768) {
             return true
           } else {
             return false
@@ -131,16 +131,24 @@ export default {
           //return pX < shift*48.5 + 482;
           return pX < shift*48 + 482;
         },
+        isInInventory() {
+          //return this.getIsInInventory;
+          //return this.$refs.editorRef && this.$refs.editorRef.editorView === 'inventory';
+          return this.getSelectedBlock!=null;
+        },
         canIPlaceHere(x,y) {
           if(this.$refs.editorRef && this.$refs.editorRef.editorView === 'inventory') {
             const scale = this.scale;
             const space = this.space*scale;
             const diagLength = Math.sqrt(space**2 + (space/2)**2);
-            const baseCoords = [482,324,100,518,482,714,866,518]; //these are the coordinates forming the hitbox for layer 1 of the island at scale 1.5, space 32
+            let baseCoords = [482,324,100,518,482,714,866,518]; //these are the coordinates forming the hitbox for layer 1 of the island at scale 1.5, space 32
+            if(this.isMobile()) {
+             baseCoords = [198,352,4,444,198,540,390,444];
+            }
             //const baseCoords = [xStart+space,yStart-(space/2),xStart,xStart-(space*(this.sideLength-1))];
             const indeces = [];
             for(var plane=0;plane<5;plane++) {
-              const offset = plane*48; //48 for scale 1.5 and space 32.
+              const offset = plane*space; //48 for scale 1.5 and space 32.
               if(this.isPointInParallelogram(baseCoords[0],-baseCoords[1]+offset,baseCoords[2],-baseCoords[3]+offset,baseCoords[4],-baseCoords[5]+offset,baseCoords[6],-baseCoords[7]+offset,x,-y)) {
                 const eightsPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[2],baseCoords[3]-offset,x,y);
                 const onesPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[6],baseCoords[7]-offset,x,y);
@@ -257,6 +265,14 @@ export default {
           }
           //Updates state to also clear the island, not just locally.
           this.clearIsland();
+
+          if(this.isMobile()) {
+            this.xStart = 165;
+            this.scale = 0.75;
+          } else {
+            this.xStart = 450;
+            this.scale = 1.5;
+          }
 
           //Setup constants, used to place each block.
           let counter = 0; //Index of block being placed
