@@ -17,7 +17,7 @@
                     <v-btn class="mt-3" variant="outlined" color="primary" @click="chooseNetworkPic('edit')">
                         Choose file
                     </v-btn>
-                    <input type="file" accept="image/png, image/jpeg" ref="networkPicEdit" id="networkPicEdit" style="display: none;">
+                    <input type="file" accept="image/jpeg" ref="networkPicEdit" id="networkPicEdit" style="display: none;">
                     <pre class="mt-5"><b>Image preview:</b></pre>
                     <div class="mt-5 text-center" id="imagePrevEdit"></div>
                 </v-card-text>
@@ -117,7 +117,7 @@
                     <v-btn class="mt-3" variant="outlined" color="primary" @click="chooseNetworkPic('new')">
                         Choose file
                     </v-btn>
-                    <input type="file" accept="image/png, image/jpeg" ref="networkPic" id="networkPic" style="display: none;">
+                    <input type="file" accept="image/jpeg" ref="networkPic" id="networkPic" style="display: none;">
                     <pre class="mt-5"><b>Image preview:</b></pre>
                     <div class="mt-5 text-center" id="imagePrev"></div>
                 </v-card-text>
@@ -197,7 +197,7 @@
                 <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
                 <v-row>
                     <v-col cols="auto">
-                        <v-avatar class="mt-3 mr-n2" :image="network.pfp" style="border: 1.5px solid white;"></v-avatar>
+                        <v-avatar class="mt-3 mr-n2" :image="'data:image/jpg;base64,'+network.pfp" style="border: 1.5px solid white;"></v-avatar>
                     </v-col>
                     <v-col>
                         <pre class="mb-n1 mt-5">{{network.networkname}}</pre>            
@@ -207,7 +207,6 @@
                     <v-col cols="12">
                         <v-btn class="mr-3" color="success" variant="outlined" size="small" @click="view(network)">View</v-btn>
                         <!-- V-if user is admin of network -->
-                        <v-btn class="mr-3" color="primary" variant="outlined" size="small" @click="editNetwork(network)" v-if="network.isAdmin">Edit Details</v-btn>
                         <v-btn class="mr-3" color="red" variant="outlined" size="small" @click="showLeave(network)">Leave</v-btn>
                         <!-- V-if user is admin of network -->
                         <v-btn color="red" variant="outlined" size="small" @click="delNetwork(network)" v-if="network.isAdmin">Delete Network</v-btn>
@@ -228,7 +227,7 @@
             <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
             <v-row align="center" class="my-0">
                 <v-col cols="auto">
-                    <v-avatar size="70" :image="viewedNetwork.pfp" style="border: 1.5px solid white;"></v-avatar>
+                    <v-avatar size="70" :image="'data:image/jpg;base64,'+viewedNetwork.pfp" style="border: 1.5px solid white;"></v-avatar>
                 </v-col>
                 <v-col>
                     <pre style="white-space: pre-wrap; word-wrap: break-word;"><h1><b>{{viewedNetwork.networkname}}</b></h1></pre>
@@ -240,8 +239,8 @@
                 <pre style="white-space: pre-wrap; word-wrap: break-word;" v-if="showDesc || viewedNetwork.networkdesc.length <= 100"><b>About</b>: {{viewedNetwork.networkdesc}}</pre>
                 <pre style="white-space: pre-wrap; word-wrap: break-word;" v-else><b>About</b>: {{viewedNetwork.networkdesc.substring(0,100)}}...</pre>
                 <div v-if="viewedNetwork.networkdesc.length > 100">
-                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="!showDesc">Read more</pre>
-                    <pre class="desc-text" @click="showDesc = !showDesc" v-if="showDesc">Hide description</pre>          
+                    <pre><span class="desc-text" @click="showDesc = !showDesc" v-if="!showDesc">Read more</span></pre>
+                    <pre><span class="desc-text" @click="showDesc = !showDesc" v-if="showDesc">Hide description</span></pre>          
                 </div>
             </div>
             <hr style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-1">
@@ -263,7 +262,7 @@
                     <hr v-if="index > 0" style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-1">
                 <v-row>
                     <v-col cols="auto">
-                        <v-avatar class="mt-3 mr-n2" :image="user.pfp" style="border: 1.5px solid white;"></v-avatar>
+                        <v-avatar class="mt-3 mr-n2" :image="'data:image/jpg;base64,'+user.pfp" style="border: 1.5px solid white;"></v-avatar>
                     </v-col>
                     <v-col cols="auto">
                         <pre class="mb-n1 mt-5">{{user.username}}</pre>            
@@ -297,7 +296,7 @@
                     <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
                     <v-row align="center" class="mt-0">
                         <v-col cols="auto">
-                            <v-avatar size="70" :image="visitedUser.pfp" style="border: 1.5px solid white;"></v-avatar>
+                            <v-avatar size="70" :image="'data:image/jpg;base64,'+visitedUser.pfp" style="border: 1.5px solid white;"></v-avatar>
                         </v-col>
                         <v-col>
                             <pre><h1 class="friend-text">{{visitedUser.username}}</h1></pre>

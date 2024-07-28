@@ -68,7 +68,7 @@ export default {
             })
             .then(data => {
               //console.log(data);
-              if (!data.message) {
+              if (data!==undefined && !data.message) {
                 this.posts = data;
               }  
               this.loaded = true;

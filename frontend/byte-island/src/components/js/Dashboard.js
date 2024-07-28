@@ -440,7 +440,7 @@ export default {
               return response.json(); 
           })
           .then(data => {
-            if(!data.message) {
+            if(data!==undefined && !data.message) {
               this.requestCount = data.length;
             }
           })
@@ -472,7 +472,7 @@ export default {
               return response.json(); 
           })
           .then(data => {
-            if(!data.message) {
+            if(data!==undefined && !data.message) {
               this.requestCount += data.length;
             }
           })

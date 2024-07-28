@@ -79,7 +79,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-                if(!data.message) {
+                if(data!==undefined && !data.message) {
                     this.friends = data;
                 }
                 this.loaded = true;
@@ -125,7 +125,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-              if (!data.message) {
+              if (data!==undefined && !data.message) {
                 this.friendsProjects = data;
               }  
               this.friendProjectsLoaded = true;
@@ -162,8 +162,8 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-                // console.log(data);
-              if (!data.message) {
+                //console.log(data);
+              if (data!==undefined && !data.message) {
                 this.friendsPosts = data;
               }  
               this.friendPostsLoaded = true;

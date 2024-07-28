@@ -207,7 +207,7 @@
         <v-btn class="ml-5 mt-8" variant="outlined" size="large" color="primary" @click="changeAvatar()">
             <h1 class="mr-n2"><v-icon icon="mdi-image" class="mr-3 ml-n2 mt-n1"></v-icon>Change avatar</h1>
         </v-btn>
-        <input type="file" accept="image/png, image/jpeg" ref="pfp" id="pfp" style="display: none;">
+        <input type="file" accept="image/jpeg" ref="pfp" id="pfp" style="display: none;">
         <pre class="ml-5 mt-2" style="white-space: pre-wrap; word-wrap: break-word;">Change your profile picture.</pre>
         
         <div v-if="!accountStatus">

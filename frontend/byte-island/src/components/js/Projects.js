@@ -97,7 +97,7 @@ export default {
             })
             .then(data => {
               this.projects = [];
-              if (!data.message) {
+              if (data!==undefined && !data.message) {
                 this.projects = data;
               }  
               this.loaded = true;

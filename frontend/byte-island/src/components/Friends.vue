@@ -52,7 +52,7 @@
                 <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
                 <v-row>
                     <v-col cols="auto">
-                        <v-avatar class="mt-3 mr-n2" :image="friend.pfp" style="border: 1.5px solid white;"></v-avatar>
+                        <v-avatar class="mt-3 mr-n2" :image="'data:image/jpg;base64,'+friend.pfp" style="border: 1.5px solid white;"></v-avatar>
                     </v-col>
                     <v-col>
                         <pre class="mb-n1 mt-5">{{friend.username}}</pre>            
@@ -79,7 +79,7 @@
         <hr class="mb-1" style="background-color: grey; border-color: grey; color: grey; height: 1px;">
         <v-row align="center" class="mt-3">
             <v-col cols="auto">
-                <v-avatar size="70" :image="visitedFriend.pfp" style="border: 1.5px solid white;"></v-avatar>
+                <v-avatar size="70" :image="'data:image/jpg;base64,'+visitedFriend.pfp" style="border: 1.5px solid white;"></v-avatar>
             </v-col>
             <v-col>
                 <pre><h1 class="friend-text">{{visitedFriend.username}}</h1></pre>

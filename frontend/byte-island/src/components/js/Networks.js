@@ -5,6 +5,7 @@ import Data from "../../data.json";
 export default {
     data() {
         return {
+            base64Img: '',
             token: null,
             username: '',
             networkSearch: '',
@@ -111,7 +112,7 @@ export default {
             })
             .then(data => {
                 //console.log(data);
-                if(!data.message) {
+                if(data!==undefined && !data.message) {
                     this.networks = data;
                 }
                 this.networksLoaded = true;
@@ -131,6 +132,10 @@ export default {
                 let self = this;
                 document.getElementById('networkPic').addEventListener('change', function(e) {
                     if (e.target.files[0]) {
+                      if(e.target.files[0].size > 10240) {
+                        self.$emit('network-warning','File size limit is 10KB.');
+                        return;
+                      }
                       var elem = document.createElement("img");
                       elem.setAttribute("height", "200");
                       elem.setAttribute("width", "200");
@@ -140,6 +145,7 @@ export default {
                       var reader = new FileReader();
                       reader.onload = function() {
                         elem.src = reader.result;
+                        self.base64Img = reader.result;
                       }
                       reader.readAsDataURL(e.target.files[0]);
                       document.getElementById("imagePrev").innerHTML = '';
@@ -153,6 +159,10 @@ export default {
                 let self = this;
                 document.getElementById('networkPicEdit').addEventListener('change', function(e) {
                     if (e.target.files[0]) {
+                      if(e.target.files[0].size > 10240) {
+                        self.$emit('network-warning','File size limit is 10KB.');
+                        return;
+                      }
                       var elem = document.createElement("img");
                       elem.setAttribute("height", "200");
                       elem.setAttribute("width", "200");
@@ -184,7 +194,7 @@ export default {
                     username: this.username,
                     networkname: this.newNetworkName,
                     networkdescription: this.newNetworkDesc,
-                    networkpicture: this.newNetworkPic,
+                    networkpicture: this.base64Img.substring(23),
                     private: this.newNetworkType === 0 ? false : true
                 }) 
             })
@@ -262,7 +272,7 @@ export default {
             })
             .then(data => {
                 // console.log(data);
-                if(!data.message) {
+                if(data!==undefined && !data.message) {
                     this.networkUsers = data;
                     //find if user is admin of network
                     for(let i=0;i<data.length;i++) {
@@ -293,7 +303,7 @@ export default {
             elem.setAttribute("alt", "Network Picture");
             elem.style.border = '2px solid white';
             elem.style.borderRadius = '1000px';
-            elem.setAttribute("src", network.pfp);
+            elem.setAttribute("src", 'data:image/jpg;base64,'+network.pfp);
             // need to figure out what to put here ^^^
             // timeout so div loads first
             setTimeout(function() {
@@ -306,11 +316,7 @@ export default {
         },
         //api call to edit network
         confirmEdit() {
-            // console.log(this.editedNetwork.networkname);
-            // console.log(this.editNetworkName);
-            // console.log(this.editedNetwork.networkdesc);
-            // console.log(this.editNetworkDesc);
-            // console.log(this.editedNetwork.private);
+            // console.log(this.editedNetwork);
             // console.log(this.editNetworkType === 0 ? false : true);
 
             alert('Feature not yet implemented.');
@@ -330,9 +336,40 @@ export default {
         },
         //api call to delete network
         confirmDeleteNetwork(network) {
-            alert('Feature not implemented.');
-            // this.showDelNetwork = false;
-            // this.getNetworks();
+            fetch("http://"+Data.host+":5000/networks", {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'Authorization': this.token
+                },
+                body: JSON.stringify({
+                  username: this.username,
+                  network: network.networkname
+                }) 
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if(response.status === 401) {
+                        //log out
+                        this.$router.push('/');
+                        this.resetStore();
+                      }
+                      else {
+                        this.$emit('user-network-error',response.statusText);
+                        return;
+                      }
+                }
+                this.$emit('network-left',network.networkname+' has been successfully deleted.');
+                this.showDelNetwork = false;
+                this.getNetworks();
+                //console.log("Response was okay!");
+            })
+            .catch(error => {
+                console.error('Error with Networks API:', error);
+                this.$emit('user-network-error',error);
+                this.showDelNetwork = false;
+                this.getNetworks();
+            });
         },
         showLeave(network) {
             this.showLeaveNetwork = true;
@@ -425,7 +462,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-              if (!data.message) {
+              if (data!==undefined && !data.message) {
                 this.usersProjects = data;
               }  
               this.userProjectsLoaded = true;
@@ -463,7 +500,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-              if (!data.message) {
+              if (data!==undefined && !data.message) {
                 this.usersPosts = data;
               }  
               this.userPostsLoaded = true;
