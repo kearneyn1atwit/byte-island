@@ -16,16 +16,17 @@ import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
 import { VResizeDrawer } from  '@wdns/vuetify-resize-drawer'
 //import { P } from 'dist/assets/index-D9YVqsRE'
+//import { P } from 'dist/assets/index-D9YVqsRE'
 
 const store = createStore({
     state() {
-        let islandData = [];
-        for(var x=0;x<64;x++) {
-            islandData.push("1");
-        }
-        for(var x=0;x<320;x++) {
-            islandData.push("0");
-        }
+        // let islandData = [];
+        // for(var x=0;x<64;x++) {
+        //     islandData.push("01");
+        // }
+        // for(var x=0;x<320;x++) {
+        //     islandData.push("00");
+        // }
         return {
             dashboardCreateCount: false,
             user: null,
@@ -35,7 +36,7 @@ const store = createStore({
             pfp: '',
             points: [0,0,0],
             selectedBlock: null,
-            islandData
+            islandData: null
         }
     },
     mutations: {
@@ -84,14 +85,21 @@ const store = createStore({
         clearIsland(state) {
             state.islandData = [];
             for(var x=0;x<64;x++) {
-                state.islandData.push("1");
+                state.islandData.push("01");
             }
             for(var x=0;x<320;x++) {
-                state.islandData.push("0");
+                state.islandData.push("00");
             }
         },
         setSelectedBlock(state,id) {
             state.selectedBlock=id;
+        },
+        setIsland(state,island) {
+            state.islandData = [];
+            for(let i=0;i<384;i) {
+                state.islandData.push(island.slice(0,2));
+                island=island.substring(2);
+            }
         }
     },
     actions: {},

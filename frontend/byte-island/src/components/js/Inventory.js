@@ -78,22 +78,21 @@ export default {
         if(id === 'DEL' || id===null) return id;
         let hexID = Number(id).toString(16);
         if(hexID.length===1) hexID = '0'+hexID;
-        console.log(id);
-        console.log(hexID);
         return hexID;
       },
       mapHexToNum(hex) {
         if(hex===null || hex==='DEL') return hex;
         return parseInt(hex,16);
       },
-      selectBlock(id) {
-        let blockBtn = document.getElementById(id);
+      selectBlock(fetchId) {
+        let blockBtn = document.getElementById(fetchId);
+        const id = Number(fetchId.slice(0,fetchId.indexOf('-o')));
         if(this.myBlock === this.mapNumToHex(id)) {
             blockBtn.style.backgroundColor="white";
             this.myBlock = null;
             this.setSelectedBlock(null);
         } else {
-            let idOnly = Number(id.slice(0,id.indexOf('-o')));
+            let idOnly = id;
             blockBtn.style.backgroundColor=this.getColor(this.pseudoDatabase[idOnly].Category);
             this.myBlock = this.mapNumToHex(id);
             this.setSelectedBlock(this.mapNumToHex(this.myBlock));

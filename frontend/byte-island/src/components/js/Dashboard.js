@@ -90,7 +90,6 @@ export default {
     },
     methods: {
         ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland']),
-        
         async fillDatabase() {
           this.getBlockData();
         },
@@ -140,8 +139,8 @@ export default {
             const baseCoords = [482,324,100,518,482,714,866,518]; //these are the coordinates forming the hitbox for layer 1 of the island at scale 1.5, space 32
             //const baseCoords = [xStart+space,yStart-(space/2),xStart,xStart-(space*(this.sideLength-1))];
             const indeces = [];
-            for(var plane=0;plane<6;plane++) {
-              const offset = plane*48; //48 = scale*space, set to 1.5 and 32.
+            for(var plane=0;plane<5;plane++) {
+              const offset = plane*48; //48 for scale 1.5 and space 32.
               if(this.isPointInParallelogram(baseCoords[0],-baseCoords[1]+offset,baseCoords[2],-baseCoords[3]+offset,baseCoords[4],-baseCoords[5]+offset,baseCoords[6],-baseCoords[7]+offset,x,-y)) {
                 const eightsPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[2],baseCoords[3]-offset,x,y);
                 const onesPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[6],baseCoords[7]-offset,x,y);
@@ -252,7 +251,7 @@ export default {
 
           //Deletes every block in the island.
           let islandDiv = document.getElementById("islandHolder");
-          for(var x=0;x<320;x++) {
+          for(var x=0;x<(this.sideLength**2 * (this.heightLimit+1));x++) {
             let delBlock = document.getElementById('block-'+x.toString());
             if(delBlock) delBlock.remove();
           }
@@ -296,7 +295,7 @@ export default {
         //https://stackoverflow.com/questions/15170942/how-to-rotate-a-matrix-in-an-array-in-javascript
         rotateIslandClockwise() {
           let newIslandData = this.myIslandData;
-          for(let x=0;x<heightLimit+1;x++) {
+          for(let x=0;x<this.heightLimit+1;x++) {
             let islandSlice = newIslandData.slice(x*this.sideLength**2,(x+1)*this.sideLength**2);
             //https://stackoverflow.com/questions/22464605/convert-a-1d-array-to-2d-array
             let islandSlice2D = [];

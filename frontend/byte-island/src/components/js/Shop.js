@@ -176,7 +176,6 @@ export default {
             })
             .then(data => {
                 this.pseudoDatabase = data;
-                console.log(data);
             })
             .catch(error => {
                 console.error('Error with Shop API:', error);
