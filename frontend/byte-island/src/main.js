@@ -36,8 +36,7 @@ const store = createStore({
             pfp: '',
             points: [0,0,0],
             selectedBlock: null,
-            islandData: null,
-            isInInventory: false,
+            islandData: null
         }
     },
     mutations: {
@@ -101,9 +100,6 @@ const store = createStore({
                 state.islandData.push(island.slice(0,2));
                 island=island.substring(2);
             }
-        },
-        setIsInInventory(state,val) {
-            state.isInInventory=val;
         }
     },
     actions: {},
@@ -137,9 +133,6 @@ const store = createStore({
         },
         getSelectedBlock(state) {
             return state.selectedBlock;
-        },
-        getIsInInventory(state) {
-            return state.isInInventory;
         }
     },
     plugins: [createPersistedState({

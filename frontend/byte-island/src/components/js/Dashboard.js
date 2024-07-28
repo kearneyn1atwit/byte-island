@@ -30,6 +30,7 @@ export default {
         readCount: 0,
         drawer: false,
         loaded: false,
+        islandDivLoaded: false,
         widget: "dashboard",
         showSignOut: false,
         showSuccessAlert: false,
@@ -54,7 +55,7 @@ export default {
         xStart: 450,
         yStart: 340,
         //delHereDisplay: 0,
-        //spotDisplay: 0,
+        spotDisplay: 0,
         islandData: null,
         showBackToIsland: false,
         pseudoDatabase: null
@@ -85,11 +86,13 @@ export default {
         this.handleBadge();
       }
       this.visitDashboard();
+      //make touchstart & touchend for mobile.
       document.addEventListener("mousemove",this.getMouseCoords);
       document.addEventListener("click",this.alterIsland);
+
     },
     methods: {
-        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland']),
+        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland','setSelectedBlock']),
         async fillDatabase() {
           this.getBlockData();
         },
@@ -132,8 +135,6 @@ export default {
           return pX < shift*48 + 482;
         },
         isInInventory() {
-          //return this.getIsInInventory;
-          //return this.$refs.editorRef && this.$refs.editorRef.editorView === 'inventory';
           return this.getSelectedBlock!=null;
         },
         canIPlaceHere(x,y) {
@@ -147,7 +148,7 @@ export default {
             }
             //const baseCoords = [xStart+space,yStart-(space/2),xStart,xStart-(space*(this.sideLength-1))];
             const indeces = [];
-            for(var plane=0;plane<5;plane++) {
+            for(var plane=0;plane<(this.heightLimit+1);plane++) {
               const offset = plane*space; //48 for scale 1.5 and space 32.
               if(this.isPointInParallelogram(baseCoords[0],-baseCoords[1]+offset,baseCoords[2],-baseCoords[3]+offset,baseCoords[4],-baseCoords[5]+offset,baseCoords[6],-baseCoords[7]+offset,x,-y)) {
                 const eightsPlace = this.getAltCoords(baseCoords[0],baseCoords[1]-offset,baseCoords[2],baseCoords[3]-offset,x,y);
@@ -182,7 +183,7 @@ export default {
 
           for(var x=this.indeces.length-1;x>=0;x--) {
             const spot = this.indeces[x];
-            if(myIslandData[spot]!='00' && myIslandData[spot+squareSize]==='00' && this.getSelectedBlock) {
+            if(myIslandData[spot]!='00' && myIslandData[spot+squareSize]==='00' && (myIslandData[spot+squareSize+sideLength+1]==='00' || spot%sideLength===sideLength-1) && this.getSelectedBlock) {
 
               const canDelete = (this.getSelectedBlock==='DEL' && myIslandData[spot]!='01');
               const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit);
@@ -202,8 +203,10 @@ export default {
                 thisBlock.setAttribute('src','/blockdelete.png');
               } else {
                 offset = -1*space*(Math.floor(spot/(squareSize))+1)+(Math.floor(spot/(squareSize)))+1;
-                thisBlock.setAttribute('src','/blockplace.png');
+                thisBlock.setAttribute('src','/'+this.getSelectedBlock+".png");
+                style.opacity = 0.66;
               }
+              this.spotDisplay=spot;
               const left = xStart + (space*((control%sideLength*-1)+Math.floor(control/sideLength)));
               const top = yStart + offset + ((space/2)*((control%sideLength)+Math.floor(control/sideLength)));
               style.left = left.toString()+"px";
@@ -254,6 +257,26 @@ export default {
             }
           }
         },
+        attemptGenIsland() {
+          if(document.getElementById("islandHolder")) {
+            this.genIsland();
+            this.islandDivLoaded=true;
+          }
+        },
+        //https://codepen.io/avnishjayaswal/pen/YzNdORZ
+        // sort_by_id() {
+        //   return function (elem1, elem2) {
+        //     let id1 = Number(elem1.id.slice(6));
+        //     let id2 = Number(elem2.id.slice(6));
+        //     if (elem1.id < elem2.id) {
+        //       return -1;
+        //     } else if (elem1.id > elem2.id) {
+        //       return 1;
+        //     } else {
+        //       return 0;
+        //     }
+        //   };
+        // },
         genIsland() {
           //let blockArray = document.getElementsByClassName("placeableBlock");
 

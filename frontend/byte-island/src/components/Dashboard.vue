@@ -50,7 +50,7 @@
         <v-list-item v-else>
           <div v-if="(notificationCount - readCount) + requestCount > 0 && widget !== 'notifications' && widget !== 'requests'">
             <v-badge color="rgb(89,153,80)" :content="(notificationCount - readCount) + requestCount" class="ml-auto ma-5 mt-4 badge-lg">
-              <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard')"></v-icon>
+              <v-icon icon="mdi-arrow-left" class="menu-icon" @click.stop="toWidget('dashboard'); setSelectedBlock(null)"></v-icon>
             </v-badge>
           </div>
           <div v-else-if="widget === 'notifications' && requestCount > 0">
@@ -68,7 +68,7 @@
             
           </div> -->
           <div v-else>
-            <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard')"></v-icon>
+            <v-icon icon="mdi-arrow-left" class="menu-icon ml-auto ma-5 mt-4" @click.stop="toWidget('dashboard'); setSelectedBlock(null)"></v-icon>
           </div>
 
           <div v-if="isInInventory()">
@@ -89,7 +89,7 @@
             <v-list-item title="My Projects" value="projects" @click="toWidget('projects')"></v-list-item>
             <v-list-item title="Friends" value="friends" style="color: rgb(152,255,134);" @click="toWidget('friends')"></v-list-item>
             <v-list-item title="My Networks" value="networks" @click="toWidget('networks')"></v-list-item>
-            <v-list-item title="Island Editor" value="editor" style="color: rgb(152,255,134);" @click="toWidget('editor')"></v-list-item>
+            <v-list-item title="Island Editor" value="editor" style="color: rgb(152,255,134);" @click="toWidget('editor'); setSelectedBlock(null)"></v-list-item>
             <v-list-item title="My Posts" value="posts" @click="toWidget('posts')"></v-list-item>
             <v-list-item title="Requests" value="requests" style="color: rgb(152,255,134);" @click="toWidget('requests')"></v-list-item>   
             <v-badge v-if="requestCount > 0" color="rgb(89,153,80)" class="badge-lg" :content="requestCount" style="position: absolute; top: 345px; left: 140px;"></v-badge> 
@@ -156,8 +156,9 @@
           <!-- replace with friends island when friend is visited -->
           <v-col cols="8" class="text-center mt-0">
               <!-- <img style="min-width: 55vw; max-width: 80vw;" src="/island.png" alt="island"> -->
-              <div id="islandHolder">
-              <p>{{ indeces }}, {{ isLeft }}, {{ [mouseX,mouseY] }}</p>
+              <div id="islandHolder" v-if="loaded">
+                <p v-if="!islandDivLoaded" :makeMyIsland="attemptGenIsland()" ></p>
+              <!-- <p>{{ indeces }}, {{ isLeft }}, {{ [mouseX,mouseY] }}, {{ spotDisplay }}</p> -->
               <!-- <v-btn @click="rotateIslandClockwise()" icon="mdi-arrow-up-left" class="rotateButton" id="clockwiseRotate"></v-btn>
               <v-btn @click="rotateIslandCounterClockwise()" icon="mdi-arrow-up-right" class="rotateButton" id="counterClockwiseRotate"></v-btn> -->
               </div>
