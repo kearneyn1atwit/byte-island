@@ -323,23 +323,28 @@ module.exports = {
 
                 const id = idlist[i];
 
-                const userMiniProfile = await psql.query(fillSQLParams(sql.users.getProfileInformation, {
-                    "id": id
-                }));
+                try {
+                    const userMiniProfile = await psql.query(fillSQLParams(sql.users.getProfileInformation, {
+                        "id": id
+                    }));
 
-                const imageData = await psql.query(fillSQLParams(sql.image.select, {
-                    "id": userMiniProfile.rows[0]['profileimageid']
-                }));
+                    const imageData = await psql.query(fillSQLParams(sql.image.select, {
+                        "id": userMiniProfile.rows[0]['profileimageid']
+                    }));
 
-                matchingUsers.push({
-                    username: userMiniProfile.rows[0]['username'],
-                    userid: id,
-                    points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
-                    island: "FAKE_ISLAND_STRING",
-                    friend: true,
-                    friendsSince: sincelist[i].year.low+"-"+String(sincelist[i].month.low).padStart(2, '0')+"-"+String(sincelist[i].day.low).padStart(2, '0')+"T"+String(sincelist[i].hour.low).padStart(2, '0')+":"+String(sincelist[i].minute.low).padStart(2, '0')+":"+String(sincelist[i].second.low).padStart(2, '0'),
-                    pfp: imageData.rows[0]['imagepath']
-                });
+                    matchingUsers.push({
+                        username: userMiniProfile.rows[0]['username'],
+                        userid: id,
+                        points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
+                        island: "FAKE_ISLAND_STRING",
+                        friend: true,
+                        friendsSince: sincelist[i].year.low+"-"+String(sincelist[i].month.low).padStart(2, '0')+"-"+String(sincelist[i].day.low).padStart(2, '0')+"T"+String(sincelist[i].hour.low).padStart(2, '0')+":"+String(sincelist[i].minute.low).padStart(2, '0')+":"+String(sincelist[i].second.low).padStart(2, '0'),
+                        pfp: imageData.rows[0]['imagepath']
+                    });
+                } catch(err) {
+                    console.log("Account was deleted so skip this iteration!");
+                    continue;
+                }
             }
 
         } else { //byName === 3 | Get users in provided network
