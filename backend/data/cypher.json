@@ -60,42 +60,42 @@
     },
     "select": {
         "friendsList": { 
-            "query": "MATCH (u:User {Id: <IDVAR>, Deleted: FALSE })-[r:FRIENDS]-(f) RETURN r,f;",
+            "query": "MATCH (u:User {Id: <IDVAR> })-[r:FRIENDS]-(f {Deleted: FALSE}) RETURN r,f;",
             "params": "IDVAR",
             "desc": "Get friends of user based on their id | TEST ALL THESE / ADD DELETED FILTER"
         },
         "usersInNetwork": { 
-            "query": "MATCH (n:Network {Id: <IDVAR>, Deleted: FALSE })-[r]-(u) WHERE type(r) IN ['PART_OF', 'ADMIN_OF'] RETURN u;",
+            "query": "MATCH (n:Network {Id: <IDVAR> })-[r]-(u {Deleted: FALSE}) WHERE type(r) IN ['PART_OF', 'ADMIN_OF'] RETURN u;",
             "params": "IDVAR",
             "desc": "Get all users in network based on network id"
         },
         "networksUserIsIn": {
-            "query": "MATCH (u:User {Id: <IDVAR>, Deleted: FALSE })-[r]->(n) WHERE type(r) IN ['PART_OF', 'ADMIN_OF'] RETURN n;",
+            "query": "MATCH (u:User {Id: <IDVAR> })-[r]->(n Deleted: FALSE}) WHERE type(r) IN ['PART_OF', 'ADMIN_OF'] RETURN n;",
             "params": "IDVAR",
             "desc": "Get all networks a user is in based on network id"
         },
         "networkAdmins": {
-            "query": "MATCH (n:Network {Id: <IDVAR>, Deleted: FALSE })-[r:ADMIN_OF]-(u) RETURN u;",
+            "query": "MATCH (n:Network {Id: <IDVAR> })-[r:ADMIN_OF]-(u {Deleted: FALSE}) RETURN u;",
             "params": "IDVAR",
             "desc": "Get all users in network based on network id"
         },
         "likedPosts": { 
-            "query": "MATCH (u:User {Id: <IDVAR>, Deleted: FALSE })-[r:LIKES]-(p:Post) RETURN p;",
+            "query": "MATCH (u:User {Id: <IDVAR> })-[r:LIKES]-(p:Post {Deleted: FALSE}) RETURN p;",
             "params": "IDVAR",
             "desc": "Get users based on given tags | DEFINE SORTING"
         },
         "relatedUsers": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR>, Deleted: FALSE })-[r:INTERESTED_IN]-(u) RETURN u;",
+            "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:INTERESTED_IN]-(u {Deleted: FALSE}) RETURN u;",
             "params": "IDVAR",
             "desc": "Get users based on given tags | DEFINE SORTING"
         },
         "relatedNetworks": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR>, Deleted: FALSE })-[r:FOCUSED_ON]-(n) RETURN n;",
+            "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:FOCUSED_ON]-(n {Deleted: FALSE}) RETURN n;",
             "params": "IDVAR",
             "desc": "Get networks based on given tags | DEFINE SORTING"
         },
         "relatedPosts": { 
-            "query": "MATCH (t:Tag {Id: <IDVAR>, Deleted: FALSE })-[r:RELATED_TO]-(p) RETURN p;",
+            "query": "MATCH (t:Tag {Id: <IDVAR> })-[r:RELATED_TO]-(p {Deleted: FALSE}) RETURN p;",
             "params": "IDVAR",
             "desc": "Get posts based on given tags | DEFINE SORTING"
         }
