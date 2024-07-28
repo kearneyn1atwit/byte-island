@@ -2,11 +2,12 @@
 <div>
     <v-dialog v-model="buyNew" v-if="buyNew" max-width="500" min-height="300" scrollable persistent>
         <template v-slot:default="{}">
-                <v-card title="Purchase how many ">
-                    <v-card-text style="border-top: 1.5px solid gray;"></v-card-text>
-                    <v-text-field clearable counter="3" persistent-counter maxlength="3" variant="outlined" type="number" class="mt-3 mb-n5" placeholder=0 persistent-placeholder v-model="purchaseAmnt"></v-text-field>
-                    <h4 class="mt-3" id="totalCost" :style="{color: purchaseColor}">Total Cost: {{ displayCost() }} {{ purchaseType }} points</h4>
-
+                <v-card title="Purchasing: " style="padding: 10px"> <div :style="{'position': 'absolute', 'left': '160px', 'top': '6px', 'padding': '3px'}"><v-img :style="{'width': '64px', 'height': '64px'}" :src="'/'+mapNumToHex(this.purchaseId)+'.png'"></v-img></div>
+                    <v-card-text style="border-top: 1.5px solid gray; margin-top: 0.5rem;"></v-card-text>
+                    <h3 class="ml-3 mt-n4" id="howmany" style="color: white">How many?</h3>
+                    <v-text-field clearable counter="3" persistent-counter maxlength="3" style="width: 95%; margin: auto" variant="outlined" type="number" class="mt-3 mb-n5" placeholder=0 persistent-placeholder v-model="purchaseAmnt"></v-text-field>
+                    <h4 class="ma-2 mt-3 ml-3" id="totalCost" :style="{color: purchaseColor}">Total Cost: {{ displayCost() }} {{ purchaseType }} points</h4>
+                    <h4 class="ma-2 mt-1 ml-3" id="totalCost" :style="{color: purchaseColor}">Your {{ purchaseType }} Points After Purchase: {{ getPoints[this.purchaseCat]-displayCost() }}</h4>
                     <v-card-actions class="mb-3" style="border-top: 1.5px solid gray;">
                         <v-spacer></v-spacer>
                         <v-btn

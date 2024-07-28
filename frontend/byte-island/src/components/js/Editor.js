@@ -18,13 +18,10 @@ export default {
         
     },
     methods: {
-      ...mapMutations(['setIsInInventory']),
+      ...mapMutations(['setSelectedBlock']),
         toEditorView(view) {
-          this.setIsInInventory(false);
+          this.setSelectedBlock(null);
           this.editorView = view;
-          if(this.editorView==='inventory') {
-            this.setIsInInventory(true);
-          }
         }
     },
     components: {

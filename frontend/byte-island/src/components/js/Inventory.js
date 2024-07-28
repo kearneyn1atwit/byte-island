@@ -29,7 +29,12 @@ export default {
         this.getInv();
       },
       fetchDBItems() {
-        return this.pseudoDatabase.slice(2,4);
+        try {
+          return this.pseudoDatabase.slice(2,4);
+        }catch(err) {
+          this.getInv();
+          return this.pseudoDatabase.slice(2,4);
+        }
       },
       getSearchItems(searchCat,searchStr) {
         this.itemList = [];
