@@ -182,7 +182,7 @@
             "desc": "Create network with network name."
         },
         "getName": { 
-            "query": "SELECT NetworkName, NetworkDescription, PrivateNetwork FROM Networks WHERE NetworkId = ':id' AND Deleted != True;",
+            "query": "SELECT NetworkName, NetworkDescription, PrivateNetwork, ImageId FROM Networks WHERE NetworkId = ':id' AND Deleted != True;",
             "params": "id",
             "desc": "Select one network name off its id"
         },

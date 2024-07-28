@@ -763,7 +763,7 @@ module.exports = {
                     private: networkData['privatenetwork'],
                     inNetwork: memberlist.includes(userid),
                     isAdmin: adminlist.includes(userid),
-                    pfp: imageData.rows[0]['imageid']
+                    pfp: imageData.rows[0]['imagepath']
                 })
             }
         } else { //byName === 2 | Get Networks User is currently in
@@ -804,6 +804,8 @@ module.exports = {
                 adminIds.records.forEach(record => {
                     adminlist.push(record.get('u').properties.Id.low);
                 });
+
+                console.log(networkData)
 
                 //get image
                 const imageData = await psql.query(fillSQLParams(sql.image.select, {
