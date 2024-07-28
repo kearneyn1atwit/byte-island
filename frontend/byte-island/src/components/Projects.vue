@@ -33,17 +33,25 @@
                     <br>
                     <h3 class="text-muted"><i>This project has no updates.</i></h3>
                     <br>
-                </p>    
-                <v-row class="my-0 mb-3" justify="space-around" v-if="project.Completed === 'incomplete'">
-                    <v-col cols="12">
-                        <v-btn color="success" class="ml-3" variant="outlined" size="small" @click="done(project)">Done!</v-btn>
-                        <v-btn color="primary" class="ml-3" variant="outlined" size="small" @click="edit(project)">Edit</v-btn>
-                        <v-btn color="red" class="ml-3" variant="outlined" size="small" @click="showDelDialog(project)">Delete</v-btn>
-                    </v-col>
-                </v-row>
-                <v-row class="my-0 mb-3" justify="space-around" v-else>
-                    <pre class="header-h1 text-center"><i>COMPLETED!</i></pre>    
-                </v-row>
+                </p>
+                <div v-if="!project.Expired">
+                    <v-row class="my-0 mb-3" justify="space-around" v-if="project.Completed === 'incomplete'">
+                        <v-col cols="12">
+                            <v-btn color="success" class="ml-3" variant="outlined" size="small" @click="done(project)">Done!</v-btn>
+                            <v-btn color="primary" class="ml-3" variant="outlined" size="small" @click="edit(project)">Edit</v-btn>
+                            <v-btn color="red" class="ml-3" variant="outlined" size="small" @click="showDelDialog(project)">Delete</v-btn>
+                        </v-col>
+                    </v-row>
+                    <v-row class="my-0 mb-3" justify="space-around" v-else>
+                        <pre class="header-h1 text-center"><i>COMPLETED!</i></pre>    
+                    </v-row>
+                </div>    
+                <div v-else>
+                    <v-row class="my-0 mb-3" justify="space-around">
+                        <pre class="expired-proj text-center"><i>EXPIRED!</i></pre>    
+                    </v-row>
+                </div>
+                
 
             </v-list-item>
             <v-list-item v-if="!loaded">
@@ -143,6 +151,10 @@
     .header-h1 {
         font-size: 2rem;
         color: rgb(152,255,134);
+    }
+    .expired-proj {
+        font-size: 2rem;
+        color: red;
     }
     .text-muted {
         color: grey;

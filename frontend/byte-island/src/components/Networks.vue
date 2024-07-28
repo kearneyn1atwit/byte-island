@@ -331,7 +331,8 @@
                                 <h3 class="text-muted"><i>This project has no updates.</i></h3>
                                 <br>
                             </p>
-                            <pre v-if="project.Completed !== 'incomplete'" class="header-h1 text-center mt-3"><i>COMPLETED!</i></pre>    
+                            <pre v-if="project.Completed !== 'incomplete' && !project.Expired" class="header-h1 text-center mt-3"><i>COMPLETED!</i></pre>   
+                            <pre v-else-if="project.Expired" class="expired-proj text-center mt-3"><i>EXPIRED!</i></pre>    
                         </v-list-item>
                     </div>
                     <div v-else>
@@ -380,6 +381,10 @@ pre {
 .header-h1 {
     font-size: 2rem;
     color: rgb(152,255,134);
+}
+.expired-proj {
+    font-size: 2rem;
+    color: red;
 }
 .toggle-group {
     border-radius: 10px !important;
