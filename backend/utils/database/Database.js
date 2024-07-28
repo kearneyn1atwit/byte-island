@@ -232,12 +232,14 @@ module.exports = {
             const exactUserMatch = await psql.query(fillSQLParams(sql.users.select, {
                 "name": search
             }));
+
+            console.log(exactUserMatch)
             try {
                 const id = ProcessAndLogRowValues(exactUserMatch,0);
 
                 //get image
                 const profile = await psql.query(fillSQLParams(sql.users.getProfileInformation, {
-                    "id": id,
+                    "id": id['userid'],
                 }));
                 const userData = ProcessAndLogRowValues(profile,0);
                 const imageData = await psql.query(fillSQLParams(sql.image.select, {
