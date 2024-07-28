@@ -38,7 +38,7 @@ export default {
         }
     },
     methods: {
-      ...mapMutations(['setToken','setUser','setAccountStatus','setPoints','resetStore','setEmail','setPfp','setIsland','setIsInInventory']),
+      ...mapMutations(['setToken','setUser','setAccountStatus','setPoints','resetStore','setEmail','setPfp','setIsland']),
       //api call for logging in
       login() {
           this.resetStore();
