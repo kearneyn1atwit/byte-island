@@ -19,6 +19,8 @@ router.get('/posts/:username/:category', async (req, res) => {
         return res.status(401).json({ message: 'Access denied!' });
     } 
 
+    const currUser = auth.getUsername(req.headers.authorization);
+
     console.log("GET Posts API Starts!");
 
     let category;
@@ -73,7 +75,8 @@ router.get('/posts/:username/:category', async (req, res) => {
             }
         }
 
-        const likedPosts = await db.GetUserLikedPosts(id);
+        const myId = await db.GetUserId(currUser);
+        const likedPosts = await db.GetUserLikedPosts(myId);
 
         // Format results and return
         let results = [];
