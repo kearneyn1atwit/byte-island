@@ -38,7 +38,7 @@ export default {
         }
     },
     methods: {
-      ...mapMutations(['setToken','setUser','setAccountStatus','setPoints','resetStore','setEmail','setPfp','setIsland']),
+      ...mapMutations(['setToken','setUser','setAccountStatus','setPoints','resetStore','setEmail','setPfp','setIsland','setIsInInventory','island']),
       //api call for logging in
       login() {
           this.resetStore();
@@ -70,10 +70,12 @@ export default {
               return response.json(); 
           })
           .then(data => {
+            console.log(data);
             // replace with data.email
-            this.setEmail('<email address>');
+            this.setEmail(this.email);
             // replace with data.pfp
             this.setPfp('https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250');
+            this.setPfp(data.pfp);
             this.setAccountStatus(data.private);
             this.setToken(data.token);
             this.setUser(data.username);
@@ -128,8 +130,9 @@ export default {
               }
           })
           .then(data => {
+            console.log(data);
               // replace with data.email
-              this.setEmail('<email address>');
+              this.setEmail(this.email);
               // replace with data.pfp
               this.setPfp('https://www.gravatar.com/avatar/2c7d99fe281ecd3bcd65ab915bac6dd5?s=250');
               this.setToken(data.token);

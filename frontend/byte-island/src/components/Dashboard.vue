@@ -17,6 +17,7 @@
       <v-alert closable @click:close="hideAlerts()" v-if="showErrorAlert" position="absolute" color="red" icon="$error" elevation="10" :text="errorAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>
       <v-alert closable @click:close="hideAlerts()" v-if="showWarningAlert" position="absolute" color="warning" icon="$warning" elevation="10" :text="warningAlertText" style="z-index: 9000; right: 20px; top: 20px;"></v-alert>  
     </v-fade-transition>  
+    <!-- change location to "bottom" on mobile -->
     <v-layout>
       <VResizeDrawer
         v-model="drawer"
@@ -43,7 +44,7 @@
               <v-icon icon="mdi-menu" class="menu-icon ml-auto ma-5 mt-4" @click.stop="drawer = !drawer"></v-icon>
             </div>
             <div>
-              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center wrap-text"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center wrap-text"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="'data:image/jpg;base64,'+pfp"></v-avatar>{{username}}</h1>
             </div>
         </v-list-item>
 
@@ -76,7 +77,7 @@
           </div>
 
           <div>
-              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center wrap-text"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="pfp"></v-avatar>{{username}}</h1>
+              <h1 style="font-size: 3rem; position: absolute; width: 100%; top: 7px; z-index: -1" class="text-center wrap-text"><v-avatar class="mr-5 mt-n1" size="55" style="border: 1.5px solid white;" :image="'data:image/jpg;base64,'+pfp"></v-avatar>{{username}}</h1>
             </div>
         </v-list-item>
           <v-divider></v-divider>
@@ -121,7 +122,7 @@
           <Networks ref="networksRef" @network-warning="showWarningAlertFunc" @network-left="showSuccessAlertFunc" @friend-user="showSuccessAlertFunc" @visited-user="visitFriend" @user-network-error="showErrorAlertFunc" v-if="widget === 'networks'">
 
           </Networks>
-          <Settings ref="settingsRef" @settings-success="showSuccessAlertFunc" @settings-error="showErrorAlertFunc" @get-dash-data="getUserDetails" v-if="widget === 'settings'">
+          <Settings ref="settingsRef" @settings-success="showSuccessAlertFunc" @settings-error="showErrorAlertFunc" @settings-warning="showWarningAlertFunc" @get-dash-data="getUserDetails" v-if="widget === 'settings'">
 
           </Settings>
         </v-list>

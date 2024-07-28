@@ -74,8 +74,10 @@ const store = createStore({
             state.dashboardCreateCount = false;
             state.user = null;
             state.token = null;
+            state.email = '';
             state.status = false;
             state.points = [0,0,0];
+            state.pfp = '';
         },
         updateIsland(state,data) {
             state.islandData[data.index]=data.newData;

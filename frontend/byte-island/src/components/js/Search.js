@@ -13,8 +13,7 @@ export default {
             filteredList: [],
             token: null,
             username: '',
-            loaded: true,
-            showDesc: false
+            loaded: true
         }
     },
     async created() {
@@ -34,7 +33,6 @@ export default {
         },
         getUsersNetworks(searchFor,searchBy,searchString) {
             // api call to get users/networks with search string
-            this.showDesc = false;
             if(!searchString) {
                 this.loaded = true;
                 return;
@@ -73,11 +71,11 @@ export default {
                 })
                 .then(data => {
                     this.filteredList.length = 0;
-                    if(!data.message) {
+                    if(data!==undefined && !data.message) {
                         data.forEach((row) => {
                             this.filteredList.push({
                                 name: row.username,
-                                pic: 'https://picsum.photos/id/'+(1000)+'/55/55'
+                                pic: row.pfp
                             })
                         });
                     }
@@ -119,13 +117,16 @@ export default {
                     return response.json(); 
                 })
                 .then(data => {
+                    //console.log(data);
                     this.filteredList.length = 0;
-                    if(!data.message) {
+                    if(data!==undefined && !data.message) {
                         data.forEach((row) => {
                             this.filteredList.push({
                                 name: row.networkname,
                                 desc: row.networkdesc,
-                                pic: 'https://picsum.photos/id/'+(1000)+'/55/55' //row.pfp
+                                pic: row.pfp,
+                                showDesc: false,
+                                inNetwork: row.inNetwork
                             })
                         });
                     }

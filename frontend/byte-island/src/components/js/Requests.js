@@ -67,7 +67,7 @@ export default {
                 return response.json(); 
             })
             .then(data => {
-                if(!data.message) {
+                if(data!==undefined && !data.message) {
                     this.requests = data;
                 }
                 this.loaded = true;

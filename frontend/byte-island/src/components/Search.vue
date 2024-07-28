@@ -5,11 +5,6 @@
             <v-btn @click="updateSearch()" class="ma-1 toggle-btn" size="x-large" color="#98FF86">Users</v-btn>
             <v-btn @click="updateSearch()" class="ma-1 toggle-btn" size="x-large" color="#98FF86">Networks</v-btn>
         </v-btn-toggle>
-        <h2 class="ml-2 mt-3 mb-1">Search by...</h2>
-        <v-btn-toggle rounded class="mx-2 toggle-group" v-model="searchByTab" mandatory>
-            <v-btn @click="updateSearch()" class="ma-1 toggle-btn toggle-btn-sm" color="#98FF86">Name</v-btn>
-            <v-btn @click="updateSearch()" class="ma-1 toggle-btn toggle-btn-sm" color="#98FF86">Tag</v-btn>
-        </v-btn-toggle>
         <v-text-field
                 v-model="search"
                 density="compact"
@@ -33,32 +28,33 @@
                 <hr v-if="index > 0" style="background-color: grey; border-color: grey; color: grey; height: 1px;" class="mb-5">
                 <v-row align="center">
                     <v-col cols="auto">
-                        <v-avatar class="ml-5 mr-n5" size="55" style="border: 1.5px solid white;" :image="userNetwork.pic"></v-avatar>
+                        <v-avatar class="ml-5 mr-n5" size="55" style="border: 1.5px solid white;" :image="'data:image/jpg;base64,'+userNetwork.pic"></v-avatar>
                     </v-col>
                     <v-col class="mx-5">
                         <pre class="user-network-name">{{userNetwork.name}}</pre>
                         <div class="text-muted" v-if="searchTab === 1">
-                            <pre style="white-space: pre-wrap; word-wrap: break-word;" v-if="showDesc || userNetwork.desc.length <= 100"><b>About</b>: {{userNetwork.desc}}</pre>
+                            <pre style="white-space: pre-wrap; word-wrap: break-word;" v-if="userNetwork.showDesc || userNetwork.desc.length <= 100"><b>About</b>: {{userNetwork.desc}}</pre>
                             <pre style="white-space: pre-wrap; word-wrap: break-word;" v-else><b>About</b>: {{userNetwork.desc.substring(0,100)}}...</pre>
                             <div v-if="userNetwork.desc.length > 100">
-                                <pre class="desc-text" @click="showDesc = !showDesc" v-if="!showDesc">Read more</pre>
-                                <pre class="desc-text" @click="showDesc = !showDesc" v-if="showDesc">Hide description</pre>          
+                                <pre><span class="desc-text" @click="userNetwork.showDesc = !userNetwork.showDesc" v-if="!userNetwork.showDesc">Read more</span></pre>
+                                <pre><span class="desc-text" @click="userNetwork.showDesc = !userNetwork.showDesc" v-if="userNetwork.showDesc">Hide description</span></pre>         
                             </div>
                         </div>
                         <!-- <pre class="text-muted" v-if="searchTab === 1">{{userNetwork.desc}}</pre> -->
                     </v-col>
                 </v-row>
                 
-                <v-row v-if="searchTab === 0" class="my-0" justify="space-around">
+                <v-row v-if="searchTab === 0" class="my-0 mb-n3" justify="space-around">
                     <v-col cols="12">
                         <v-btn color="#98FF86" class="ml-5 mt-1" variant="outlined" size="small" @click="friend(userNetwork)" :disabled="username === userNetwork.name">Friend</v-btn>
                     </v-col>
                 </v-row>
-                <v-row v-else class="my-0" justify="space-around">
+                <v-row v-else-if="searchTab === 1 && !userNetwork.inNetwork" class="my-0 mb-n3" justify="space-around">
                     <v-col cols="12">
                         <v-btn color="#98FF86" class="ml-5 mt-1" variant="outlined" size="small" @click="askToJoin(userNetwork)">Ask to Join</v-btn>
                     </v-col>
                 </v-row>
+                <v-row else class="mb-0"></v-row>
             </v-list-item>
         </div>
     </div>
