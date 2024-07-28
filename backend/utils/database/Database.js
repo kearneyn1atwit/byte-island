@@ -168,11 +168,18 @@ module.exports = {
         }));
         return userWithEmail.rowCount > 0;
     },
-    GetUserCredentials: async function(id) { 
-        const userData = await psql.query(fillSQLParams(sql.users.getCredentials, {
-            "id": id,
-        }));
-        return ProcessAndLogRowValues(userData,0);
+    GetUserCredentials: async function(id, allowDeleted) { 
+        if(allowDeleted) {
+            const userData = await psql.query(fillSQLParams(sql.users.getAnyCredentials, {
+                "id": id,
+            }));
+            return ProcessAndLogRowValues(userData,0);
+        } else {
+            const userData = await psql.query(fillSQLParams(sql.users.getCredentials, {
+                "id": id,
+            }));
+            return ProcessAndLogRowValues(userData,0);
+        }
     },
     GetUserStatus: async function(id) { 
         const userData = await psql.query(fillSQLParams(sql.users.getStatus, {

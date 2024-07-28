@@ -90,7 +90,7 @@ router.get('/posts/:username/:category', async (req, res) => {
 
             for (const reply of replyData) {
 
-                const user = await db.GetUserCredentials(reply[1]);
+                const user = await db.GetUserCredentials(reply[1],true);
 
                 //Add images later
                 replies.push({
