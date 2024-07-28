@@ -31,6 +31,7 @@
         :temporary="true"
         persistent
         :scrim="false"
+        style="z-index: 2000;"
       >
         <div style="position: sticky; top:0; left: 5px; width:calc(100% - 5px); z-index: 2; background-color: rgb(33,33,33);">
           
