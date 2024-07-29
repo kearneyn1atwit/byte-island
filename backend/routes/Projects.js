@@ -62,6 +62,13 @@ router.get('/projects/:username', async (req, res) => {
                 complete = new Date().toISOString();
             }
 
+            let expired;
+            if(projects[i][8] === false) {
+                expired = true;
+            } else {
+                expired = false;
+            }
+
             results.push({
                 Id: projects[i][0], 
                 Due: projects[i][10],
@@ -69,6 +76,7 @@ router.get('/projects/:username', async (req, res) => {
                 Title: projects[i][2], 
                 Desc: projects[i][3],
                 Completed: complete,
+                Expired: expired,
                 Updates: updateArray
             })
         };

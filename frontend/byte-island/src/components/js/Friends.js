@@ -185,7 +185,7 @@ export default {
                     'Authorization': this.token
                 },
                 body: JSON.stringify({
-                    username: post.User,
+                    username: this.username,
                     postid: post.Id,
                     add: post.LikedPost ? true : false
                 }) 

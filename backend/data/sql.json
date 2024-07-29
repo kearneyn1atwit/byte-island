@@ -75,6 +75,11 @@
             "params": "id",
             "desc": "Get username, email & password from the id"
         },
+        "getAnyCredentials": { 
+            "query": "SELECT Username, Email, PasswordHash FROM Users WHERE UserId = :id;",
+            "params": "id",
+            "desc": "Get username, email & password from the id"
+        },
         "getStatus": { 
             "query": "SELECT PrivateAccount, Restricted, Deleted FROM Users WHERE UserId = :id;",
             "params": "id",

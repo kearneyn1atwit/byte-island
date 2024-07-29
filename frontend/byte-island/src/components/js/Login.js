@@ -70,7 +70,7 @@ export default {
               return response.json(); 
           })
           .then(data => {
-            console.log(data);
+            //console.log(data);
             // replace with data.email
             this.setEmail(this.email);
             // replace with data.pfp
@@ -129,7 +129,7 @@ export default {
               }
           })
           .then(data => {
-            console.log(data);
+            //console.log(data);
               // replace with data.email
               this.setEmail(this.email);
               // replace with data.pfp
