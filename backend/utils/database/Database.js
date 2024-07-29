@@ -122,10 +122,10 @@ module.exports = {
         }
         console.log("New user is created with id: " + userId);
 
-        //Create user island + (CREATE FILE FOR THIS)
+        //Create user island
         const newIsland = await psql.query(fillSQLParams(sql.island.create, {
             "id": userId,
-            "path": "010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            "path": "040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040404040000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
         }));
 
         if(newIsland.rowCount != 1) {
@@ -339,11 +339,16 @@ module.exports = {
                         "id": userMiniProfile.rows[0]['profileimageid']
                     }));
 
+                    const island = await psql.query(fillSQLParams(sql.island.select,  {
+                        "id": id
+                    }));
+                    const islandData = ProcessAndLogRowValues(island, 0);
+
                     matchingUsers.push({
                         username: userMiniProfile.rows[0]['username'],
                         userid: id,
                         points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
-                        island: "FAKE_ISLAND_STRING",
+                        island: islandData['datapath'],
                         friend: true,
                         friendsSince: sincelist[i].year.low+"-"+String(sincelist[i].month.low).padStart(2, '0')+"-"+String(sincelist[i].day.low).padStart(2, '0')+"T"+String(sincelist[i].hour.low).padStart(2, '0')+":"+String(sincelist[i].minute.low).padStart(2, '0')+":"+String(sincelist[i].second.low).padStart(2, '0'),
                         pfp: imageData.rows[0]['imagepath']
@@ -407,11 +412,16 @@ module.exports = {
                     "id": userMiniProfile.rows[0]['profileimageid']
                 }));
 
+                const island = await psql.query(fillSQLParams(sql.island.select,  {
+                    "id": id
+                }));
+                const islandData = ProcessAndLogRowValues(island, 0);
+
                 matchingUsers.push({
                     username: userMiniProfile.rows[0]['username'],
                     userid: id,
                     points: [userMiniProfile.rows[0]['careerpoints'],userMiniProfile.rows[0]['personalpoints'],userMiniProfile.rows[0]['socialpoints']],
-                    island: "FAKE_ISLAND_STRING",
+                    island: islandData['datapath'],
                     friend: friendlist.includes(id),
                     admin: adminlist.includes(id),
                     pfp: imageData.rows[0]['imagepath']
