@@ -203,7 +203,7 @@ export default {
             if(this.mapHexToNum(myIslandData[spot])!=0 && this.mapHexToNum(myIslandData[spot+squareSize])===0 && (this.mapHexToNum(myIslandData[spot+squareSize+sideLength+1])===0 || spot%sideLength===sideLength-1) && this.getSelectedBlock) {
 
               const canDelete = (this.getSelectedBlock==='DEL' && this.mapHexToNum(myIslandData[spot])!=1);
-              const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit && this.pseudoDatabase[this.mapHexToNum(this.getSelectedBlock)].Inventory>0);
+              const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit);
 
               if(!(canDelete || canPlace)) break;
               
