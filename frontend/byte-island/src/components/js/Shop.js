@@ -38,13 +38,13 @@ export default {
         },
         mapNumToHex(id) {
             if(id === 'DEL' || id===null) return id;
-            let hexID = Number(id).toString(16);
+            let hexID = (Number(id)*4).toString(32);
             if(hexID.length===1) hexID = '0'+hexID;
             return hexID;
         },
         mapHexToNum(hex) {
             if(hex===null || hex==='DEL') return hex;
-            return parseInt(hex,16);
+            return parseInt(hex,32)/4;
         },
         getSearchItems(searchCat,searchStr) {
             this.itemList = [];

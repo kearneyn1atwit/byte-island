@@ -58,6 +58,7 @@ export default {
         spotDisplay: 0,
         islandData: null,
         showBackToIsland: false,
+        rotateBit: 0,
         pseudoDatabase: null
       };
     },
@@ -89,7 +90,7 @@ export default {
       //make touchstart & touchend for mobile.
       document.addEventListener("mousemove",this.getMouseCoords);
       document.addEventListener("click",this.alterIsland);
-
+      document.addEventListener("keydown", (e) => this.rotateBlock(e));
     },
     methods: {
         ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland','setSelectedBlock']),
@@ -102,6 +103,12 @@ export default {
             return true
           } else {
             return false
+          }
+        },
+        rotateBlock(event) {
+          if(this.isInInventory() && (event.key === 'r' || event.key === 'R')) {
+            this.rotateBit = (this.rotateBit+1)%4;
+            console.log(event);
           }
         },
         //Used Claude AI to generate code to figure out if something is inside a parrallelogram, used to determine if mouse is within range to place a block.
@@ -203,6 +210,7 @@ export default {
                 thisBlock.setAttribute('src','/blockdelete.png');
               } else {
                 offset = -1*space*(Math.floor(spot/(squareSize))+1)+(Math.floor(spot/(squareSize)))+1;
+                console.log(this.getSelectedBlock);
                 thisBlock.setAttribute('src','/'+this.getSelectedBlock+".png");
                 style.opacity = 0.66;
               }
@@ -330,6 +338,8 @@ export default {
               counter++;
           }
 
+          this.islandDivLoaded=true;
+
         },
         //https://stackoverflow.com/questions/15170942/how-to-rotate-a-matrix-in-an-array-in-javascript
         rotateIslandClockwise() {
@@ -349,13 +359,13 @@ export default {
         },
         mapNumToHex(id) {
           if(id === 'DEL' || id===null) return id;
-          let hexID = Number(id).toString(16);
+          let hexID = (Number(id)*4).toString(32);
           if(hexID.length===1) hexID = '0'+hexID;
           return hexID;
         },
         mapHexToNum(hex) {
-          if(hex===null || hex==='DEL') return hex;
-          return parseInt(hex,16);
+            if(hex===null || hex==='DEL') return hex;
+            return parseInt(hex,32)/4;
         },
         //api call to get user data upon login
         getUserDetails() {

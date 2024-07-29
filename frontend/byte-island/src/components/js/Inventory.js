@@ -81,17 +81,17 @@ export default {
       },
       mapNumToHex(id) {
         if(id === 'DEL' || id===null) return id;
-        let hexID = Number(id).toString(16);
+        let hexID = (Number(id)*4).toString(32);
         if(hexID.length===1) hexID = '0'+hexID;
         return hexID;
-      },
-      mapHexToNum(hex) {
+    },
+    mapHexToNum(hex) {
         if(hex===null || hex==='DEL') return hex;
-        return parseInt(hex,16);
-      },
+        return parseInt(hex,32)/4;
+    },
       selectBlock(fetchId) {
         let blockBtn = document.getElementById(fetchId);
-        const id = Number(fetchId.slice(0,fetchId.indexOf('-o')));
+        const id = this.mapHexToNum(fetchId.slice(0,fetchId.indexOf('-o')));
         if(this.myBlock === this.mapNumToHex(id)) {
             blockBtn.style.backgroundColor="white";
             this.myBlock = null;
@@ -100,7 +100,7 @@ export default {
             let idOnly = id;
             blockBtn.style.backgroundColor=this.getColor(this.pseudoDatabase[idOnly].Category);
             this.myBlock = this.mapNumToHex(id);
-            this.setSelectedBlock(this.mapNumToHex(this.myBlock));
+            this.setSelectedBlock(this.myBlock);
         }
       },
       currentBlock() {

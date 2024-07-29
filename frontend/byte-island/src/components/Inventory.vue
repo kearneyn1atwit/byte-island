@@ -35,7 +35,7 @@
         <v-list-item v-for="(item) in itemList" style="padding: 0;">
             <div class="inv-item">
                 <p style="text-transform: capitalize; width: 100%; height: 28px; text-align: center;" :style="{color: getColor(item.Category)}">{{ item.Name }}</p>
-                <v-btn style="width: 84px; height: 84px; margin: auto; margin-top: 2px; border-radius: 8px; color: black; border: solid 3px;" :style="{'border-color': getColor(item.Category), 'background-color': getBg(item.Id)}" :id="item.Id+'-option'" @click="selectBlock(item.Id+'-option')">
+                <v-btn style="width: 84px; height: 84px; margin: auto; margin-top: 2px; border-radius: 8px; color: black; border: solid 3px;" :style="{'border-color': getColor(item.Category), 'background-color': getBg(item.Id)}" :id="mapNumToHex(item.Id)+'-option'" @click="selectBlock(mapNumToHex(item.Id)+'-option')">
                     <img style="width: 64px; height: 64px; margin: auto;" :src="'/'+mapNumToHex(item.Id)+'.png'"/>
                 </v-btn>
                 <p style="width: 48px; text-align: center; margin: auto;" :style="{color: getColor(item.Category)}">x{{ item.Inventory }}</p>
