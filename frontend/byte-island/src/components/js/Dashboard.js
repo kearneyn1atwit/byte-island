@@ -203,7 +203,7 @@ export default {
             if(this.mapHexToNum(myIslandData[spot])!=0 && this.mapHexToNum(myIslandData[spot+squareSize])===0 && (this.mapHexToNum(myIslandData[spot+squareSize+sideLength+1])===0 || spot%sideLength===sideLength-1) && this.getSelectedBlock) {
 
               const canDelete = (this.getSelectedBlock==='DEL' && this.mapHexToNum(myIslandData[spot])!=1);
-              const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit);
+              const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit && this.pseudoDatabase[this.mapHexToNum(this.getSelectedBlock)].Inventory>0);
 
               if(!(canDelete || canPlace)) break;
               
@@ -218,10 +218,12 @@ export default {
               if(canDelete) {
                 offset = -1*space*(Math.floor(spot/(squareSize)))+(Math.floor(spot/(squareSize)))+1;
                 thisBlock.setAttribute('src','/blockdelete.png');
+                style.zIndex = spot*2;
               } else {
                 offset = -1*space*(Math.floor(spot/(squareSize))+1)+(Math.floor(spot/(squareSize)))+1;
                 thisBlock.setAttribute('src','/'+this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit)+".png");
                 style.opacity = 0.66;
+                style.zIndex = (spot+this.sideLength**2)*2;
               }
               this.spotDisplay=spot;
               const left = xStart + (space*((control%sideLength*-1)+Math.floor(control/sideLength)));
@@ -229,7 +231,6 @@ export default {
               style.left = left.toString()+"px";
               style.top = top.toString()+"px";
               style.transform = `scale(${scale})`;
-              style.zIndex = spot*2;
               thisBlock.setAttribute('spot',spot.toString());
               thisBlock.setAttribute('alt','hover-'+spot.toString());
               thisBlock.setAttribute('class','hoverBlock');
@@ -266,18 +267,19 @@ export default {
               document.getElementById('hoverBlock').remove();
               this.updateBackWithBlock(this.validIslandData,this.mapHexToNum(blockWeDel),true);
             } else {
-              thisBlock.setAttribute('src','/'+this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit)+".png");
+              const hex2Num = this.mapHexToNum(this.getSelectedBlock);
+              thisBlock.setAttribute('src','/'+this.mapNumToHex(hex2Num+this.rotateBit)+".png");
               thisBlock.setAttribute('alt','block-'+(spot+64).toString());
               thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id','block-'+(spot+64).toString());
-              const exactBlock = this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit);
+              const exactBlock = this.mapNumToHex(hex2Num+this.rotateBit);
               const squareSize = this.sideLength**2;
               this.islandData[spot+squareSize] = exactBlock;
               this.validIslandData = this.validIslandData.substring(0,(spot+squareSize)*2)+exactBlock+this.validIslandData.substring((spot+squareSize+1)*2);
               this.updateIsland({index: spot+squareSize, newData: this.getSelectedBlock});
               document.getElementById('block-'+(spot+squareSize)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
-              this.updateBackWithBlock(this.validIslandData,this.mapHexToNum(this.getSelectedBlock),false);
+              this.updateBackWithBlock(this.validIslandData,hex2Num,false);
             }
           }
         },
@@ -313,6 +315,10 @@ export default {
         })
         .then(data => {
             console.log(data);
+            let inc;
+            if(add) inc=1;
+            else inc=-1;
+            this.pseudoDatabase[blockId].Inventory+=inc;
         })
         .catch(error => {
             console.error('Error with Block Place API:', error);
