@@ -59,6 +59,7 @@ export default {
         islandData: null,
         showBackToIsland: false,
         rotateBit: 0,
+        validIslandData: null,
         pseudoDatabase: null
       };
     },
@@ -73,7 +74,7 @@ export default {
       }
     },
     computed: {
-      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPfp','getIsInInventory'])
+      ...mapGetters(['isLoggedIn','getUsername','getToken','getPoints','getDashboardCreateCount','getIslandData','getSelectedBlock','getPfp','getIsInInventory','getIslandStringData'])
     },
     async mounted() {
       await this.getNotifications();
@@ -93,7 +94,7 @@ export default {
       document.addEventListener("keydown", (e) => this.rotateBlock(e));
     },
     methods: {
-        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland','setSelectedBlock']),
+        ...mapMutations(['setPoints','visitDashboard','resetDashboardVisit','resetStore','updateIsland','resetIsland','clearIsland','setSelectedBlock','setIsland']),
         async fillDatabase() {
           this.getBlockData();
         },
@@ -107,8 +108,12 @@ export default {
         },
         rotateBlock(event) {
           if(this.isInInventory() && (event.key === 'r' || event.key === 'R')) {
-            this.rotateBit = (this.rotateBit+1)%4;
-            console.log(event);
+            this.rotateBit = (this.rotateBit+0.25)%1;
+            if(document.getElementById('hoverBlock') && this.getSelectedBlock!='DEL') {
+              let hovBlock = document.getElementById('hoverBlock');
+              hovBlock.setAttribute('src','/'+this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit)+".png");
+              //console.log(this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit));
+            }
           }
         },
         //Used Claude AI to generate code to figure out if something is inside a parrallelogram, used to determine if mouse is within range to place a block.
@@ -173,6 +178,11 @@ export default {
         getMouseCoords(event) {
           this.mouseX = event.pageX;
           this.mouseY = event.pageY;
+          this.updateWithMouse(this.mouseX,this.mouseY);
+        },
+        updateWithMouse(pageX,pageY) {
+          this.mouseX = pageX;
+          this.mouseY = pageY;
           const results = this.canIPlaceHere(this.mouseX,this.mouseY);
           if(document.getElementById('hoverBlock')){
             document.getElementById('hoverBlock').remove();
@@ -190,9 +200,9 @@ export default {
 
           for(var x=this.indeces.length-1;x>=0;x--) {
             const spot = this.indeces[x];
-            if(myIslandData[spot]!='00' && myIslandData[spot+squareSize]==='00' && (myIslandData[spot+squareSize+sideLength+1]==='00' || spot%sideLength===sideLength-1) && this.getSelectedBlock) {
+            if(this.mapHexToNum(myIslandData[spot])!=0 && this.mapHexToNum(myIslandData[spot+squareSize])===0 && (this.mapHexToNum(myIslandData[spot+squareSize+sideLength+1])===0 || spot%sideLength===sideLength-1) && this.getSelectedBlock) {
 
-              const canDelete = (this.getSelectedBlock==='DEL' && myIslandData[spot]!='01');
+              const canDelete = (this.getSelectedBlock==='DEL' && this.mapHexToNum(myIslandData[spot])!=1);
               const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit);
 
               if(!(canDelete || canPlace)) break;
@@ -210,8 +220,7 @@ export default {
                 thisBlock.setAttribute('src','/blockdelete.png');
               } else {
                 offset = -1*space*(Math.floor(spot/(squareSize))+1)+(Math.floor(spot/(squareSize)))+1;
-                console.log(this.getSelectedBlock);
-                thisBlock.setAttribute('src','/'+this.getSelectedBlock+".png");
+                thisBlock.setAttribute('src','/'+this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit)+".png");
                 style.opacity = 0.66;
               }
               this.spotDisplay=spot;
@@ -248,27 +257,84 @@ export default {
               thisBlock.setAttribute('alt','block-'+(spot).toString());
               thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id','block-'+(spot).toString());
+              const blockWeDel = this.islandData[spot];
               this.islandData[spot] = '00';
+              this.validIslandData = this.validIslandData.substring(0,spot*2)+'00'+this.validIslandData.substring((spot+1)*2);
               this.updateIsland({index: spot, newData:'00'});
               document.getElementById('block-'+(spot)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
               document.getElementById('hoverBlock').remove();
+              this.updateBackWithBlock(this.validIslandData,this.mapHexToNum(blockWeDel),true);
             } else {
-              thisBlock.setAttribute('src','/'+this.getSelectedBlock+".png");
+              thisBlock.setAttribute('src','/'+this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit)+".png");
               thisBlock.setAttribute('alt','block-'+(spot+64).toString());
               thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id','block-'+(spot+64).toString());
-              this.islandData[spot+64] = this.getSelectedBlock;
-              this.updateIsland({index: spot+64, newData: this.getSelectedBlock});
-              document.getElementById('block-'+(spot+64)).remove();
+              const exactBlock = this.mapNumToHex(this.mapHexToNum(this.getSelectedBlock)+this.rotateBit);
+              const squareSize = this.sideLength**2;
+              this.islandData[spot+squareSize] = exactBlock;
+              this.validIslandData = this.validIslandData.substring(0,(spot+squareSize)*2)+exactBlock+this.validIslandData.substring((spot+squareSize+1)*2);
+              this.updateIsland({index: spot+squareSize, newData: this.getSelectedBlock});
+              document.getElementById('block-'+(spot+squareSize)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
+              this.updateBackWithBlock(this.validIslandData,this.mapHexToNum(this.getSelectedBlock),false);
             }
           }
         },
+        async updateBackWithBlock(islandData,blockId,add) {
+          //console.log(islandData);
+          //console.log(blockId);
+          //console.log(add);
+          fetch("http://"+Data.host+":5000/island", {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json', 
+                'Authorization': this.getToken
+            },
+            body: JSON.stringify({
+                username: this.getUsername,
+                islanddata: islandData,
+                blockid: blockId,
+                add: add
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                if(response.status === 401) {
+                    //log out
+                    this.$router.push('/');
+                    this.resetStore();
+                  }
+                  else {
+                    return;
+                  }
+            }
+            return response.json(); 
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error with Block Place API:', error);
+        });
+        },
         attemptGenIsland() {
+          // this.validIslandData="";
+          // let ourIslandDataString = this.getIslandStringData;
+          // ourIslandDataString = "04".repeat(64)+ourIslandDataString.substring(128);
+          // this.setIsland(ourIslandDataString);
+          // const ourIslandData = this.getIslandData;
+          // for(var i=0;i<ourIslandData.length;i++) {
+          //   this.validIslandData+=ourIslandData[i];
+          // }
           if(document.getElementById("islandHolder")) {
             this.genIsland();
             this.islandDivLoaded=true;
+          }
+          this.validIslandData="";
+          const ourIslandData = this.getIslandData;
+          for(var i=0;i<ourIslandData.length;i++) {
+            this.validIslandData+=ourIslandData[i];
           }
         },
         //https://codepen.io/avnishjayaswal/pen/YzNdORZ
@@ -295,7 +361,7 @@ export default {
             if(delBlock) delBlock.remove();
           }
           //Updates state to also clear the island, not just locally.
-          this.clearIsland();
+          //this.clearIsland();
 
           if(this.isMobile()) {
             this.xStart = 165;
@@ -318,7 +384,8 @@ export default {
           for(var index in myIslandData) {
               index = Number(index);
               let block = myIslandData[index];
-              let id = Number(block);
+              let id = this.mapHexToNum(block);
+              let thisRotation = this.getRotation(block);
               let thisBlock = document.createElement('img');
               let style = thisBlock.style;
               style.position = 'absolute';
@@ -330,7 +397,7 @@ export default {
               style.top = top.toString()+"px";
               style.transform = `scale(${scale})`;
               style.zIndex = counter*2;
-              thisBlock.setAttribute('src','/'+this.mapNumToHex(id)+'.png');
+              thisBlock.setAttribute('src','/'+this.mapNumToHex(id+thisRotation)+'.png');
               thisBlock.setAttribute('alt',block+'-'+counter.toString());
               thisBlock.setAttribute('class','placeableBlock');
               thisBlock.setAttribute('id','block-'+counter.toString());
@@ -365,7 +432,11 @@ export default {
         },
         mapHexToNum(hex) {
             if(hex===null || hex==='DEL') return hex;
-            return parseInt(hex,32)/4;
+            return Math.floor(parseInt(hex,32)/4);
+        },
+        getRotation(hex) {
+          if(hex===null || hex==='DEL') return hex;
+          return (parseInt(hex,32)%4)*0.25;
         },
         //api call to get user data upon login
         getUserDetails() {

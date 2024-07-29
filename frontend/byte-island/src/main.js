@@ -36,7 +36,8 @@ const store = createStore({
             pfp: '',
             points: [0,0,0],
             selectedBlock: null,
-            islandData: null
+            islandData: null,
+            islandString: null
         }
     },
     mutations: {
@@ -87,7 +88,7 @@ const store = createStore({
         clearIsland(state) {
             state.islandData = [];
             for(var x=0;x<64;x++) {
-                state.islandData.push("01");
+                state.islandData.push("04");
             }
             for(var x=0;x<320;x++) {
                 state.islandData.push("00");
@@ -96,9 +97,12 @@ const store = createStore({
         setSelectedBlock(state,id) {
             state.selectedBlock=id;
         },
+        setIslandmkII(state,island) {
+            state.islandString = island;
+        },
         setIsland(state,island) {
             state.islandData = [];
-            for(let i=0;i<384;i) {
+            for(let i=0;i<384;i++) {
                 state.islandData.push(island.slice(0,2));
                 island=island.substring(2);
             }
@@ -106,6 +110,9 @@ const store = createStore({
     },
     actions: {},
     getters: {
+        getIslandStringData(state) {
+            return state.islandString;
+        },
         isLoggedIn(state) {
             return !!state.token;
         },

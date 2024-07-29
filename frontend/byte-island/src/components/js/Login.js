@@ -80,7 +80,10 @@ export default {
             this.setToken(data.token);
             this.setUser(data.username);
             this.setPoints([data.career,data.personal,data.social]);
-            //this.setIsland(data.island);
+            //this.setIslandmkII(data.island);
+            let islandString = data.island;
+            islandString="04".repeat(64) + islandString.substring(128);
+            this.setIsland(islandString);
             //console.log('Login successful:', data.token); //This is the authorization token that must be stored
               this.$router.push({ name: 'Home', params: {  
                 id: data.username

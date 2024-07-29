@@ -87,7 +87,7 @@ export default {
     },
     mapHexToNum(hex) {
         if(hex===null || hex==='DEL') return hex;
-        return parseInt(hex,32)/4;
+        return Math.floor(parseInt(hex,32)/4);
     },
       selectBlock(fetchId) {
         let blockBtn = document.getElementById(fetchId);
