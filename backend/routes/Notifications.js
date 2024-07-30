@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to get all notifications for a given user
 router.get('/notifications/:username', async (req, res) => {
 
     let username;
@@ -55,6 +56,7 @@ router.get('/notifications/:username', async (req, res) => {
     }
 });
 
+//API call to mark a provided notification as read 
 router.put('/notifications', async (req, res) => {
 
     let username;
@@ -119,6 +121,7 @@ router.put('/notifications', async (req, res) => {
     }
 });
 
+//API call to delete a provided notification
 router.delete('/notifications', async (req, res) => {
 
     let username;

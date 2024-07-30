@@ -8,8 +8,8 @@ const password = creds.postgres.password;
 const port = creds.postgres.port;
 
 /**
- * @param {string} query 
- * @returns {QueryArrayResult}
+ * @param {string} query String for the SQL query
+ * @returns {QueryArrayResult} Result array that contains all query result information
  */
 async function query(query) {
   

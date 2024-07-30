@@ -7,7 +7,6 @@ const { Pool, QueryArrayResult } = require('pg');
 const sql = require('../../data/sql.json');
 const cypher = require('../../data/cypher.json');
 
-//remove params in data files later?
 /**
  * 
  * @param {string} data Generic parametrized query
@@ -96,6 +95,7 @@ module.exports = {
     },
 
     //User Functions
+    //Creates user with the provided credentials
     CreateUser: async function (username,email,password,image) {
         
         //Make sure user doesn't already exist
@@ -142,6 +142,7 @@ module.exports = {
 
         return userId; 
     },
+    //Get user id from the provided username
     GetUserId: async function(username) { 
         const user = await psql.query(fillSQLParams(sql.users.select, {
             "name": username,
@@ -152,6 +153,7 @@ module.exports = {
             return -1;
         }
     }, 
+    //Get user id from the provided email
     GetUserIdByEmail: async function(email) { 
         const user = await psql.query(fillSQLParams(sql.users.selectByEmail, {
             "email": email,
@@ -162,12 +164,14 @@ module.exports = {
             return -1;
         }
     }, 
+    //Get the user from the provided email
     GetUserEmailUsed: async function(email) {
         const userWithEmail = await psql.query(fillSQLParams(sql.users.verifyEmailUnused, {
             "email": email
         }));
         return userWithEmail.rowCount > 0;
     },
+    //Get the user's credential data from the user's id
     GetUserCredentials: async function(id, allowDeleted) { 
         if(allowDeleted) {
             const userData = await psql.query(fillSQLParams(sql.users.getAnyCredentials, {
@@ -181,18 +185,21 @@ module.exports = {
             return ProcessAndLogRowValues(userData,0);
         }
     },
+    //Get the user's status from their id
     GetUserStatus: async function(id) { 
         const userData = await psql.query(fillSQLParams(sql.users.getStatus, {
             "id": id,
         }));
         return ProcessAndLogRowValues(userData,0);
     },
+    //Get all of the user's points from their id
     GetUserPoints: async function(id) { 
         const userData = await psql.query(fillSQLParams(sql.users.getPoints, {
             "id": id,
         }));
         return ProcessAndLogRowValues(userData,0);
     },
+    //Get user profile data from a single id or an entire list
     GetUserProfileData: async function(idlist) { 
 
         //Might need enhancing later?
@@ -209,6 +216,7 @@ module.exports = {
             return ProcessAndLogTableValues(miniProfileList);
         }
     },
+    //Get user's networks from their id
     GetUserNetworks: async function(id) {
         const networkIds = await neo4j.query(fillCypherParams(cypher.select.networksUserIsIn, {
             "IDVAR": id
@@ -219,6 +227,7 @@ module.exports = {
         });
         return idlist;
     },
+    //Get user's liked posts from their id
     GetUserLikedPosts: async function(id) {
         const postIds = await neo4j.query(fillCypherParams(cypher.select.likedPosts, {
             "IDVAR": id
@@ -229,7 +238,7 @@ module.exports = {
         });
         return idlist;
     },
-    //search is either user's name, tag name, friends or networks
+    //Search users by the user's name, tag name, friends or networks
     SearchUsers: async function(search, byName, username) {
 
         let matchingUsers = [];
@@ -431,6 +440,7 @@ module.exports = {
 
         return matchingUsers;
     },
+    //Update a user's credentials with provided dictionary
     UpdateUserCredentials: async function(id, dict) { 
         const currentUserData = await psql.query(fillSQLParams(sql.users.getCredentials, {
             "id": id,
@@ -477,7 +487,8 @@ module.exports = {
             "id": id,
         }));
         return ProcessAndLogRowValues(newUserData,0);
-    },    
+    }, 
+    //Update a user's data with provided dictionary   
     UpdateUserData: async function(id, dict) {
 
         //swap this out later so image can also be grabbed
@@ -520,6 +531,7 @@ module.exports = {
 
         return dict;
     },
+    //Update a user's friends list from their id
     GetUserFriendsList: async function(id) {
         const friends = await neo4j.query(fillCypherParams(cypher.select.friendsList, {
             "IDVAR": id
@@ -531,6 +543,7 @@ module.exports = {
         });
         return idlist;
     },
+    //Remove friendship link between two users
     RemoveUserFromFriendsList: async function(userId, formerFriendId) { 
         try {
             await neo4j.query(fillCypherParams(cypher.remove.usersFromFriends, {
@@ -543,6 +556,7 @@ module.exports = {
             return false;
         }
     },
+    //Delete user by their username
     DeleteUser: async function(username) { 
 
         const user = await psql.query(fillSQLParams(sql.users.select, {
@@ -581,6 +595,7 @@ module.exports = {
     },
 
     //Network Related Functions 
+    //Create a network with the provided data
     CreateNetwork: async function (name, description, private, imageid) { 
 
         //Make sure network doesn't already exist
@@ -614,12 +629,14 @@ module.exports = {
 
         return networkId;
     },
+    //Get the network id from the network name
     GetNetworkId: async function (name) { 
         const network = await psql.query(fillSQLParams(sql.networks.select, {
             "name": name
         }));
         return ProcessData(network.rows[0]['networkid']);
     },
+    //Get the network name from their id
     GetNetworkName: async function (id) { 
 
         const network = await psql.query(fillSQLParams(sql.networks.getName, {
@@ -627,6 +644,7 @@ module.exports = {
         }));
         return network.rows[0]['networkname'];
     },
+    //Set network name with the provided id
     SetNetworkName: async function (id,name) { 
         await psql.query(fillSQLParams(sql.networks.updateName, {
             "id": id,
@@ -634,6 +652,7 @@ module.exports = {
         }));
         return id;
     },
+    //Switch a network status public<-->private by network id
     SetNetworkStatus: async function (id,private) { 
         await psql.query(fillSQLParams(sql.networks.private, {
             "id": id,
@@ -641,6 +660,7 @@ module.exports = {
         }));
         return id;
     },
+    //Get network members id
     GetNetworkMembers: async function (id) { 
         const networkMembers = await neo4j.query(fillCypherParams(cypher.select.usersInNetwork, {
             "IDVAR": id,
@@ -651,7 +671,7 @@ module.exports = {
         });
         return idlist;
     },
-    //search is either user's name or tag id
+    //Network search by user's name or tag id
     SearchNetworks: async function(search, byName, username) {
 
         let matchingNetworks = [];
@@ -850,6 +870,7 @@ module.exports = {
 
         return matchingNetworks;
     },
+    //Add user to a network with their ids
     AddNetworkMember: async function (userid,networkid) { 
         const addCmd = await neo4j.query(fillCypherParams(cypher.add.userToNetwork, {
             "IDVAR1": userid,
@@ -865,6 +886,7 @@ module.exports = {
             "count": 1
         }));
     },
+    //Remove user from a network with their ids
     RemoveNetworkMember: async function (userid,networkid) {
         try {
             const deleteCmd = await neo4j.query(fillCypherParams(cypher.remove.userFromNetwork, {
@@ -894,6 +916,7 @@ module.exports = {
         }
         
     },
+    //Get network admins with the network id
     GetNetworkAdmins: async function (id) {
         const networkAdmins = await neo4j.query(fillCypherParams(cypher.select.networkAdmins, {
             "IDVAR": id,
@@ -904,18 +927,21 @@ module.exports = {
         });
         return idlist;
     },
+    //Add user to network admins with their ids
     AddNetworkAdmin: async function (userid,networkid) {
         await neo4j.query(fillCypherParams(cypher.add.userAsAdmin, {
             "IDVAR1": userid,
             "IDVAR2": networkid
         })); 
     },
+    //Remove user from network admins with their ids
     RemoveNetworkAdmin: async function (userid,networkid) {
         await neo4j.query(fillCypherParams(cypher.remove.userFromAdmins, {
             "IDVAR1": userid,
             "IDVAR2": networkid
         })); 
     },
+    //Delete a network with its name
     DeleteNetwork: async function (name) {
 
         const network = await psql.query(fillSQLParams(sql.networks.select, {
@@ -951,6 +977,7 @@ module.exports = {
     },
 
     //Post Related Functions
+    //Create a post with the provided data
     CreatePost: async function(userid,text,imageid,parentid,networkid,private) { 
 
         if(userid === undefined || (text === undefined && image === undefined)) {
@@ -1003,6 +1030,7 @@ module.exports = {
 
         return postId;
     },
+    //Edit a post by the id with the new provided data
     EditPost: async function(id,newtext,newimageid) {
         if(newtext !== undefined, newtext !== null) {
             await psql.query(fillSQLParams(sql.posts.editText, {
@@ -1018,24 +1046,28 @@ module.exports = {
         }
         return id;
     },
+    //Get all user posts by the user id
     GetUserPosts: async function(id) { 
         const userPosts = await psql.query(fillSQLParams(sql.posts.getByUser, {
             "id":id
         }));
         return ProcessAndLogTableValues(userPosts);
     },
+    //Get all replies to a post with the post id
     GetReplies: async function(id) { 
         const userPosts = await psql.query(fillSQLParams(sql.posts.getPostReplies, {
             "id":id
         }));
         return ProcessAndLogTableValues(userPosts);
     },
+    //Get all network posts with the network id
     GetNetworkPosts: async function(id) { 
         const networkPosts = await psql.query(fillSQLParams(sql.posts.getByNetwork, {
             "id":id
         }));
         return ProcessAndLogTableValues(networkPosts);
     },
+    //Get all post data with the post id
     GetPostDetails: async function(id) { 
         try {
             const postDetails = await psql.query(fillSQLParams(sql.posts.select, {
@@ -1048,6 +1080,7 @@ module.exports = {
             return undefined;
         }
     },
+    //Like a post as a user with their ids
     LikePost: async function(postid,userid) {
 
         //Add like to like count in Postgres
@@ -1071,6 +1104,7 @@ module.exports = {
 
         return likeRelationship;
     },
+    //Unlike a post as a user with their ids
     UnlikePost: async function(postid,userid) {
 
         //Add like to like count in Postgres
@@ -1094,6 +1128,7 @@ module.exports = {
 
         return postid;
     },
+    //Delete a post with its id
     DeletePost: async function(id) {
         
         //Delete post in Postgres and verify its successfully "deleted" to the database
@@ -1114,6 +1149,7 @@ module.exports = {
     },
     
     //Tag Related Functions
+    //Create a tag with the provided name
     CreateTag: async function(name) {
 
         //Create tag in Postgres and verify its successfully added to the database
@@ -1134,24 +1170,28 @@ module.exports = {
 
         return tagId;
     },
+    //Add a tag to the given user with their ids
     AddTagToUser: async function(tagid,userid) {
         await neo4j.query(fillCypherParams(cypher.add.tagToUser, {
             "IDVAR1": tagid,
             "IDVAR2": userid
         })); 
     },
+    //Add a tag to the given network with their ids
     AddTagToNetwork: async function(tagid,networkid) {
         await neo4j.query(fillCypherParams(cypher.add.tagToNetwork, {
             "IDVAR1": tagid,
             "IDVAR2": networkid
         })); 
     },
+    //Add a tag to the given post with their ids
     AddTagToPost: async function(tagid,postid) {
         await neo4j.query(fillCypherParams(cypher.add.tagToPost, {
             "IDVAR1": tagid,
             "IDVAR2": postid
         })); 
     },
+    //Search tag by name and whether you want only the exact match
     SearchTag: async function(name, onlyExactMatch) {
 
         //Create tag in Postgres and verify its successfully added to the database
@@ -1173,24 +1213,28 @@ module.exports = {
 
         return ProcessAndLogTableValues(partialTagMatches);
     },
+    //Remove a tag from the given user with their ids
     RemoveTagFromUser: async function(tagid,userid) {
         await neo4j.query(fillCypherParams(cypher.remove.tagFromUser, {
             "IDVAR1": tagid,
             "IDVAR2": userid
         })); 
     },
+    //Remove a tag from the given network with their ids
     RemoveTagFromNetwork: async function(tagid,networkid) {
         await neo4j.query(fillCypherParams(cypher.remove.tagFromNetwork, {
             "IDVAR1": tagid,
             "IDVAR2": networkid
         })); 
     },
+    //Remove a tag from the given post with their ids
     RemoveTagFromPost: async function(tagid,postid) {
         await neo4j.query(fillCypherParams(cypher.remove.tagFromPost, {
             "IDVAR1": tagid,
             "IDVAR2": postid
         })); 
     },
+    //Delete a tag with its id
     DeleteTag: async function(id) {
 
         //Delete tag in Postgres and verify its successfully "deleted" to the database
@@ -1211,12 +1255,14 @@ module.exports = {
     },
 
     //Image Functions
+    //Create an image with the provided encoded data
     CreateImage: async function (path) {
         const newImage = await psql.query(fillSQLParams(sql.image.create, {
             "path": path
         }));
         return ProcessData(newImage[1].rows[0]['imageid']);
     },
+    //Get image data from the given id
     GetImage: async function (id) { 
 
         if(id.length) {
@@ -1231,6 +1277,7 @@ module.exports = {
             return [image.rows[0]['imagepath']]
         }
     },
+    //Update an image with the provided data
     UpdateImage: async function (id, path) { 
         const image = await psql.query(fillSQLParams(sql.image.update, {
             "id": id,
@@ -1243,6 +1290,7 @@ module.exports = {
         
         return id;
     },
+    //Delete an image with the given id
     DeleteImage: async function (id) { 
 
         const image = await psql.query(fillSQLParams(sql.image.select, {
@@ -1273,7 +1321,7 @@ module.exports = {
     },
 
     //Resource Functions
-    //Change Create Shop to have real values eventually
+    //Create the shop in the database
     CreateShop: async function () {
         await psql.query(`
             INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (0, 'A', 0, 10, 0, 1);
@@ -1288,11 +1336,13 @@ module.exports = {
             INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape, ImageId) VALUES (9, 'J', 2, 100, 0, 1);
             `);
     },
+    //Get all data from the shop
     GetShopDetails: async function () { 
         const contents = await psql.query(sql.resources.selectAll.query);
         console.log("Shop Contents Are: ");
         return ProcessAndLogTableValues(contents);
     },
+    //Retrieve data from the shop by the provided category
     GetResourcesByCategory: async function (category) { 
         const contents = await psql.query(fillSQLParams(sql.resources.selectCategory, {
             "category": category
@@ -1300,6 +1350,7 @@ module.exports = {
         console.log("Resource Ids for Category " + category + " are: ");
         return ProcessAndLogColumnValues(contents, 0);
     },
+    //Retrieve data from the shop by the provided shape
     GetResourcesByShape: async function (shape) { 
         const contents = await psql.query(fillSQLParams(sql.resources.selectShape, {
             "shape": shape
@@ -1307,6 +1358,7 @@ module.exports = {
         console.log("Resource Ids for Shape " + shape + " are: ");
         return ProcessAndLogColumnValues(contents, 0);
     },
+    //Retrieve data for the provided item with the given id
     GetResourceDetails: async function (id) { 
         const item = await psql.query(fillSQLParams(sql.resources.select,  {
             "id": id
@@ -1316,6 +1368,7 @@ module.exports = {
     },
 
     //Island Related Functions
+    //Set island population with the userid and number of people
     SetIslandPopulation: async function (id,people) { 
         const island = await psql.query(fillSQLParams(sql.island.updatePeople,  {
             "id": id,
@@ -1325,6 +1378,7 @@ module.exports = {
             throw new Error("Error updating population!");
         }
     },
+    //Set island data with user id and new encoded island string
     SetIslandData: async function (id,path) { 
         const island = await psql.query(fillSQLParams(sql.island.updateData,  {
             "id": id,
@@ -1334,24 +1388,28 @@ module.exports = {
             throw new Error("Error updating island data!");
         }
     },
+    //Get island data by the user id
     GetIslandData: async function (id) {
         const island = await psql.query(fillSQLParams(sql.island.select,  {
             "id": id
         }));
         return ProcessAndLogRowValues(island, 0);
     },
+    //Get inventory information by the user id
     GetInventory: async function (id) {
         const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
             "userid": id
         }));
         return inventory.rows[0]['inventorydata'];
     },
+    //Get the user's stock of a particular resource by the resource id
     GetStock: async function (userid, resourceid) { //dont know if we need this
         const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
             "userid": userid
         }));
         return inventory.rows[0]['inventorydata']['Item'+resourceid];
     },
+    //Update the user's stock of a particular resource and handle all buying/selling
     SetStock: async function (userid, resourceid, quantity, buying) {
 
         const inventory = await psql.query(fillSQLParams(sql.island.getWholeInventory,  {
@@ -1442,6 +1500,7 @@ module.exports = {
     },
 
     //Request Related Functions
+    //Create a new friend or network join request
     CreateRequest: async function (senderid, targetid, targetIsUser) { 
         
         //Ensure not made for deleted entities
@@ -1469,6 +1528,7 @@ module.exports = {
             return networkRequest[1].rows[0]['requestid']
         }
     },
+    //Resolve the request by the request id
     ResolveRequest: async function (id) { 
         //Delete request in postgres
         const resolveCmd = await psql.query(fillSQLParams(sql.requests.resolve, {
@@ -1503,6 +1563,7 @@ module.exports = {
 
         return id;
     },
+    //Delete the request by the request id
     DeleteRequest: async function (id) { 
 
         //Delete request in postgres
@@ -1516,6 +1577,7 @@ module.exports = {
 
         return id;
     },
+    //Get all open requests for a user/network
     GetUserOpenRequests: async function (id, targetIsUser) { 
 
         if(targetIsUser) {
@@ -1555,6 +1617,7 @@ module.exports = {
             return result;
         }
     },
+    //Get all pending requests for a user/network
     GetUserPendingRequests: async function (id, targetIsUser) { 
 
         if(targetIsUser) {
@@ -1573,6 +1636,7 @@ module.exports = {
     },
 
     //Project Related Functions
+    //Create a new project with the provided data
     CreateProject: async function (userid, name, desc, social, career, personal, duedate) { 
         const newProj = await psql.query(fillSQLParams(sql.projects.create, {
             "userid": userid,
@@ -1585,6 +1649,7 @@ module.exports = {
         }));
         return ProcessData(newProj[1].rows[0]['projectid']);
     },
+    //Modify the project with the provided dictionary by the id
     ModifyProject: async function (id, data) { 
         const project = await psql.query(fillSQLParams(sql.projects.select, {
             "id": id
@@ -1632,6 +1697,7 @@ module.exports = {
 
         return id;
     },
+    //Create a project update with the project id
     AddProjectUpdate: async function(projectid, updatename, updatedesc) {
         //Get currently existing project data
         let project = await psql.query(fillSQLParams(sql.projects.select, {
@@ -1668,6 +1734,7 @@ module.exports = {
 
         return updateId;
     },
+    //Set the project as done by the project id
     SetProjectAsDone: async function (id) { 
 
         const project = await psql.query(fillSQLParams(sql.projects.select, {
@@ -1697,6 +1764,7 @@ module.exports = {
             //Add mechanics here later
         }
     },
+    //Delete the project with the given id
     DeleteProject: async function (id) { 
 
         const project = await psql.query(fillSQLParams(sql.projects.select, {
@@ -1725,18 +1793,21 @@ module.exports = {
 
         return id;
     },
+    //Get all project details by the project id
     GetProjectDetails: async function (id) { 
         const project = await psql.query(fillSQLParams(sql.projects.select, {
             "id": id
         }));
         return ProcessAndLogRowValues(project,0);
     },
+    //Get user's projects by the user id
     GetUsersProjects: async function (userid) { 
         const projects = await psql.query(fillSQLParams(sql.projects.selectByUser, {
             "id": userid
         }));
         return ProcessAndLogTableValues(projects);
     },
+    //Get all project updates by the project id
     GetProjectUpdates: async function (id) {
         const updates = await psql.query(fillSQLParams(sql.projects.getProjectUpdates, {
             "id": id
@@ -1745,6 +1816,7 @@ module.exports = {
     },
 
     //Notification Related Functions
+    //Create a notification for the provided user id with the provided text
     CreateNotification: async function (id,text) { 
         const newNotif = await psql.query(fillSQLParams(sql.notifications.create, {
             "userid": id,
@@ -1752,12 +1824,14 @@ module.exports = {
         }));
         return ProcessData(newNotif[1].rows[0]['notificationid']);
     },
+    //Get all user notifications by the user id
     GetUserNotifications: async function (id) { 
         const userNotifs = await psql.query(fillSQLParams(sql.notifications.selectByUser, {
             "id": id,
         }));
         return ProcessAndLogTableValues(userNotifs);
     },
+    //Mark the provided notification id as read
     MarkNotificationAsRead: async function (id) { 
 
         const markedNotif = await psql.query(fillSQLParams(sql.notifications.markAsRead, {
@@ -1765,6 +1839,7 @@ module.exports = {
         }));
         return id;
     },
+    //Delete the notification by its id
     DeleteNotification: async function (id) { 
 
         //Delete notif in postgres
@@ -1775,11 +1850,3 @@ module.exports = {
         return id;
     },
  }
-
- /* Unimplemented Functions are below */
-
-//Post Related Functions
-function SearchPosts() { 
-    cypher.select.relatedPosts;
-    sql.posts.SEARCHING; 
-}

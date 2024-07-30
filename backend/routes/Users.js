@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to search for user information
 router.post('/users', async (req, res) => {
 
   let username;

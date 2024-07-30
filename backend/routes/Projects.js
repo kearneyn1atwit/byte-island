@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to get all projects for a user
 router.get('/projects/:username', async (req, res) => {
 
     let username;
@@ -89,6 +90,7 @@ router.get('/projects/:username', async (req, res) => {
     }
 });
 
+//API call to create a new project for a provided user
 router.post('/projects', async (req, res) => {
 
     let username;
@@ -164,6 +166,7 @@ router.post('/projects', async (req, res) => {
     }
 })
 
+//API call to add an update to a project
 router.put('/projects', async (req, res) => {
 
     let username;
@@ -289,6 +292,7 @@ router.put('/projects', async (req, res) => {
     }
 });
 
+//API call to delete a user's project
 router.delete('/projects', async (req, res) => {
 
     let username;

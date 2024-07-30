@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to get all requests for a given username with a given type and subtype
 router.get('/requests/:username/:type/:subtype', async (req, res) => {
 
     let username;
@@ -113,6 +114,7 @@ router.get('/requests/:username/:type/:subtype', async (req, res) => {
     }
 });
 
+//API call to create a new friend or join request
 router.post('/requests', async (req, res) => { 
 
     let username;
@@ -233,6 +235,7 @@ router.post('/requests', async (req, res) => {
 
 });
 
+//API call to accept a friend or join request
 router.put('/requests', async (req, res) => {
 
     let username;
@@ -311,6 +314,7 @@ router.put('/requests', async (req, res) => {
     }
 });
 
+//API call to delete a friend or join request
 router.delete('/requests', async (req, res) => {
 
     let username;

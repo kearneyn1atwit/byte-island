@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
-
+//API call to get all of a user's posts
 router.get('/posts/:username/:category', async (req, res) => {
 
     let username;
@@ -124,6 +124,7 @@ router.get('/posts/:username/:category', async (req, res) => {
     }
 });
 
+//API call to create a new post
 router.post('/posts', async (req, res) => {
 
     let username;
@@ -184,6 +185,7 @@ router.post('/posts', async (req, res) => {
     }
 });
 
+//API call to reply to a posts
 router.put('/posts', async (req, res) => {
 
     let username;
@@ -256,6 +258,7 @@ router.put('/posts', async (req, res) => {
     }
 });
 
+//API call to delete a user's post
 router.delete('/posts', async (req, res) => { 
 
     let username;

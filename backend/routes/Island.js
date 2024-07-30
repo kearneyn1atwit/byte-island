@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to update a user's inventory and island when placing / removing blocks
 router.put('/island', async (req, res) => {
 
     let username;

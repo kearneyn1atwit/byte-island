@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to login a user with valid credentials and return a valid JWT
 router.post('/login', async (req, res) => {
 
   console.log("Login API Starts!");

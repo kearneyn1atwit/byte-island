@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to modify a user's settings 
 router.put('/settings', async (req, res) => {
 
     let username;

@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to create a new user with unique credentials and then give back a JWT token
 router.post('/signup', async (req, res) => {
 
   console.log("Signup API Starts!");

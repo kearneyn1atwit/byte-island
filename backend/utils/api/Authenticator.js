@@ -3,7 +3,7 @@ const creds = require('../../data/credentials.json');
 const db = require('../database/Database');
 
 /**
- * 
+ * Generates JWT token for the given user for a hour
  * @param {string} username User to generate JWT for 
  * @returns Signed token 
  */
@@ -11,16 +11,27 @@ function generateJWT(username) {
     const payload = {
         username: username,
         iat: Math.floor(Date.now() / 1000), 
-        exp: Math.floor(Date.now() / 1000) + 3600 //Lasts 15 minutes
+        exp: Math.floor(Date.now() / 1000) + 3600 //Lasts 1 hour
     }
     return jwt.sign(payload, creds.api.secretkey);
 }
 
+/**
+ * Retrieves username from JWT token
+ * @param {string} token JWT token
+ * @returns Decoded username 
+ */
 function getUsername(token) {
     const decoded = jwt.verify(token, creds.api.secretkey);
     return decoded['username'];
 }
 
+/**
+ * Check JWT and optionally the username inside to ensure the token is valid for authorization
+ * @param {string} token JWT token for the user to be verified
+ * @param {string} username Username to be checked against the JWT
+ * @returns {bool} Whether the token is valid or not
+ */
 async function verifyJWT(token, username) {
     try {
         //Command will verify token is valid and has not expired yet

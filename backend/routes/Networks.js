@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to search networks by pre-existing conditions
 router.get('/networks/:searchBy/:searchString', async (req, res) => {
   
   if(!await auth.verifyJWT(req.headers.authorization)) {
@@ -61,6 +62,7 @@ router.get('/networks/:searchBy/:searchString', async (req, res) => {
   }
 });
 
+//API call to create a new network
 router.post('/networks', async (req, res) => {
 
   let username;
@@ -138,6 +140,7 @@ router.post('/networks', async (req, res) => {
   }
 })
 
+//API call to remove a user from a network
 router.put('/networks', async (req, res) => {
   let username;
 
@@ -200,6 +203,7 @@ router.put('/networks', async (req, res) => {
   }
 });
 
+//API call to delete a network 
 router.delete('/networks', async (req, res) => {
   
   let username;

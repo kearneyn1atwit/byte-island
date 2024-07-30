@@ -33,7 +33,7 @@ app.use(cors({ //Needs CORS enabled for 5000->3000
 }));
 app.use('/api', router);
 
-//Define the route paths and their corresponding definitions | Turn this into a dictionary later
+//Define the route paths and their corresponding definitions
 app.use('/', v1Admins);
 app.use('/', v1Friends);
 app.use('/', v1Island);

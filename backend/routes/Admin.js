@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to add or remove admins from networks
 router.put('/admin', async (req, res) => {
 
     let username;

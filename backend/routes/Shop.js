@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to retrieve shop information by block category
 router.get('/shop/:username/:category', async (req, res) => {
 
     let username;
@@ -92,6 +93,7 @@ router.get('/shop/:username/:category', async (req, res) => {
     }
 });
 
+//API call to buy and sell items from the shop and add/subtract from user inventory
 router.put('/shop', async (req, res) => {
 
     let username;

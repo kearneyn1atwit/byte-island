@@ -5,6 +5,10 @@ const uri = creds.neo4j.uri;
 const user = creds.neo4j.username;
 const password = creds.neo4j.password;
 
+/**
+ * @param {string} query String for the Cypher query
+ * @returns {QueryResult} Result array that contains all query result information
+ */
 async function query(query) {
 
     console.log("Executing Cypher Query: " + query);

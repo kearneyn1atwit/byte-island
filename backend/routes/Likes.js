@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../utils/database/Database');
 const auth = require('../utils/api/Authenticator');
 
+//API call to add or remove likes from a post
 router.put('/likes', async (req, res) => {
 
     let username;
