@@ -151,11 +151,6 @@
             "query": "SELECT * FROM Posts WHERE PostId = :id AND Deleted != True;",
             "params": "id",
             "desc": "Grabs post details"
-        },
-        "SEARCHING": { 
-            "query": "",
-            "params": "",
-            "desc": "Other post grabbing techniques might be necessary???"
         }
     },
     "resources": {

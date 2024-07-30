@@ -49,6 +49,8 @@ router.delete('/friends', async (req, res) => {
     const removeFriend = await db.RemoveUserFromFriendsList(id1,id2);
 
     if(removeFriend) {
+        await db.CreateNotification(id1, "You are no longer friends with "+username2+"!");
+        await db.CreateNotification(id2, "You are no longer friends with "+username1+"!");
         return res.status(200).send();
     } else {
         return res.status(500).json({ message: "Something went wrong trying to remove your former friend!" });

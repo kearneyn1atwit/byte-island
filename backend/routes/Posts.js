@@ -246,6 +246,8 @@ router.put('/posts', async (req, res) => {
             return res.status(500).json({ message: 'Error creating reply!'});
         }
 
+        await db.CreateNotification(postData['userid'], username + " replied to your post!");
+
         return res.status(200).send();
 
     } catch (error) {

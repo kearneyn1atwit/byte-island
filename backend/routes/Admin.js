@@ -60,17 +60,21 @@ router.put('/admin', async (req, res) => {
             return res.status(400).json({ message: 'User already is an admin / not an admin!' }); 
         }
 
+        let notif;
         try {
             if(add) {
                 const admin = await db.AddNetworkAdmin(targetid,networkid);
+                notif = "You were added as a network admin!";
             } else {
                 const unadmin = await db.RemoveNetworkAdmin(targetid,networkid);
+                notif = "You were removed as a network admin!";
             }
         } catch (error) {
             console.error(error);
             return res.status(500).json({ message: 'Error adding/subtracting like to/from post' });
         }
 
+        await db.CreateNotification(targetid, notif);
         return res.status(200).send();
 
     } catch (error) {

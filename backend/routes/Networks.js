@@ -128,6 +128,8 @@ router.post('/networks', async (req, res) => {
 
       const addUserToNetwork = await db.AddNetworkAdmin(id,networkId);
 
+      await db.CreateNotification(id,"Created a new network called: " + name);
+
       return res.status(200).send();
 
   } catch (error) {
@@ -249,6 +251,8 @@ router.delete('/networks', async (req, res) => {
           console.log(err);
           return res.status(500).json({ message: 'Error deleting user'});
       }
+
+      await db.CreateNotification(userid, "Deleted the "+network+" network!");
 
       return res.status(200).send();
 

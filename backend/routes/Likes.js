@@ -65,6 +65,9 @@ router.put('/likes', async (req, res) => {
             return res.status(500).json({ message: 'Error adding/subtracting like to/from post' });
         }
 
+        const postData = await db.GetPostDetails(postid);
+        await db.CreateNotification(postData['userid'], username + " liked your post!");
+
         return res.status(200).send();
 
     } catch (error) {

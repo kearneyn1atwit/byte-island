@@ -215,7 +215,14 @@ router.post('/requests', async (req, res) => {
             return res.status(500).json({ message: "Error occurred while creating request" })
         }
 
-        //Create notifications here later
+        if(type === 'user') {
+            await db.CreateNotification(target, "You have a pending friend request!");
+        } else {
+            const admins = await db.GetNetworkAdmins(target);
+            for(i = 0; i < admins.length; i++) {
+                await db.CreateNotification(admins[i], "You have a pending network join request!");
+            }
+        }
 
         return res.status(200).send();
 
@@ -280,6 +287,7 @@ router.put('/requests', async (req, res) => {
         for(i = 0; i < friendRequests.length; i++) {
             if(friendRequests[i][2] === id) {
                 await db.ResolveRequest(requestid);
+                await db.CreateNotification(target, "Your friend request for "+username+" was accepted!");
                 return res.status(200).send();
             }
          }
@@ -288,6 +296,8 @@ router.put('/requests', async (req, res) => {
 
          for(i = 0; i < joinRequests.length; i++) {
             if(userNetworks.includes(joinRequests[i][3])) {
+                const network = await db.GetNetworkName(joinRequests[i][3]);
+                await db.CreateNotification(target, "Your join request for "+network+" was accepted!");
                 await db.ResolveRequest(requestid);
                 return res.status(200).send();
             }
