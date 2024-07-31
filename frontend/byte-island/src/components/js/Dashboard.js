@@ -343,20 +343,6 @@ export default {
             this.validIslandData+=ourIslandData[i];
           }
         },
-        //https://codepen.io/avnishjayaswal/pen/YzNdORZ
-        // sort_by_id() {
-        //   return function (elem1, elem2) {
-        //     let id1 = Number(elem1.id.slice(6));
-        //     let id2 = Number(elem2.id.slice(6));
-        //     if (elem1.id < elem2.id) {
-        //       return -1;
-        //     } else if (elem1.id > elem2.id) {
-        //       return 1;
-        //     } else {
-        //       return 0;
-        //     }
-        //   };
-        // },
         genIsland() {
           //let blockArray = document.getElementsByClassName("placeableBlock");
 
@@ -836,3 +822,19 @@ export default {
                 // if(myIslandData[placeHere]!='00000001') break;
 
             }*/
+
+
+        //https://codepen.io/avnishjayaswal/pen/YzNdORZ
+        // sort_by_id() {
+        //   return function (elem1, elem2) {
+        //     let id1 = Number(elem1.id.slice(6));
+        //     let id2 = Number(elem2.id.slice(6));
+        //     if (elem1.id < elem2.id) {
+        //       return -1;
+        //     } else if (elem1.id > elem2.id) {
+        //       return 1;
+        //     } else {
+        //       return 0;
+        //     }
+        //   };
+        // },

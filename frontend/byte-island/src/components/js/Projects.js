@@ -15,7 +15,7 @@ export default {
         rules: {
             required: v => !!v || 'Field is required!'
         },
-        aiFeedbackText: 'No description provided.',
+        aiFeedbackText: 'Please provide an adequate description!',
         newRPoints: 0,
         newGPoints: 0,
         newBPoints: 0,
@@ -30,7 +30,10 @@ export default {
         editProjectUpdateTitle: '',
         editProjectUpdateDesc: '',
         delProject: null,
-        loaded: false
+        loaded: false,
+        difficultyCategory: 0,
+        lengthCategory: 0,
+        pointCategory: 0
       };
     },
     async created() {
@@ -113,7 +116,7 @@ export default {
             this.projectView = 'all';
             this.newTitle = '';
             this.newDesc = '';
-            this.aiFeedbackText = 'No description provided.';
+            this.aiFeedbackText = 'Please provide an adequate description!';
             this.newRPoints = 0;
             this.newGPoints = 0;
             this.newBPoints = 0;
@@ -134,21 +137,42 @@ export default {
             this.projectView = 'new';
         },
         // handle AI feedback
-        aiFeedback(desc) {
-            if(desc) {
+        getPointsValues(edited) {
+            const val = 3**this.difficultyCategory * 2**this.lengthCategory;
+            let mult = 1;
+            if(this.overrideDueDate!='' && this.newDueDate!='N/A' && Date.parse(this.overrideDueDate)-Date.parse(this.newDueDate)>0) 
+                mult = Math.round((Date.parse(this.newDueDate) - Date.parse(new Date()))/86400000)/Math.round((Date.parse(this.overrideDueDate) - Date.parse(new Date()))/86400000);
+            this.newRPoints = Math.round(((this.pointCategory===0)+0.1) * val * mult / (1+edited*0.25));
+            this.newGPoints = Math.round(((this.pointCategory===1)+0.1) * val * mult / (1+edited*0.25));
+            this.newBPoints = Math.round(((this.pointCategory===2)+0.1) * val * mult / (1+edited*0.25));
+            this.getDueDate(edited);
+        },
+        getPointsValuesNoDate(edited) {
+            const val = 3**this.difficultyCategory * 2**this.lengthCategory;
+            let mult = 1;
+            if(this.overrideDueDate!='' && this.newDueDate!='N/A' && Date.parse(this.overrideDueDate)-Date.parse(this.newDueDate)>0) 
+                mult = Math.round((Date.parse(this.newDueDate) - Date.parse(new Date()))/86400000)/Math.round((Date.parse(this.overrideDueDate) - Date.parse(new Date()))/86400000);
+            this.newRPoints = Math.round(((this.pointCategory===0)+0.1) * val * mult / (1+edited*0.25));
+            this.newGPoints = Math.round(((this.pointCategory===1)+0.1) * val * mult / (1+edited*0.25));
+            this.newBPoints = Math.round(((this.pointCategory===2)+0.1) * val * mult / (1+edited*0.25));
+        },
+        getDueDate(edited) {
+            let d = new Date();
+            let mult = 1;
+            if(edited) mult=0.75;
+            d.setDate(d.getDate() + Math.ceil(Math.sqrt(3**this.difficultyCategory * 4**this.lengthCategory)*mult));
+            this.newDueDate = d.toISOString();
+        },
+        aiFeedback(desc,edited) {
+            console.log(desc);
+            if(desc.length>10) {
                 this.aiFeedbackText = 'This description is adequate!';
-                this.newRPoints = Math.floor(Math.random() * 51);
-                this.newGPoints = Math.floor(Math.random() * 51);
-                this.newBPoints = Math.floor(Math.random() * 51);
-                let d = new Date();
-                d.setDate(d.getDate() + 1);
-                this.newDueDate = d.toISOString();
-            }
-            else {
+                this.getDueDate(edited);
+            } else {
                 this.newRPoints = 0;
                 this.newGPoints = 0;
                 this.newBPoints = 0;
-                this.aiFeedbackText = 'No description provided.';
+                this.aiFeedbackText = 'Please provide an adequate description!';
                 this.newDueDate = 'N/A';
             }
         },
@@ -265,7 +289,7 @@ export default {
                     return;
                 }
             }
-            let finalDate = new Date(this.editProjectDueDate);
+            let finalDate = new Date(this.newDueDate);
             finalDate = finalDate.toISOString();
             // if no updates have actually been made to project fields
             if(this.editProjectTitle === project.Title && this.editProjectDesc === project.Desc && this.convertDate(finalDate) === this.convertDate(project.Due)) {
@@ -350,6 +374,19 @@ export default {
                 this.$emit('project-error',error);
                 console.error('Error with Projects API:', error);
             });
+        },
+        updateCategory() {
+            let pointCat = document.getElementById("pointCategoryMenu");
+            if(this.pointCategory === 0) {
+                this.searchCategory = 'RED'
+                pointCat.style.borderColor = "#FF9095"; 
+            } else if(this.pointCategory === 1) {
+                this.searchCategory = 'GRN'
+                pointCat.style.borderColor = "#A3FFC9"; 
+            } else {
+                this.searchCategory = 'BLU'
+                pointCat.style.borderColor = "#7DAEFF"; 
+            }
         }
     },
     emits: ['project-error','project-success','project-completed','project-warning'],

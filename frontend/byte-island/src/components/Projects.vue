@@ -62,23 +62,51 @@
             </v-list-item>
         </div>
         <div v-else-if="projectView === 'new'">
-            <h1 class="header-h1 ml-2 mb-5">New Project</h1>
+            <h1 class="header-h1 ml-2 mb-5" :runPointValues="getPointsValues(false)">New Project</h1>
             <h3 class="ml-5">Project title:</h3>
             <v-text-field maxlength="30" counter persistent-counter v-model="newTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
 
             </v-text-field>
             <h3 class="ml-5">Describe your new project:</h3>
-            <v-textarea maxlength="500" counter persistent-counter v-model="newDesc" @input="aiFeedback(newDesc)" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
+            <v-textarea maxlength="500" counter persistent-counter v-model="newDesc" @input="aiFeedback(newDesc,false)" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
 
             </v-textarea>
-            <pre class="ml-5"><b>AI Feedback</b>: {{aiFeedbackText}}</pre>
-            <pre class="ml-5 text-muted mt-2">Points you'll gain: <span style="color: rgb(215,0,0);">{{newRPoints}}</span>, <span style="color: rgb(151,255,45);">{{newGPoints}}</span>, <span style="color: rgb(101,135,231);">{{newBPoints}}</span></pre>
+            <pre class="ml-5">{{aiFeedbackText}}</pre>
+            
+            <h3 class="ml-5 mt-2">Select Project Difficulty:</h3>
+            <v-btn-toggle rounded class="mx-2 toggle-group" id="difficultySelectorMenu" v-model="difficultyCategory" mandatory>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#63c27b">Very Easy</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#A3FFC9">Easy</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#DDDDDD">Moderate</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#FF9095">Difficult</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#de333b">Grueling</v-btn>
+            </v-btn-toggle>
+
+            <h3 class="ml-5 mt-2">Select Project Size:</h3>
+            <v-btn-toggle rounded class="mx-2 toggle-group" id="lengthSelectorMenu" v-model="lengthCategory" mandatory>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#63c27b">Tiny</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#A3FFC9">Small</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#DDDDDD">Average</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#FF9095">Large</v-btn>
+                <v-btn @click="getPointsValues(false)" class="ma-1 toggle-btn" size="small" color="#de333b">Gigantic</v-btn>
+            </v-btn-toggle>
+
+            <h3 class="ml-5 mt-2">Select Project Category:</h3>
+            <v-btn-toggle rounded class="mx-2 toggle-group" id="pointCategoryMenu" v-model="pointCategory" mandatory>
+                <v-btn @click="updateCategory();getPointsValues(false)" class="ma-1 toggle-btn-mk2" size="medium" color="#FF9095">Networking</v-btn>
+                <v-btn @click="updateCategory();getPointsValues(false)" class="ma-1 toggle-btn-mk2" size="medium" color="#A3FFC9">Self-Growth</v-btn>
+                <v-btn @click="updateCategory();getPointsValues(false)" class="ma-1 toggle-btn-mk2" size="medium" color="#7DAEFF">Career</v-btn>
+            </v-btn-toggle>
+
             <pre class="ml-5 text-muted mt-1">Automatic Due Date:</pre>
             <pre class="ml-5">{{convertDate(newDueDate)}}</pre>
             <pre class="ml-5 text-muted mt-2">Override Due Date:</pre>
-            <v-text-field :min="todayDate" type="date" v-model="overrideDueDate" variant="outlined" class="mx-5 mt-1" label="Due Date">
+            <v-text-field v-on:input="getPointsValuesNoDate(false)" :min="todayDate" type="date" v-model="overrideDueDate" variant="outlined" class="mx-5 mt-1" label="Due Date">
 
             </v-text-field>
+
+            <pre class="ml-5 text-muted mt-2 mb-2">Points you'll gain: <span style="color: rgb(215,0,0);">{{newRPoints}}</span>, <span style="color: rgb(151,255,45);">{{newGPoints}}</span>, <span style="color: rgb(101,135,231);">{{newBPoints}}</span></pre>
+
             <v-row class="mt-n3 mb-3 mx-0 text-center" justify="space-around">
                     <v-col cols="12">
                         <v-btn color="success" :disabled="!(newTitle && newDesc)" class="custom-btn" variant="outlined" @click="createProject()"><u>All set!</u></v-btn>
@@ -86,21 +114,60 @@
                 </v-row>
         </div>
         <div v-else-if="projectView === 'edit'">
-            <h1 class="header-h1 ml-2 mb-5">Edit Project: <span style="color: white;">{{editProject.Title}}</span></h1>
+            <h1 class="header-h1 ml-2 mb-5" :runPointValues="getPointsValues(true)">Edit Project: <span style="color: white;">{{editProject.Title}}</span></h1>
             <h3 class="ml-5">Project title:</h3>
             <v-text-field maxlength="30" counter persistent-counter v-model="editProjectTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Project Title">
 
             </v-text-field>
             <h3 class="ml-5">Describe the project:</h3>
-            <v-textarea maxlength="500" counter persistent-counter v-model="editProjectDesc" @input="aiFeedback(editProjectDesc)" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
+            <v-textarea maxlength="500" counter persistent-counter v-model="editProjectDesc" @input="aiFeedback(editProjectDesc,true)" :rules="[rules.required]" no-resize variant="outlined" class="mx-5 mt-3" label="Project Description">
 
             </v-textarea>
-            <pre class="ml-5"><b>AI Feedback</b>: {{aiFeedbackText}}</pre>
-            <pre class="ml-5 text-muted mt-2">Points you'll gain: <span style="color: rgb(215,0,0);">{{newRPoints}}</span>, <span style="color: rgb(151,255,45);">{{newGPoints}}</span>, <span style="color: rgb(101,135,231);">{{newBPoints}}</span></pre>
+            <pre class="ml-5">{{aiFeedbackText}}</pre>
+            <!-- <pre class="ml-5 text-muted mt-2">Points you'll gain: <span style="color: rgb(215,0,0);">{{newRPoints}}</span>, <span style="color: rgb(151,255,45);">{{newGPoints}}</span>, <span style="color: rgb(101,135,231);">{{newBPoints}}</span></pre>
             <h3 class="ml-5 mt-3">Due Date:</h3>
             <v-text-field :min="todayDate" type="date" v-model="editProjectDueDate" variant="outlined" class="mx-5 mt-3" label="Due Date">
 
+            </v-text-field> -->
+
+            <!-- Start of copied -->
+
+            <h3 class="ml-5 mt-2">Select Project Difficulty:</h3>
+            <v-btn-toggle rounded class="mx-2 toggle-group" id="difficultySelectorMenu" v-model="difficultyCategory" mandatory>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#63c27b">Very Easy</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#A3FFC9">Easy</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#DDDDDD">Moderate</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#FF9095">Difficult</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#de333b">Grueling</v-btn>
+            </v-btn-toggle>
+
+            <h3 class="ml-5 mt-2">Select Project Size:</h3>
+            <v-btn-toggle rounded class="mx-2 toggle-group" id="lengthSelectorMenu" v-model="lengthCategory" mandatory>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#63c27b">Tiny</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#A3FFC9">Small</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#DDDDDD">Average</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#FF9095">Large</v-btn>
+                <v-btn @click="getPointsValues(true)" class="ma-1 toggle-btn" size="small" color="#de333b">Gigantic</v-btn>
+            </v-btn-toggle>
+
+            <h3 class="ml-5 mt-2">Select Project Category:</h3>
+            <v-btn-toggle rounded class="mx-2 toggle-group" id="pointCategoryMenu" v-model="pointCategory" mandatory>
+                <v-btn @click="updateCategory();getPointsValues(true)" class="ma-1 toggle-btn-mk2" size="medium" color="#FF9095">Networking</v-btn>
+                <v-btn @click="updateCategory();getPointsValues(true)" class="ma-1 toggle-btn-mk2" size="medium" color="#A3FFC9">Self-Growth</v-btn>
+                <v-btn @click="updateCategory();getPointsValues(true)" class="ma-1 toggle-btn-mk2" size="medium" color="#7DAEFF">Career</v-btn>
+            </v-btn-toggle>
+
+            <pre class="ml-5 text-muted mt-1">Automatic Due Date:</pre>
+            <pre class="ml-5">{{convertDate(newDueDate)}}</pre>
+            <pre class="ml-5 text-muted mt-2">Override Due Date:</pre>
+            <v-text-field v-on:input="getPointsValuesNoDate(true)" :min="todayDate" type="date" v-model="overrideDueDate" variant="outlined" class="mx-5 mt-1" label="Due Date">
+
             </v-text-field>
+
+            <pre class="ml-5 text-muted mt-2 mb-2">Points you'll gain: <span style="color: rgb(215,0,0);">{{newRPoints}}</span>, <span style="color: rgb(151,255,45);">{{newGPoints}}</span>, <span style="color: rgb(101,135,231);">{{newBPoints}}</span></pre>
+
+            <!-- End of copied from above -->
+
             <h3 class="ml-5 mt-3">Provide an update title for this change:</h3>
             <v-text-field maxlength="100" counter persistent-counter v-model="editProjectUpdateTitle" :rules="[rules.required]" variant="outlined" class="mx-5 mt-3" label="Update Title">
 
@@ -171,6 +238,32 @@
     }
     .italic-search .v-label {
         font-style: italic;
+    }
+
+    .toggle-group {
+    border-radius: 10px !important;
+    height: 100%;
+    border: 3px solid;
+    width: calc(98% - 4px);
+    }
+    .toggle-btn {
+        width: calc(20% - 8px);
+        border-radius: 5px !important;
+        height: 35px !important;
+    }
+    .toggle-btn-mk2 {
+        width: calc(33% - 8px);
+        border-radius: 5px !important;
+        height: 35px !important;
+    }
+    .trns-btn {
+        min-width: 0;
+        min-height: 0;
+        padding: 0;
+        margin: 0;
+        background-color: transparent;
+        border: solid 3px;
+        border-radius: 8px;
     }
 </style>
 <script src="./js/Projects.js">
