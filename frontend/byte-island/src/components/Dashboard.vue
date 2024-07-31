@@ -74,7 +74,7 @@
           </div>
 
           <div v-if="isInInventory()">
-            <v-icon icon="mdi-cube-outline" class="menu-icon ml-auto ma-5 mt-n3 mr-8" @click.stop="drawer = !drawer"></v-icon>
+            <v-icon icon="mdi-cube-outline" class="menu-icon ml-auto ma-5 mt-n3 mr-8" @click.stop="drawer = !drawer" :getShop="getBlockData()"></v-icon>
           </div>
 
           <div>

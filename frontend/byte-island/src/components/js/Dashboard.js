@@ -25,6 +25,7 @@ export default {
         friendGPoints: -1,
         friendBPoints: -1,
         friendIsland: null,
+        friendIslandArr: null,
         requestCount: 0,
         notificationCount: 0,
         readCount: 0,
@@ -200,11 +201,11 @@ export default {
 
           for(var x=this.indeces.length-1;x>=0;x--) {
             const spot = this.indeces[x];
-            if(this.mapHexToNum(myIslandData[spot])!=0 && this.mapHexToNum(myIslandData[spot+squareSize])===0 && (this.mapHexToNum(myIslandData[spot+squareSize+sideLength+1])===0 || spot%sideLength===sideLength-1) && this.getSelectedBlock) {
+            if(this.mapHexToNum(myIslandData[spot])!=0 && this.mapHexToNum(myIslandData[spot+squareSize])===0 && /*(this.mapHexToNum(myIslandData[spot+squareSize+sideLength+1])===0 || spot%sideLength===sideLength-1) &&*/ this.getSelectedBlock) {
 
               const canDelete = (this.getSelectedBlock==='DEL' && this.mapHexToNum(myIslandData[spot])!=1);
-              const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit);
-
+              const canPlace = (this.getSelectedBlock!='DEL' && spot<squareSize * this.heightLimit && this.pseudoDatabase[this.mapHexToNum(this.getSelectedBlock)].Inventory>0);
+              
               if(!(canDelete || canPlace)) break;
               
               let thisBlock = document.createElement('img');
@@ -265,6 +266,7 @@ export default {
               document.getElementById('block-'+(spot)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
               document.getElementById('hoverBlock').remove();
+              this.pseudoDatabase[this.mapHexToNum(blockWeDel)].Inventory++;
               this.updateBackWithBlock(this.validIslandData,this.mapHexToNum(blockWeDel),true);
             } else {
               const hex2Num = this.mapHexToNum(this.getSelectedBlock);
@@ -276,17 +278,19 @@ export default {
               const squareSize = this.sideLength**2;
               this.islandData[spot+squareSize] = exactBlock;
               this.validIslandData = this.validIslandData.substring(0,(spot+squareSize)*2)+exactBlock+this.validIslandData.substring((spot+squareSize+1)*2);
-              this.updateIsland({index: spot+squareSize, newData: this.getSelectedBlock});
+              this.updateIsland({index: spot+squareSize, newData: exactBlock});
               document.getElementById('block-'+(spot+squareSize)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
+              try {
+                this.pseudoDatabase[hex2Num].Inventory--;
+              } catch(e) {
+                console.log("ERROR!");
+              }
               this.updateBackWithBlock(this.validIslandData,hex2Num,false);
             }
           }
         },
         async updateBackWithBlock(islandData,blockId,add) {
-          //console.log(islandData);
-          //console.log(blockId);
-          //console.log(add);
           fetch("http://"+Data.host+":5000/island", {
             method: 'PUT',
             headers: {
@@ -314,15 +318,24 @@ export default {
             return response.json(); 
         })
         .then(data => {
-            console.log(data);
-            let inc;
-            if(add) inc=1;
-            else inc=-1;
-            this.pseudoDatabase[blockId].Inventory+=inc;
+          //console.log(data);
+            // let inc;
+            // if(add) inc=1;
+            // else inc=-1;
+            // //this.pseudoDatabase[blockId].Inventory+=inc;
         })
         .catch(error => {
             console.error('Error with Block Place API:', error);
         });
+        },
+        parseFIsland(fIsland) {
+          this.friendIslandArr = [];
+          let tempFIsland = this.friendIsland;
+            for(let i=0;i<384;i++) {
+                this.friendIslandArr.push(tempFIsland.slice(0,2));
+                tempFIsland=tempFIsland.substring(2);
+            }
+          this.genIsland();
         },
         attemptGenIsland() {
           // this.validIslandData="";
@@ -370,8 +383,16 @@ export default {
           const sideLength = this.sideLength; //The island is sidelength x sidelength tiles big (8 by default)
           const xStart = this.xStart; //Starting X offset for 1st block. Different for different platforms.
           const yStart = this.yStart; //Starting Y offset for 1st block. Different for different platforms.
-          const myIslandData = this.getIslandData; //get current island data to render. Always empty, as it is now.
-          this.islandData = myIslandData; //Set island data to be empty. We're genning it again, after all!
+          //let myIslandData = this.getIslandData; //get current island data to render. Always empty, as it is now.
+          let myIslandData;
+          if(this.friendRPoints<0) {
+            myIslandData = this.getIslandData; //get current island data to render. Always empty, as it is now.
+            this.islandData = myIslandData; //Set island data to be empty. We're genning it again, after all!
+          } else {
+            myIslandData = this.friendIslandArr;
+            this.islandData = myIslandData;
+          }
+          
 
           for(var index in myIslandData) {
               index = Number(index);
@@ -670,6 +691,12 @@ export default {
           this.friendBPoints = friend.points[2];
           this.visitedUsername = friend.username;
           this.friendIsland = friend.island;
+          this.parseFIsland(this.friendIsland);
+        },
+        checkIfShouldReturn() {
+          if(this.friendRPoints>=0) {
+            this.returnIsland();
+          }
         },
         // return to users island
         returnIsland() {
@@ -685,6 +712,7 @@ export default {
           }
           this.friendRPoints = -1;
           this.getUserDetails();
+          this.genIsland();
         },
         getRPoints() { return this.getPoints[0] },
         getGPoints() { return this.getPoints[1] },
@@ -713,6 +741,7 @@ export default {
           })
           .then(data => {
               this.pseudoDatabase = data;
+              //console.log(this.pseudoDatabase);
           })
           .catch(error => {
               console.error('Error with Shop API:', error);

@@ -25,6 +25,8 @@
         @input="getSearchItems(searchCategory,searchString)"
     ></v-text-field>
 
+    <div @placedBlock="newInv"></div>
+
     <div style="display: flex; flex-wrap: wrap; gap: 3px; justify-content: left;">
         <v-list-item style="padding: 0;">
             <div class="inv-item">
@@ -38,7 +40,7 @@
                 <v-btn style="width: 84px; height: 84px; margin: auto; margin-top: 2px; border-radius: 8px; color: black; border: solid 3px;" :style="{'border-color': getColor(item.Category), 'background-color': getBg(item.Id)}" :id="mapNumToHex(item.Id)+'-option'" @click="selectBlock(mapNumToHex(item.Id)+'-option')">
                     <img style="width: 64px; height: 64px; margin: auto;" :src="'/'+mapNumToHex(item.Id)+'.png'"/>
                 </v-btn>
-                <p style="width: 48px; text-align: center; margin: auto;" :style="{color: getColor(item.Category)}">x{{ item.Inventory }}</p>
+                <p style="width: 48px; text-align: center; margin: auto;" :style="{color: getColor(item.Category)}">x{{ getInven(item.Id) }}</p>
                 <v-btn class="trns-btn" style="width: 32px; height: 32px; margin: auto; border-color: red; color: red; font-size: larger;">$</v-btn>
             </div>
         </v-list-item>

@@ -22,6 +22,7 @@ export default {
     async mounted() {
         this.setSelectedBlock(null);
         await this.fillDatabase();
+        document.addEventListener("click",this.maybeGetInv);
     },
     methods: {
         ...mapMutations(['setSelectedBlock','setPoints','resetStore']),
@@ -34,6 +35,12 @@ export default {
         }catch(err) {
           this.getInv();
           return this.pseudoDatabase.slice(2,4);
+        }
+      },
+      maybeGetInv() {
+        if(this.getSelectedBlock) {
+          //if(this.getSelectedBlock!='DEL') this.pseudoDatabase[this.mapHexToNum(this.getSelectedBlock)].Inventory--;
+          this.getInv();
         }
       },
       getSearchItems(searchCat,searchStr) {
@@ -125,6 +132,16 @@ export default {
             this.setSelectedBlock('DEL');
         }
       },
+      newInv(data) {
+        this.pseudoDatabase[Number(data.Id)].Inventory = data.Inventory;
+      },
+      getInven(id) {
+        try {
+          return this.pseudoDatabase[Number(id)].Inventory;
+        } catch(e) {
+          return 'NA';
+        }
+      },
       delBg() {
         if(this.myBlock === 'DEL') {
             return "grey"; 
@@ -156,6 +173,8 @@ export default {
         })
         .then(data => {
             this.pseudoDatabase = data;
+            //console.log("INV");
+            //console.log(this.pseudoDatabase);
         })
         .catch(error => {
             console.error('Error with Inventory API:', error);

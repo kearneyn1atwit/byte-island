@@ -141,7 +141,7 @@ export default {
               this.setUser(data.username);
               this.setAccountStatus(data.private);
               this.setPoints([data.career,data.personal,data.social]);
-              console.log(data.island);
+              //console.log(data.island);
               let islandString = data.island;
               islandString="04".repeat(64) + islandString.substring(128);
               this.setIsland(islandString);

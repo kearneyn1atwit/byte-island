@@ -164,7 +164,6 @@ export default {
             this.newDueDate = d.toISOString();
         },
         aiFeedback(desc,edited) {
-            console.log(desc);
             if(desc.length>10) {
                 this.aiFeedbackText = 'This description is adequate!';
                 this.getDueDate(edited);
