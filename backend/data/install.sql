@@ -201,7 +201,7 @@ INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) V
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (37,'Oak Tree',1,4,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (38,'Deciduous Forest',1,12,2);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (39,'Small Deciduous Forest',1,6,1);
-INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (40,'Pine Tree',1,4,0);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (40,'Pine Tree',0,4,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (41,'Conifer Forest',1,12,2);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (42,'Small Conifer Forest',1,6,1);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (43,'Birch Tree',1,6,0);
@@ -212,7 +212,7 @@ INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) V
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (48,'Oasis',1,9,1);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (49,'Garden Flowers',1,6,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (50,'Rare Flowers',1,8,0);
-INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (51,'Wildflowers',1,6,0);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (51,'Wildflowers',0,6,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (52,'Brush',1,6,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (53,'Tall Grass',1,3,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (54,'Hydrangea',1,12,0);
@@ -233,7 +233,7 @@ INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) V
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (69,'Ranger Station',0,8,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (70,'Log Cabin',2,12,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (71,'Log Cabin mk2',2,18,0);
-INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (72,'Hostel',2,24,1);
+INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (72,'Campfire',2,4,1);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (73,'Campsite',2,8,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (74,'Campsite mk2',2,12,0);
 INSERT INTO Resources (ResourceId, ResourceName, Category, PointsValue, Shape) VALUES (75,'Townhouse (Brick)',2,16,0);
