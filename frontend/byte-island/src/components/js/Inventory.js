@@ -92,17 +92,19 @@ export default {
         else if(cat===2) return "BLU"; 
         else return "WHT";
       },
-      //Map Number to Hex ID
+      //Map Decimal ID Number to Hex bas 32 string, for image mapping purposes.
       mapNumToHex(id) {
         if(id === 'DEL' || id===null) return id;
         let hexID = (Number(id)*4).toString(32);
         if(hexID.length===1) hexID = '0'+hexID;
         return hexID;
     },
+    //Reverse the mapping of ID to base 32 string
     mapHexToNum(hex) {
         if(hex===null || hex==='DEL') return hex;
         return Math.floor(parseInt(hex,32)/4);
     },
+    //Select a block to place when you click on it.
       selectBlock(fetchId) {
         let blockBtn = document.getElementById(fetchId);
         const id = this.mapHexToNum(fetchId.slice(0,fetchId.indexOf('-o')));
@@ -120,6 +122,7 @@ export default {
       currentBlock() {
         return this.myBlock;
       },
+      //Get background color category of block for display purposes in inventory.
       getBg(id) {
         if(this.myBlock === this.mapNumToHex(id)) {
             return this.getColor(this.pseudoDatabase[Number(id)].Category);
@@ -127,6 +130,7 @@ export default {
             return "white";
         }
       },
+      //User has selected the delete a block option, update selected block accordingly.
       selectDel() {
         let blockBtn = document.getElementById('DEL');
         if(this.myBlock === 'DEL') {
@@ -139,9 +143,11 @@ export default {
             this.setSelectedBlock('DEL');
         }
       },
+      //Update inventory amount
       newInv(data) {
         this.pseudoDatabase[Number(data.Id)].Inventory = data.Inventory;
       },
+      //Get inventory amount
       getInven(id) {
         try {
           return this.pseudoDatabase[Number(id)].Inventory;
@@ -149,6 +155,7 @@ export default {
           return 'NA';
         }
       },
+      //Get background of Dig Up Blocks icon
       delBg() {
         if(this.myBlock === 'DEL') {
             return "grey"; 
@@ -156,6 +163,7 @@ export default {
             return "white";
         }
       },
+      //API call to get inventory data.
       getInv() {
         fetch("http://"+Data.host+":5000/shop/"+this.getUsername+"/all", {
             method: 'GET',
