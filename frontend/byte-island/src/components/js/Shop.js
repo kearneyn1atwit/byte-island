@@ -34,7 +34,7 @@ export default {
             this.getShop();
         },
         fetchDBItems() {
-            return this.pseudoDatabase.slice(2,4);
+            return this.pseudoDatabase.slice(2,5).concat(this.pseudoDatabase.slice(6,8).concat(this.pseudoDatabase.slice(24,25).concat(this.pseudoDatabase.slice(40,41).concat(this.pseudoDatabase.slice(51,52).concat(this.pseudoDatabase.slice(72,74))))));
         },
         mapNumToHex(id) {
             if(id === 'DEL' || id===null) return id;

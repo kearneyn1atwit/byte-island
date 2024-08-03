@@ -41,7 +41,7 @@
                     <img style="width: 64px; height: 64px; margin: auto;" :src="'/'+mapNumToHex(item.Id)+'.png'"/>
                 </v-btn>
                 <p style="width: 48px; text-align: center; margin: auto;" :style="{color: getColor(item.Category)}">x{{ getInven(item.Id) }}</p>
-                <v-btn class="trns-btn" style="width: 32px; height: 32px; margin: auto; border-color: red; color: red; font-size: larger;">$</v-btn>
+                <!-- <v-btn class="trns-btn" style="width: 32px; height: 32px; margin: auto; border-color: red; color: red; font-size: larger;">$</v-btn> -->
             </div>
         </v-list-item>
     </div>

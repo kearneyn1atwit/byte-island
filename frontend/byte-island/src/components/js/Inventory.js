@@ -31,18 +31,21 @@ export default {
       },
       fetchDBItems() {
         try {
-          return this.pseudoDatabase.slice(2,4);
+          //Return what blocks are implemented from the DB
+          return this.pseudoDatabase.slice(2,5).concat(this.pseudoDatabase.slice(6,8).concat(this.pseudoDatabase.slice(24,25).concat(this.pseudoDatabase.slice(40,41).concat(this.pseudoDatabase.slice(51,52).concat(this.pseudoDatabase.slice(72,74))))));
         }catch(err) {
           this.getInv();
-          return this.pseudoDatabase.slice(2,4);
+          return this.pseudoDatabase.slice(2,5).concat(this.pseudoDatabase.slice(6,8).concat(this.pseudoDatabase.slice(24,25).concat(this.pseudoDatabase.slice(40,41).concat(this.pseudoDatabase.slice(51,52).concat(this.pseudoDatabase.slice(72,74))))));
         }
       },
+      //Try to fetch inventory counts for inventory display.
       maybeGetInv() {
         if(this.getSelectedBlock) {
           //if(this.getSelectedBlock!='DEL') this.pseudoDatabase[this.mapHexToNum(this.getSelectedBlock)].Inventory--;
           this.getInv();
         }
       },
+      //Get items matching search category and string.
       getSearchItems(searchCat,searchStr) {
         this.itemList = [];
         let fetchedItems=this.fetchDBItems();
@@ -53,6 +56,7 @@ export default {
             if(element.Name.toLowerCase().indexOf(searchStr.toLowerCase())!=-1 && myFunc(element.Category)) this.itemList.push(element);
         });
       },
+      //Update appearance of category bar.
       updateCategory() {
           let searchBar = document.getElementById("pointColorSearchGroup");
           if(this.searchTab === 0) {
@@ -74,18 +78,21 @@ export default {
           this.searchString = '';
           this.itemList = [];
       },
+      //Get hex code of color categories
       getColor(cat) {
         if(cat===0) return "#FF9095";
         else if(cat===1) return "#A3FFC9";
         else if(cat===2) return "#7DAEFF"; 
         else return "#DDDDDD";
       },
+      //Map category number to string
       mapCategory(cat) {
         if(cat===0) return "RED";
         else if(cat===1) return "GRN";
         else if(cat===2) return "BLU"; 
         else return "WHT";
       },
+      //Map Number to Hex ID
       mapNumToHex(id) {
         if(id === 'DEL' || id===null) return id;
         let hexID = (Number(id)*4).toString(32);
@@ -174,7 +181,6 @@ export default {
         .then(data => {
             this.pseudoDatabase = data;
             //console.log("INV");
-            //console.log(this.pseudoDatabase);
         })
         .catch(error => {
             console.error('Error with Inventory API:', error);

@@ -55,7 +55,6 @@ export default {
         sideLength: 8,
         xStart: 450,
         yStart: 340,
-        //delHereDisplay: 0,
         spotDisplay: 0,
         islandData: null,
         showBackToIsland: false,
@@ -118,6 +117,7 @@ export default {
           }
         },
         //Used Claude AI to generate code to figure out if something is inside a parrallelogram, used to determine if mouse is within range to place a block.
+        //Claude. (2023). Claude (Oct 8 version) [Chatbot].
         isPointInParallelogram(x1, y1, x2, y2, x3, y3, x4, y4, px, py) {
           function sign(pX, pY, x1, y1, x2, y2) {
               return (pX - x2) * (y1 - y2) - (x1 - x2) * (pY - y2);
@@ -136,31 +136,31 @@ export default {
           const slope = (y1-y2)/(x1-x2);
           const altY = Math.abs(pY - (slope*(pX-x1)+y1));
           const altX = Math.abs(pX - (x1+((pY-y1)/slope)));
-          //53.778 is the diagonal distance in pixels across a block, at scale 1.5 which is what the program will be using for the demo, because I'm strapped for time.
-          //35.852 at scale 1.
-          //Actually 53.665631 & 35.77709?? Yeah, looks like it. sqrt(32^2 + 16^2) = 35.777...
+          //Use diagonal length and distance from supplied lines to determine how far along the diagonal plane the cursor is from the edge of the placing area.
           const space = this.space*this.scale;
           return Math.floor((Math.sqrt(altY**2+altX**2)/2)/(Math.sqrt(space**2 + (space/2)**2)));
         },
+        //Determine is cursor is on left or right side of placeable tile
         leftOrRight(pX,onesPlace,eightsPlace) {
           const shift = eightsPlace-onesPlace;
-          //return pX < shift*48.5 + 482;
           return pX < shift*48 + 482;
         },
+        //Determine if user is in inventory widget.
         isInInventory() {
           return this.getSelectedBlock!=null;
         },
+        //Determines if a cursor is at a placeable location
         canIPlaceHere(x,y) {
           if(this.$refs.editorRef && this.$refs.editorRef.editorView === 'inventory') {
             const scale = this.scale;
             const space = this.space*scale;
             const diagLength = Math.sqrt(space**2 + (space/2)**2);
             let baseCoords = [482,324,100,518,482,714,866,518]; //these are the coordinates forming the hitbox for layer 1 of the island at scale 1.5, space 32
-            if(this.isMobile()) {
-             baseCoords = [198,352,4,444,198,540,390,444];
+            if(this.isMobile()) { 
+             baseCoords = [198,352,4,444,198,540,390,444]; //mobile uses different scale & space so coords are different
             }
-            //const baseCoords = [xStart+space,yStart-(space/2),xStart,xStart-(space*(this.sideLength-1))];
             const indeces = [];
+            //loop determines all the isometric coordinates at your given mouse points location at which you could possible place a block.
             for(var plane=0;plane<(this.heightLimit+1);plane++) {
               const offset = plane*space; //48 for scale 1.5 and space 32.
               if(this.isPointInParallelogram(baseCoords[0],-baseCoords[1]+offset,baseCoords[2],-baseCoords[3]+offset,baseCoords[4],-baseCoords[5]+offset,baseCoords[6],-baseCoords[7]+offset,x,-y)) {
@@ -169,6 +169,7 @@ export default {
                 indeces.push((onesPlace+eightsPlace*8)+plane*64);
               }
             }
+            //Return all places on the island you could possibly place a block given cursor location
             const eightsPlace = this.getAltCoords(baseCoords[0],baseCoords[1],baseCoords[2],baseCoords[3],x,y);
             const onesPlace = this.getAltCoords(baseCoords[0],baseCoords[1],baseCoords[6],baseCoords[7],x,y);
             return [indeces,this.leftOrRight(x,onesPlace,eightsPlace)];
@@ -181,6 +182,7 @@ export default {
           this.mouseY = event.pageY;
           this.updateWithMouse(this.mouseX,this.mouseY);
         },
+        //Every time the mouse moves, check to see if you must update the block placer indicator
         updateWithMouse(pageX,pageY) {
           this.mouseX = pageX;
           this.mouseY = pageY;
@@ -199,8 +201,10 @@ export default {
           const xStart = this.xStart;
           const yStart = this.yStart;
 
+          //Go through all possible coordinates your mouse cursor could be placing at, and determine the first one it can actually place at.
           for(var x=this.indeces.length-1;x>=0;x--) {
             const spot = this.indeces[x];
+            //To place (or delete) a block, you must be hovering over another block, and there must be nothing above you. You must also have a block selected.
             if(this.mapHexToNum(myIslandData[spot])!=0 && this.mapHexToNum(myIslandData[spot+squareSize])===0 && /*(this.mapHexToNum(myIslandData[spot+squareSize+sideLength+1])===0 || spot%sideLength===sideLength-1) &&*/ this.getSelectedBlock) {
 
               const canDelete = (this.getSelectedBlock==='DEL' && this.mapHexToNum(myIslandData[spot])!=1);
@@ -213,8 +217,7 @@ export default {
               style.position = 'absolute';
               const control = spot%(squareSize);
 
-              //Only difference between placing and deleting is that the place outline block is placed 1 layer higher than the delete
-              //outline block, and the image is blue for placing but red for deleting.
+              //Only difference between placing and deleting is that the place outline block is placed 1 layer higher than the delete block
               let offset;
               if(canDelete) {
                 offset = -1*space*(Math.floor(spot/(squareSize)))+(Math.floor(spot/(squareSize)))+1;
@@ -226,6 +229,7 @@ export default {
                 style.opacity = 0.66;
                 style.zIndex = (spot+this.sideLength**2)*2;
               }
+              //Create place/delete indicator
               this.spotDisplay=spot;
               const left = xStart + (space*((control%sideLength*-1)+Math.floor(control/sideLength)));
               const top = yStart + offset + ((space/2)*((control%sideLength)+Math.floor(control/sideLength)));
@@ -242,6 +246,8 @@ export default {
             }
           }
         },
+        //When you click down with your mouse, check to see if a place/delete indicator is anywhere on the screen, and replace it with
+        //the relevant block, or lack of a block in case of delete.
         alterIsland(event) {
           if(document.getElementById('hoverBlock')) {
             let thisBlock = document.createElement('img');
@@ -266,6 +272,7 @@ export default {
               document.getElementById('block-'+(spot)).remove();
               document.getElementById("islandHolder").appendChild(thisBlock);
               document.getElementById('hoverBlock').remove();
+              //Update inventory on backend every time you place a block!
               this.pseudoDatabase[this.mapHexToNum(blockWeDel)].Inventory++;
               this.updateBackWithBlock(this.validIslandData,this.mapHexToNum(blockWeDel),true);
             } else {
@@ -318,11 +325,7 @@ export default {
             return response.json(); 
         })
         .then(data => {
-          //console.log(data);
-            // let inc;
-            // if(add) inc=1;
-            // else inc=-1;
-            // //this.pseudoDatabase[blockId].Inventory+=inc;
+
         })
         .catch(error => {
             console.error('Error with Block Place API:', error);
@@ -337,15 +340,9 @@ export default {
             }
           this.genIsland();
         },
+        //Attempt to gen island when page first loads.
         attemptGenIsland() {
-          // this.validIslandData="";
-          // let ourIslandDataString = this.getIslandStringData;
-          // ourIslandDataString = "04".repeat(64)+ourIslandDataString.substring(128);
-          // this.setIsland(ourIslandDataString);
-          // const ourIslandData = this.getIslandData;
-          // for(var i=0;i<ourIslandData.length;i++) {
-          //   this.validIslandData+=ourIslandData[i];
-          // }
+
           if(document.getElementById("islandHolder")) {
             this.genIsland();
             this.islandDivLoaded=true;
@@ -357,7 +354,6 @@ export default {
           }
         },
         genIsland() {
-          //let blockArray = document.getElementsByClassName("placeableBlock");
 
           //Deletes every block in the island.
           let islandDiv = document.getElementById("islandHolder");
@@ -365,8 +361,6 @@ export default {
             let delBlock = document.getElementById('block-'+x.toString());
             if(delBlock) delBlock.remove();
           }
-          //Updates state to also clear the island, not just locally.
-          //this.clearIsland();
 
           if(this.isMobile()) {
             this.xStart = 165;
@@ -392,8 +386,7 @@ export default {
             myIslandData = this.friendIslandArr;
             this.islandData = myIslandData;
           }
-          
-
+          //Loop through every block stored in island data array, and create and style an image in accordance with data.
           for(var index in myIslandData) {
               index = Number(index);
               let block = myIslandData[index];
@@ -421,32 +414,48 @@ export default {
           this.islandDivLoaded=true;
 
         },
-        //https://stackoverflow.com/questions/15170942/how-to-rotate-a-matrix-in-an-array-in-javascript
-        rotateIslandClockwise() {
-          let newIslandData = this.myIslandData;
-          for(let x=0;x<this.heightLimit+1;x++) {
-            let islandSlice = newIslandData.slice(x*this.sideLength**2,(x+1)*this.sideLength**2);
-            //https://stackoverflow.com/questions/22464605/convert-a-1d-array-to-2d-array
-            let islandSlice2D = [];
-            while(islandSlice.length) islandSlice2D.push(island.splice(0,sideLength));
-            islandSlice2D[0].map((val, index) => islandSlice2D.map(row => row[index]).reverse());
-          }
-
-        },
-        //https://stackoverflow.com/questions/15170942/how-to-rotate-a-matrix-in-an-array-in-javascript
-        rotateIslandCounterClockwise() {
-
-        },
+        /*
+          Title: Rotating a 2d Array
+          Author: Nitin Jadhav
+          Date: 6 Dec 2022
+          Source: https://stackoverflow.com/questions/15170942/how-to-rotate-a-matrix-in-an-array-in-javascript
+        */
+        //
+        // rotateIsland() {
+        //   let newIslandData = this.getIslandData;
+        //   let finIsl = [];
+        //   for(let x=0;x<this.heightLimit+1;x++) {
+        //     let islandSlice = newIslandData.slice(x*this.sideLength**2,(x+1)*this.sideLength**2);
+        //     let islandSlice2D = [];
+        //     while(islandSlice.length) islandSlice2D.push(islandSlice.splice(0,this.sideLength));
+        //     islandSlice2D[0].map((val, index) => islandSlice2D.map(row => row[index]).reverse());
+        //     finIsl.push(islandSlice2D);
+        //   }
+        //   let rotIsl = "";
+        //   for(let x=0;x<finIsl.length;x++) {
+        //     for(let y=0;y<finIsl[x].length;y++) {
+        //       for(let z=0;z<finIsl[x][y].length;z++) {
+        //         rotIsl+=finIsl[x][y][z];
+        //       }
+        //     }
+        //   }
+        //   rotIsl+=("00".repeat(64))
+        //   this.setIsland(rotIsl);
+        //   this.genIsland();
+        // },
+        //Convert decimal ID number of block into a base32 string, for purposes of mapping it to an image name.
         mapNumToHex(id) {
           if(id === 'DEL' || id===null) return id;
           let hexID = (Number(id)*4).toString(32);
           if(hexID.length===1) hexID = '0'+hexID;
           return hexID;
         },
+        //Map base32 string to decimal id, for purposes of fetching block info from Shop data DB.
         mapHexToNum(hex) {
             if(hex===null || hex==='DEL') return hex;
             return Math.floor(parseInt(hex,32)/4);
         },
+        //Get what direction a block is rotated in
         getRotation(hex) {
           if(hex===null || hex==='DEL') return hex;
           return (parseInt(hex,32)%4)*0.25;
@@ -714,9 +723,11 @@ export default {
           this.getUserDetails();
           this.genIsland();
         },
+        //get individual points from each category
         getRPoints() { return this.getPoints[0] },
         getGPoints() { return this.getPoints[1] },
         getBPoints() { return this.getPoints[2] },
+        //Get data on all different blocks
         getBlockData() {
           fetch("http://"+Data.host+":5000/shop/"+this.getUsername+"/all", {
               method: 'GET',
@@ -761,109 +772,3 @@ export default {
       Settings
     },
   };
-
-//Below is the Shadow Realm, land of dead code.
-
-  //Was in genIslands()
-  /*
-  if(id!=1 && index+64<320 && myIslandData[index+64]==="00000001") {
-    let hoverBlock = document.createElement('img');
-    let hoverStyle = hoverBlock.style;
-    hoverStyle.position = 'absolute';
-    hoverStyle.left = left.toString()+"px";
-    hoverStyle.top = (top-(scale*space)).toString()+"px";
-    //hoverStyle.top = top.toString()+"px";
-    hoverStyle.transform = `scale(${scale})`;
-    hoverStyle.opacity = 0;
-    hoverStyle.transition = 'opacity 0.1s ease';
-    hoverBlock.setAttribute('src',"/blockplace.png");
-    hoverBlock.setAttribute('alt','hover-'+counter.toString()); 
-    hoverBlock.setAttribute('id','hover-'+counter.toString()); 
-    hoverBlock.addEventListener("clear", (event) => {
-      hoverStyle.opacity = 0;
-    });
-    elementArray[counter+64]=hoverBlock;
-  }
-  */
-
-  //Was for placing blocks on the side of blocks. Buggy mess.
-  /*
-            if(this.getSelectedBlock && (
-              (this.isLeft && myIslandData[spot+ squareSize + 1]!='00000001') || (!this.isLeft && myIslandData[spot+ squareSize + sideLength]!='00000001')//&& Math.floor(spot%64/sideLength)!=sideLength-1) //&& spot%sideLength!=sideLength-1) 
-              || (this.isLeft && myIslandData[spot+ squareSize]!='00000001') || (!this.isLeft && myIslandData[spot+ squareSize]!='00000001')
-              )) {
-                this.spotDisplay = spot;
-                /*
-                let whichSide;
-                if(((this.isLeft && myIslandData[spot+squareSize + 1]!='00000001') || (!this.isLeft && myIslandData[spot+squareSize]!='00000001'))) whichSide = true; //right
-                else whichSide = false; //left
-
-                let upDown;
-                if((whichSide===sideLength && this.isLeft) || (whichSide===1 && !this.isLeft)) upDown = true; //up
-                else upDown = false; //down
-                */
-
-                //const canDelete = this.getSelectedBlock==='DEL';
-                //const canPlace = (!canDelete && (whichSide && upDown && myIslandData[]))
-
-                // && myIslandData[spot+ squareSize + sideLength + 1]==='00000001'
-                // && myIslandData[spot+ squareSize + sideLength]==='00000001'
-                // && myIslandData[spot+ squareSize + 1]==='00000001'
-                // && myIslandData[spot+ squareSize + sideLength + 1]==='00000001'
-            /*
-                if(this.getSelectedBlock==='DEL') {
-                  let delHere;
-                  if(this.isLeft && myIslandData[spot+squareSize+1]!='00000001') delHere = spot+squareSize+1;
-                  else if(!this.isLeft && myIslandData[spot+squareSize+sideLength]!='00000001') delHere = spot+squareSize+sideLength;
-                  else delHere = spot+squareSize;
-
-                  this.delHereDisplay = delHere;
-                  
-                  if(myIslandData[delHere+squareSize]!='00000001' || myIslandData[delHere]-squareSize==='00000001') break;
-
-                  let thisBlock = document.createElement('img');
-                  let style = thisBlock.style;
-                  style.position = 'absolute';
-                  const control = delHere%(squareSize);
-
-                  const offset = -1*space*(Math.floor(delHere/(squareSize)))+(Math.floor(delHere/(squareSize)))+1;
-                  const left = xStart + (space*((control%sideLength*-1)+Math.floor(control/sideLength)));
-                  const top = yStart + offset + ((space/2)*((control%sideLength)+Math.floor(control/sideLength)));
-                  style.left = left.toString()+"px";
-                  style.top = top.toString()+"px";
-                  style.transform = `scale(${scale})`;
-                  style.zIndex = delHere*2;
-                  thisBlock.setAttribute('spot',delHere.toString());
-                  thisBlock.setAttribute('alt','hover-'+delHere.toString());
-                  thisBlock.setAttribute('class','hoverBlock');
-                  thisBlock.setAttribute('id','hoverBlock');
-                  thisBlock.setAttribute('src','/blockdelete.png');
-                  document.getElementById("islandHolder").appendChild(thisBlock);
-                  break;
-
-                }
-
-                // let placeHere;
-                // if(!this.isLeft && myIslandData[spot+ squareSize]!='00000001') placeHere = spot+squareSize+sideLength; //spot+squareSize+sideLength;
-                // else if(this.isLeft && myIslandData[spot+ squareSize]!='00000001') placeHere = spot+squareSize+1;
-                // else placeHere = spot+squareSize+sideLength+1;
-
-                // if(myIslandData[placeHere]!='00000001') break;
-
-            }*/
-
-
-        //https://codepen.io/avnishjayaswal/pen/YzNdORZ
-        // sort_by_id() {
-        //   return function (elem1, elem2) {
-        //     let id1 = Number(elem1.id.slice(6));
-        //     let id2 = Number(elem2.id.slice(6));
-        //     if (elem1.id < elem2.id) {
-        //       return -1;
-        //     } else if (elem1.id > elem2.id) {
-        //       return 1;
-        //     } else {
-        //       return 0;
-        //     }
-        //   };
-        // },

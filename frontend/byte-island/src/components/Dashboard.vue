@@ -144,7 +144,7 @@
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{getRPoints()}}</li>
                 <li class="font-weight-bold" style="color: rgb(151,255,45);"><v-icon icon="mdi-pine-tree" class="mr-2"></v-icon>{{getGPoints()}}</li>
                 <li class="font-weight-bold" style="color: rgb(101,135,231);"><v-icon icon="mdi-cloud" class="mr-2"></v-icon>{{getBPoints()}}</li>
-                <li><v-btn @click="genIsland()" class="mt-5">Click to Refresh Island</v-btn></li>
+                <!-- <li><v-btn @click="rotateIsland()" class="mt-5">Rotate Island</v-btn></li> -->
             </ul>
             <ul class="ml-7 w-100 mt-n5" style="list-style-type: none;" v-else>
                 <li class="font-weight-bold" style="color: rgb(215,0,0);"><v-icon icon="mdi-emoticon" class="mr-2"></v-icon>{{friendRPoints}}</li>
